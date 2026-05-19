@@ -1,0 +1,160 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  currentSlug: string;
+  currentTags: string[];
+  allPosts: CollectionEntry<'posts'>[];
+}
+
+const { currentSlug, currentTags, allPosts } = Astro.props;
+
+// Filter out current post, calculate tag overlap, sort descending, take top 3
+const relatedPosts = allPosts
+  .filter(post => post.slug !== currentSlug)
+  .map(post => {
+    const overlap = post.data.tags.filter(tag => currentTags.includes(tag)).length;
+    return { post, overlap };
+  })
+  .filter(({ overlap }) => overlap > 0)
+  .sort((a, b) => b.overlap - a.overlap)
+  .slice(0, 3)
+  .map(({ post }) => post);
+---
+
+{relatedPosts.length > 0 && (
+  <section class="related-posts" aria-label="Cerita terkait">
+    <h2 class="related-posts__title">Cerita Terkait</h2>
+    <div class="related-posts__grid">
+      {relatedPosts.map(post => (
+        <a href={`/cerita/${post.slug}`} class="related-card">
+          <span class="related-card__tags">{post.data.tags.join(' · ')}</span>
+          <h3 class="related-card__title">{post.data.title}</h3>
+          <p class="related-card__desc">{post.data.description}</p>
+          <time class="related-card__date" datetime={post.data.publishedAt.toISOString()}>
+            {post.data.publishedAt.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
+          </time>
+        </a>
+      ))}
+    </div>
+  </section>
+)}
+
+<style>
+  .related-posts {
+    max-width: var(--container-narrow);
+    margin-top: 56px;
+    padding-top: 36px;
+    border-top: 1px solid var(--rule);
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity var(--duration-slow) var(--ease-out),
+                transform var(--duration-slow) var(--ease-out);
+  }
+
+  .related-posts.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .related-posts__title {
+    font-family: var(--font-display);
+    font-size: 22px;
+    margin: 0 0 20px;
+  }
+
+  .related-posts__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  @media (min-width: 640px) {
+    .related-posts__grid {
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+    }
+  }
+
+  .related-card {
+    display: flex;
+    flex-direction: column;
+    padding: 18px 20px;
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-radius: var(--r-3);
+    text-decoration: none;
+    color: inherit;
+    transition: border-color var(--duration-fast),
+                box-shadow var(--duration-fast),
+                transform var(--duration-fast);
+  }
+
+  .related-card:hover {
+    border-color: var(--accent);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+    color: inherit;
+  }
+
+  .related-card__tags {
+    font-size: 12px;
+    color: var(--ink-3);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 6px;
+  }
+
+  .related-card__title {
+    font-family: var(--font-display);
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 1.3;
+    margin: 0 0 6px;
+  }
+
+  .related-card__desc {
+    font-size: 14px;
+    color: var(--ink-2);
+    line-height: 1.5;
+    margin: 0 0 10px;
+    flex: 1;
+  }
+
+  .related-card__date {
+    font-size: 12.5px;
+    color: var(--ink-3);
+  }
+</style>
+
+<script>
+  // Show related posts section when user scrolls past 90% of the article
+  function initRelatedPosts() {
+    const sentinel = document.getElementById('related-posts-sentinel');
+    const section = document.querySelector('.related-posts');
+
+    if (!sentinel || !section) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            section.classList.add('visible');
+            observer.disconnect();
+          }
+        }
+      },
+      { threshold: 0 }
+    );
+
+    observer.observe(sentinel);
+  }
+
+  // Run on initial load and on Astro page transitions
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initRelatedPosts);
+  } else {
+    initRelatedPosts();
+  }
+  document.addEventListener('astro:page-load', initRelatedPosts);
+</script>

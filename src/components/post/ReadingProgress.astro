@@ -1,0 +1,117 @@
+---
+/**
+ * ReadingProgress — fixed progress bar at top of viewport
+ * Tracks scroll percentage of the article content element.
+ * Uses requestAnimationFrame for smooth updates.
+ * Respects prefers-reduced-motion.
+ *
+ * Validates: REQ-003 (Reading progress indicator)
+ */
+---
+
+<div
+  class="reading-progress"
+  id="reading-progress"
+  role="progressbar"
+  aria-valuemin="0"
+  aria-valuemax="100"
+  aria-valuenow="0"
+  aria-label="Progres membaca artikel"
+>
+  <div class="reading-progress__bar" id="reading-progress-bar"></div>
+</div>
+
+<style>
+  .reading-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    z-index: 1000;
+    background: transparent;
+    pointer-events: none;
+  }
+
+  .reading-progress__bar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    transition: width var(--duration-fast) var(--ease-out);
+    will-change: width;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reading-progress__bar {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  function initReadingProgress() {
+    const bar = document.getElementById('reading-progress-bar');
+    const container = document.getElementById('reading-progress');
+    const article = document.querySelector('article');
+
+    if (!bar || !container || !article) return;
+
+    // Respect prefers-reduced-motion
+    const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let reducedMotion = motionQuery.matches;
+
+    motionQuery.addEventListener('change', (e) => {
+      reducedMotion = e.matches;
+    });
+
+    let ticking = false;
+
+    function updateProgress() {
+      const articleRect = article!.getBoundingClientRect();
+      const articleTop = articleRect.top + window.scrollY;
+      const articleHeight = articleRect.height;
+      const viewportHeight = window.innerHeight;
+
+      // Calculate how far through the article we've scrolled
+      const scrolled = window.scrollY - articleTop;
+      const scrollable = articleHeight - viewportHeight;
+
+      let progress = 0;
+      if (scrollable > 0) {
+        progress = Math.min(Math.max(scrolled / scrollable, 0), 1) * 100;
+      }
+
+      bar!.style.width = `${progress}%`;
+      container!.setAttribute('aria-valuenow', String(Math.round(progress)));
+
+      ticking = false;
+    }
+
+    function onScroll() {
+      if (!ticking) {
+        if (reducedMotion) {
+          // Skip rAF when reduced motion is preferred — update directly
+          updateProgress();
+        } else {
+          requestAnimationFrame(updateProgress);
+        }
+        ticking = true;
+      }
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+
+    // Initial calculation
+    updateProgress();
+  }
+
+  // Run on page load and on Astro page transitions (View Transitions)
+  document.addEventListener('astro:page-load', initReadingProgress);
+
+  // Fallback for initial load if astro:page-load doesn't fire
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initReadingProgress);
+  } else {
+    initReadingProgress();
+  }
+</script>

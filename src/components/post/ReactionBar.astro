@@ -1,0 +1,334 @@
+---
+/**
+ * ReactionBar — anonymous emoji reaction buttons
+ * Renders 5 emoji buttons, fetches counts from API, toggles via POST.
+ * Persists user's pressed state in localStorage.
+ * Animates count changes with CSS bounce.
+ * Accessible: role="group", aria-label, aria-pressed on each button.
+ *
+ * Validates: REQ-020 (Toggle reaction with fingerprint dedup)
+ * Validates: REQ-021 (Read latency <200ms via KV cache)
+ * Validates: REQ-022 (Five emoji set)
+ */
+
+interface Props {
+  slug: string;
+}
+
+const { slug } = Astro.props;
+---
+
+<div
+  class="reaction-bar"
+  id="reaction-bar"
+  role="group"
+  aria-label="Reaksi untuk artikel ini"
+  data-slug={slug}
+>
+  <button
+    class="reaction-btn"
+    data-emoji="love"
+    aria-pressed="false"
+    aria-label="Love — 0 reaksi"
+    type="button"
+  >
+    <span class="reaction-emoji" aria-hidden="true">❤️</span>
+    <span class="reaction-count" data-count="love">0</span>
+  </button>
+
+  <button
+    class="reaction-btn"
+    data-emoji="insightful"
+    aria-pressed="false"
+    aria-label="Insightful — 0 reaksi"
+    type="button"
+  >
+    <span class="reaction-emoji" aria-hidden="true">💡</span>
+    <span class="reaction-count" data-count="insightful">0</span>
+  </button>
+
+  <button
+    class="reaction-btn"
+    data-emoji="fire"
+    aria-pressed="false"
+    aria-label="Fire — 0 reaksi"
+    type="button"
+  >
+    <span class="reaction-emoji" aria-hidden="true">🔥</span>
+    <span class="reaction-count" data-count="fire">0</span>
+  </button>
+
+  <button
+    class="reaction-btn"
+    data-emoji="thinking"
+    aria-pressed="false"
+    aria-label="Thinking — 0 reaksi"
+    type="button"
+  >
+    <span class="reaction-emoji" aria-hidden="true">🤔</span>
+    <span class="reaction-count" data-count="thinking">0</span>
+  </button>
+
+  <button
+    class="reaction-btn"
+    data-emoji="applause"
+    aria-pressed="false"
+    aria-label="Applause — 0 reaksi"
+    type="button"
+  >
+    <span class="reaction-emoji" aria-hidden="true">👏</span>
+    <span class="reaction-count" data-count="applause">0</span>
+  </button>
+</div>
+
+<style>
+  .reaction-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 36px 0;
+    padding: 16px 20px;
+    background: var(--bg-2);
+    border: 1px solid var(--rule);
+    border-radius: var(--r-3);
+  }
+
+  .reaction-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: var(--r-pill);
+    border: 1px solid var(--rule);
+    background: var(--paper);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--ink-2);
+    transition:
+      background var(--duration-fast) var(--ease-out),
+      border-color var(--duration-fast) var(--ease-out),
+      transform var(--duration-fast) var(--ease-bounce);
+    min-height: 44px;
+    cursor: pointer;
+  }
+
+  .reaction-btn:hover {
+    border-color: var(--accent);
+    background: var(--bg-3);
+  }
+
+  .reaction-btn:active {
+    transform: scale(0.95);
+  }
+
+  .reaction-btn[aria-pressed="true"] {
+    background: var(--accent);
+    border-color: var(--accent-deep);
+    color: #fff;
+  }
+
+  .reaction-btn:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .reaction-emoji {
+    font-size: 18px;
+    line-height: 1;
+  }
+
+  .reaction-count {
+    font-variant-numeric: tabular-nums;
+    min-width: 1ch;
+    text-align: center;
+  }
+
+  .reaction-count.bounce {
+    animation: count-bounce var(--duration-normal) var(--ease-bounce);
+  }
+
+  @keyframes count-bounce {
+    0% { transform: scale(1); }
+    40% { transform: scale(1.3); }
+    100% { transform: scale(1); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reaction-count.bounce {
+      animation: none;
+    }
+    .reaction-btn {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  function initReactionBar() {
+    const bar = document.getElementById('reaction-bar');
+    if (!bar) return;
+
+    const slug = bar.dataset.slug;
+    if (!slug) return;
+
+    const STORAGE_KEY = `cb-reactions-${slug}`;
+    const EMOJIS = ['love', 'insightful', 'fire', 'thinking', 'applause'];
+    const EMOJI_LABELS: Record<string, string> = {
+      love: 'Love',
+      insightful: 'Insightful',
+      fire: 'Fire',
+      thinking: 'Thinking',
+      applause: 'Applause',
+    };
+
+    // Load pressed state from localStorage
+    function getPressed(): Set<string> {
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+          const arr = JSON.parse(stored);
+          if (Array.isArray(arr)) return new Set(arr);
+        }
+      } catch { /* ignore */ }
+      return new Set();
+    }
+
+    function savePressed(pressed: Set<string>) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify([...pressed]));
+      } catch { /* ignore */ }
+    }
+
+    const pressed = getPressed();
+
+    // Update aria-pressed state from localStorage
+    function syncPressedUI() {
+      for (const emoji of EMOJIS) {
+        const btn = bar!.querySelector(`[data-emoji="${emoji}"]`) as HTMLButtonElement | null;
+        if (btn) {
+          btn.setAttribute('aria-pressed', pressed.has(emoji) ? 'true' : 'false');
+        }
+      }
+    }
+
+    function updateCountUI(emoji: string, count: number) {
+      const countEl = bar!.querySelector(`[data-count="${emoji}"]`) as HTMLElement | null;
+      if (!countEl) return;
+      countEl.textContent = String(count);
+
+      // Update aria-label on parent button
+      const btn = bar!.querySelector(`[data-emoji="${emoji}"]`) as HTMLButtonElement | null;
+      if (btn) {
+        btn.setAttribute('aria-label', `${EMOJI_LABELS[emoji]} — ${count} reaksi`);
+      }
+    }
+
+    function animateCount(emoji: string) {
+      const countEl = bar!.querySelector(`[data-count="${emoji}"]`) as HTMLElement | null;
+      if (!countEl) return;
+      countEl.classList.remove('bounce');
+      // Force reflow to restart animation
+      void countEl.offsetWidth;
+      countEl.classList.add('bounce');
+    }
+
+    // Fetch initial counts
+    async function fetchCounts() {
+      try {
+        const res = await fetch(`/api/reactions/${slug}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        for (const emoji of EMOJIS) {
+          if (typeof data[emoji] === 'number') {
+            updateCountUI(emoji, data[emoji]);
+          }
+        }
+      } catch { /* silently fail — counts stay at 0 */ }
+    }
+
+    // Toggle reaction
+    async function toggleReaction(emoji: string) {
+      const btn = bar!.querySelector(`[data-emoji="${emoji}"]`) as HTMLButtonElement | null;
+      if (!btn) return;
+
+      const wasPressed = pressed.has(emoji);
+      const countEl = bar!.querySelector(`[data-count="${emoji}"]`) as HTMLElement | null;
+      const currentCount = parseInt(countEl?.textContent || '0', 10);
+
+      // Optimistic update
+      if (wasPressed) {
+        pressed.delete(emoji);
+        btn.setAttribute('aria-pressed', 'false');
+        updateCountUI(emoji, Math.max(0, currentCount - 1));
+      } else {
+        pressed.add(emoji);
+        btn.setAttribute('aria-pressed', 'true');
+        updateCountUI(emoji, currentCount + 1);
+      }
+      animateCount(emoji);
+      savePressed(pressed);
+
+      // POST to API
+      try {
+        const res = await fetch(`/api/reactions/${slug}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ emoji }),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          // Reconcile with server count
+          if (typeof data.count === 'number') {
+            updateCountUI(emoji, data.count);
+          }
+        } else {
+          // Revert optimistic update on failure
+          if (wasPressed) {
+            pressed.add(emoji);
+            btn.setAttribute('aria-pressed', 'true');
+            updateCountUI(emoji, currentCount);
+          } else {
+            pressed.delete(emoji);
+            btn.setAttribute('aria-pressed', 'false');
+            updateCountUI(emoji, currentCount);
+          }
+          savePressed(pressed);
+        }
+      } catch {
+        // Revert on network error
+        if (wasPressed) {
+          pressed.add(emoji);
+          btn.setAttribute('aria-pressed', 'true');
+          updateCountUI(emoji, currentCount);
+        } else {
+          pressed.delete(emoji);
+          btn.setAttribute('aria-pressed', 'false');
+          updateCountUI(emoji, currentCount);
+        }
+        savePressed(pressed);
+      }
+    }
+
+    // Attach click handlers
+    for (const emoji of EMOJIS) {
+      const btn = bar!.querySelector(`[data-emoji="${emoji}"]`) as HTMLButtonElement | null;
+      if (btn) {
+        btn.addEventListener('click', () => toggleReaction(emoji));
+      }
+    }
+
+    // Initialize
+    syncPressedUI();
+    fetchCounts();
+  }
+
+  // Run on page load and on Astro page transitions (View Transitions)
+  document.addEventListener('astro:page-load', initReactionBar);
+
+  // Fallback for initial load
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initReactionBar);
+  } else {
+    initReactionBar();
+  }
+</script>

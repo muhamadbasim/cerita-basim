@@ -1,5 +1,9 @@
 ---
 import BaseLayout from '@/components/layout/BaseLayout.astro';
+import ReadingProgress from '@/components/post/ReadingProgress.astro';
+import TableOfContents from '@/components/post/TableOfContents.astro';
+import RelatedPosts from '@/components/post/RelatedPosts.astro';
+import ReactionBar from '@/components/post/ReactionBar.astro';
 import { getCollection } from 'astro:content';
 
 export const prerender = true;
@@ -8,38 +12,84 @@ export async function getStaticPaths() {
   const posts = await getCollection('posts');
   return posts.map(post => ({
     params: { slug: post.slug },
-    props: { post },
+    props: { post, allPosts: posts },
   }));
 }
 
-const { post } = Astro.props;
-const { Content } = await post.render();
+const { post, allPosts } = Astro.props;
+const { Content, headings } = await post.render();
 
 const readingTime = Math.ceil(post.body.split(/\s+/).length / 200);
 ---
 
 <BaseLayout title={post.data.title} description={post.data.description} active="cerita">
-  <article class="container-narrow" style="padding: 48px 0;">
-    <a href="/cerita" class="back">← Kembali ke cerita</a>
-    <span class="eyebrow">{post.data.tags.join(' · ')} · {post.data.publishedAt.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
-    <h1>{post.data.title}</h1>
-    <p class="lead">{post.data.description}</p>
-    <div class="article-meta">
-      <span><strong>Basim</strong> · {readingTime} menit baca</span>
-    </div>
+  <ReadingProgress />
+  <div class="post-layout">
+    <article class="post-content">
+      <a href="/cerita" class="back">← Kembali ke cerita</a>
+      <span class="eyebrow">{post.data.tags.join(' · ')} · {post.data.publishedAt.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+      <h1>{post.data.title}</h1>
+      <p class="lead">{post.data.description}</p>
+      <div class="article-meta">
+        <span><strong>Basim</strong> · {readingTime} menit baca</span>
+      </div>
 
-    <div class="prose">
-      <Content />
-    </div>
+      <div class="prose">
+        <Content />
+      </div>
 
-    <div class="subscribe-cta">
-      <p>Suka cerita ini? <a href="/subscribe">Subscribe</a> untuk cerita berikutnya langsung ke email kamu.</p>
-    </div>
-  </article>
+      <ReactionBar slug={post.slug} />
+
+      <div class="subscribe-cta">
+        <p>Suka cerita ini? <a href="/subscribe">Subscribe</a> untuk cerita berikutnya langsung ke email kamu.</p>
+      </div>
+
+      <div id="related-posts-sentinel" aria-hidden="true" style="height:1px;pointer-events:none;"></div>
+
+      <RelatedPosts
+        currentSlug={post.slug}
+        currentTags={post.data.tags}
+        allPosts={allPosts}
+      />
+    </article>
+    <aside class="post-sidebar">
+      <TableOfContents headings={headings} />
+    </aside>
+  </div>
 </BaseLayout>
 
 <style>
-  .container-narrow { max-width: 720px; margin: 0 auto; padding: 0 28px; }
+  .post-layout {
+    max-width: var(--container);
+    margin: 0 auto;
+    padding: 48px 28px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  @media (min-width: 1000px) {
+    .post-layout {
+      grid-template-columns: 1fr 220px;
+      gap: 48px;
+    }
+  }
+
+  .post-content {
+    max-width: var(--container-narrow);
+    min-width: 0;
+  }
+
+  .post-sidebar {
+    display: none;
+  }
+
+  @media (min-width: 1000px) {
+    .post-sidebar {
+      display: block;
+    }
+  }
+
   .back { font-size: 13.5px; color: var(--ink-3); display: inline-block; margin-bottom: 14px; }
   .back:hover { color: var(--accent); }
   h1 { margin: 12px 0 12px; }
