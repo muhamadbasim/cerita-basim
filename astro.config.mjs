@@ -13,7 +13,9 @@ export default defineConfig({
   }),
   integrations: [
     mdx(),
-    sitemap(),
+    sitemap({
+      filter: (page) => !page.includes('/admin') && !page.includes('/api/'),
+    }),
   ],
   markdown: {
     shikiConfig: {

@@ -1,4 +1,6 @@
 ---
-// Redirect /admin → /admin/dashboard
+// /admin → /admin/dashboard. The dashboard page will redirect to /admin/login
+// if no session, so the entry behaviour is correct either way.
+export const prerender = false;
 return Astro.redirect('/admin/dashboard');
 ---

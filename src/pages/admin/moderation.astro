@@ -1,13 +1,13 @@
 ---
 import AdminLayout from '@/components/layout/AdminLayout.astro';
 import { getDB, queryAll } from '@/lib/db';
-import { requireAdmin } from '@/lib/access';
+import { requireAdminPage } from '@/lib/access';
 import { renderCommentMarkdown } from '@/lib/markdown';
 
 export const prerender = false;
 
 const env = Astro.locals.runtime.env;
-const authError = await requireAdmin(Astro.request, env.ADMIN_EMAIL, env.ADMIN_TOKEN);
+const authError = await requireAdminPage(Astro.request, env.ADMIN_EMAIL, env.ADMIN_TOKEN);
 if (authError) return authError;
 
 const db = getDB(Astro.locals);

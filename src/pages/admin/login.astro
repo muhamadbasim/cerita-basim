@@ -1,0 +1,208 @@
+---
+import '@/styles/global.css';
+import { verifyAccessJWT } from '@/lib/access';
+
+export const prerender = false;
+
+const env = (Astro.locals as any).runtime?.env ?? {};
+const adminEmail: string = env.ADMIN_EMAIL ?? '';
+const adminToken: string | undefined = env.ADMIN_TOKEN;
+
+// If already authenticated, redirect straight to next (or dashboard).
+const url = new URL(Astro.request.url);
+const rawNext = url.searchParams.get('next') || '';
+const next = rawNext.startsWith('/admin') ? rawNext : '/admin/dashboard';
+const error = url.searchParams.get('error');
+
+const auth = await verifyAccessJWT(Astro.request, adminEmail, adminToken);
+if (auth.authenticated) {
+  return Astro.redirect(next);
+}
+---
+
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Login Admin · Cerita Basim</title>
+  <meta name="robots" content="noindex,nofollow" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script is:inline>
+    (function(){try{const s=localStorage.getItem('cb-theme');if(s)document.documentElement.setAttribute('data-theme',s);else if(window.matchMedia('(prefers-color-scheme: dark)').matches)document.documentElement.setAttribute('data-theme','dark')}catch(e){}})();
+  </script>
+</head>
+<body>
+  <main class="login-shell">
+    <section class="login-card">
+      <div class="brand">
+        <span class="brand-mark">cb</span>
+        <span class="brand-name">Cerita <em>Basim</em></span>
+      </div>
+
+      <h1>Masuk Admin</h1>
+      <p class="muted">
+        Tempel <code>ADMIN_TOKEN</code> di bawah. Token disimpan sebagai cookie sesi
+        (HttpOnly) selama 7 hari, jadi tidak perlu nempel ulang setiap halaman.
+      </p>
+
+      {error && (
+        <div class="error-banner" role="alert">
+          <strong>Token salah.</strong> Periksa lagi atau cek di Cloudflare Pages → Settings → Environment variables.
+        </div>
+      )}
+
+      <form method="post" action="/api/admin/login" class="login-form">
+        <input type="hidden" name="next" value={next} />
+        <label for="token">Admin token</label>
+        <div class="input-row">
+          <input
+            id="token"
+            name="token"
+            type="password"
+            autocomplete="current-password"
+            required
+            autofocus
+            placeholder="••••••••••••••••"
+          />
+          <button type="button" class="reveal-btn" id="reveal" aria-label="Tampilkan token">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+          </button>
+        </div>
+        <button type="submit" class="btn btn-primary">Masuk</button>
+      </form>
+
+      <p class="hint">
+        Lupa token? Reset di Cloudflare Pages dashboard → project <code>cerita-basim</code>
+        → Settings → Environment variables → edit <code>ADMIN_TOKEN</code>.
+      </p>
+    </section>
+  </main>
+
+  <script is:inline>
+    (function(){
+      const btn = document.getElementById('reveal');
+      const input = document.getElementById('token');
+      if (!btn || !input) return;
+      btn.addEventListener('click', () => {
+        const isPwd = input.type === 'password';
+        input.type = isPwd ? 'text' : 'password';
+        btn.setAttribute('aria-label', isPwd ? 'Sembunyikan token' : 'Tampilkan token');
+      });
+    })();
+  </script>
+</body>
+</html>
+
+<style>
+  body { background: var(--bg); color: var(--ink); font-family: var(--font-body); }
+  .login-shell { min-height: 100vh; display: grid; place-items: center; padding: 24px; }
+  .login-card {
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-radius: 18px;
+    padding: 36px 32px;
+    width: 100%;
+    max-width: 440px;
+    box-shadow: 0 24px 48px -16px rgba(0,0,0,.18);
+    animation: card-in 320ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  @keyframes card-in {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .brand { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
+  .brand-mark {
+    width: 40px; height: 40px;
+    display: grid; place-items: center;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-deep));
+    color: #fff;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 17px;
+  }
+  .brand-name { font-family: var(--font-display); font-weight: 700; font-size: 20px; }
+  .brand-name em { font-style: italic; color: var(--accent-2); font-weight: 500; }
+
+  h1 { margin: 0 0 8px; font-size: 28px; font-family: var(--font-display); }
+  .muted { color: var(--ink-2); font-size: 14.5px; line-height: 1.6; margin: 0 0 24px; }
+  .muted code { font-family: var(--font-mono, 'JetBrains Mono', monospace); background: var(--bg-2); padding: 1px 6px; border-radius: 4px; font-size: 13px; }
+
+  .error-banner {
+    background: rgba(185,28,28,.08);
+    border: 1px solid rgba(185,28,28,.25);
+    color: var(--danger);
+    padding: 12px 14px;
+    border-radius: 10px;
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+  .error-banner strong { display: block; margin-bottom: 2px; }
+
+  .login-form { display: flex; flex-direction: column; gap: 12px; }
+  .login-form label { font-size: 13px; font-weight: 600; color: var(--ink); }
+  .input-row { position: relative; display: flex; }
+  .input-row input {
+    flex: 1;
+    padding: 12px 44px 12px 14px;
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    background: var(--bg);
+    font-size: 14.5px;
+    font-family: var(--font-mono, 'JetBrains Mono', monospace);
+    transition: border-color 200ms, box-shadow 200ms;
+    color: var(--ink);
+  }
+  .input-row input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(194,65,12,.12);
+  }
+  .reveal-btn {
+    position: absolute;
+    right: 6px; top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: 0;
+    padding: 8px;
+    border-radius: 8px;
+    color: var(--ink-3);
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+  }
+  .reveal-btn:hover { background: var(--bg-2); color: var(--ink); }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: transform 200ms, opacity 200ms;
+    min-height: 48px;
+    text-decoration: none;
+    margin-top: 4px;
+  }
+  .btn-primary { background: var(--ink); color: var(--bg); }
+  .btn-primary:hover { transform: translateY(-1px); opacity: 0.92; }
+
+  .hint {
+    margin: 24px 0 0;
+    padding-top: 18px;
+    border-top: 1px solid var(--rule);
+    font-size: 12.5px;
+    color: var(--ink-3);
+    line-height: 1.55;
+  }
+  .hint code { font-family: var(--font-mono, 'JetBrains Mono', monospace); background: var(--bg-2); padding: 1px 5px; border-radius: 3px; font-size: 11.5px; }
+</style>
