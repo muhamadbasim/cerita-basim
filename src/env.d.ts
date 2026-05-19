@@ -11,6 +11,7 @@ type Runtime = import('@astrojs/cloudflare').Runtime<{
   SITE_URL: string;
   TURNSTILE_SECRET: string;
   RESEND_API_KEY: string;
+  EMAIL_FROM: string;
   ADMIN_EMAIL: string;
   ENCRYPTION_KEY: string;
   ENCRYPTION_SALT: string;

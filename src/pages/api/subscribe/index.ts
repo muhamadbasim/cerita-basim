@@ -82,8 +82,9 @@ export async function POST({ request, locals }: APIContext) {
 
   // Send confirmation email
   const siteUrl = env.SITE_URL || 'https://cerita.basim.id';
+  const fromAddr = env.EMAIL_FROM || 'Cerita Basim <onboarding@resend.dev>';
   const { subject, text } = confirmationEmail(siteUrl, confirmTok);
-  await sendEmail(env.RESEND_API_KEY, 'Cerita Basim <hai@cerita.basim.id>', { to: email, subject, text });
+  await sendEmail(env.RESEND_API_KEY, fromAddr, { to: email, subject, text });
 
   return new Response(JSON.stringify({ status: 'unconfirmed', message: 'Cek email kamu untuk konfirmasi.' }), { status: 202, headers: { 'Content-Type': 'application/json' } });
 }

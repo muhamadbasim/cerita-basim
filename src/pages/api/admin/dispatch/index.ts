@@ -70,7 +70,7 @@ export async function POST({ request, locals }: APIContext) {
       body.intro
     );
 
-    const result = await sendEmail(env.RESEND_API_KEY, 'Cerita Basim <hai@cerita.basim.id>', {
+    const result = await sendEmail(env.RESEND_API_KEY, env.EMAIL_FROM || 'Cerita Basim <onboarding@resend.dev>', {
       to: sub.email,
       subject,
       text,
