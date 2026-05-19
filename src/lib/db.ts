@@ -4,8 +4,9 @@
  */
 
 export function getDB(locals: App.Locals): D1Database {
-  const db = locals.runtime.env.DB;
-  if (!db) throw new Error('D1 database binding not available');
+  const env = (locals as any).runtime?.env;
+  const db = env?.DB;
+  if (!db) throw new Error('D1 database binding not available — check wrangler.toml bindings');
   return db;
 }
 

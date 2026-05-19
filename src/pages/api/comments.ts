@@ -15,31 +15,39 @@ export async function GET({ request, locals }: APIContext) {
     return new Response(JSON.stringify({ error: 'Missing ?post= parameter' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
   }
 
-  const kv = getKV(locals);
-  const cacheKey = `cache:comments:${postSlug}`;
+  try {
+    const db = getDB(locals);
+    const kv = getKV(locals);
+    const cacheKey = `cache:comments:${postSlug}`;
 
-  // Try cache first
-  const cached = await getCached<unknown[]>(kv, cacheKey);
-  if (cached) {
-    return new Response(JSON.stringify({ comments: cached, count: cached.length, cached: true }), {
+    // Try cache first
+    const cached = await getCached<unknown[]>(kv, cacheKey);
+    if (cached) {
+      return new Response(JSON.stringify({ comments: cached, count: cached.length, cached: true }), {
+        headers: { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=30' },
+      });
+    }
+
+    const comments = await queryAll(
+      db,
+      `SELECT id, post_slug, parent_id, display_name, body_md, created_at, approved_at
+       FROM comments WHERE post_slug = ? AND status = 'approved' ORDER BY created_at ASC`,
+      [postSlug]
+    );
+
+    // Cache for 30s
+    await setCache(kv, cacheKey, comments, 30).catch(() => {});
+
+    return new Response(JSON.stringify({ comments, count: comments.length, cached: false }), {
       headers: { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=30' },
     });
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : 'Unknown error';
+    return new Response(JSON.stringify({ error: 'server_error', detail: msg }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
-
-  const db = getDB(locals);
-  const comments = await queryAll(
-    db,
-    `SELECT id, post_slug, parent_id, display_name, body_md, created_at, approved_at
-     FROM comments WHERE post_slug = ? AND status = 'approved' ORDER BY created_at ASC`,
-    [postSlug]
-  );
-
-  // Cache for 30s
-  await setCache(kv, cacheKey, comments, 30);
-
-  return new Response(JSON.stringify({ comments, count: comments.length, cached: false }), {
-    headers: { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=30' },
-  });
 }
 
 // POST /api/comments

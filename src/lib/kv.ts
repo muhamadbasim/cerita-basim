@@ -3,8 +3,9 @@
  */
 
 export function getKV(locals: App.Locals): KVNamespace {
-  const kv = locals.runtime.env.KV;
-  if (!kv) throw new Error('KV namespace binding not available');
+  const env = (locals as any).runtime?.env;
+  const kv = env?.KV;
+  if (!kv) throw new Error('KV namespace binding not available — check wrangler.toml bindings');
   return kv;
 }
 
