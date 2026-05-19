@@ -1,24 +1,20 @@
 name = "cerita-basim"
 compatibility_date = "2025-05-19"
 compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = "./dist"
 
-# Pages will auto-detect this, but explicit for local dev
 [vars]
 SITE_URL = "https://cerita.basim.id"
-TURNSTILE_SECRET = ""
-RESEND_API_KEY = ""
 ADMIN_EMAIL = "basim@cerita.basim.id"
-ENCRYPTION_KEY = ""
-ENCRYPTION_SALT = ""
 
 [[d1_databases]]
 binding = "DB"
 database_name = "cerita-basim-db"
-database_id = "" # Fill after `wrangler d1 create cerita-basim-db`
+database_id = "3019e117-c519-487d-bc05-e68e7bafef67"
 
 [[kv_namespaces]]
 binding = "KV"
-id = "" # Fill after `wrangler kv namespace create CERITA_BASIM_KV`
+id = "97d6c3df93b4476399d5e1bc4485dc0d"
 
 [[r2_buckets]]
 binding = "R2"
