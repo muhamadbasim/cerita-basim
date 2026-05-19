@@ -3,10 +3,11 @@ import '@/styles/global.css';
 
 interface Props {
   title: string;
-  active?: 'dashboard' | 'moderation' | 'subscribers' | 'dispatch';
+  active?: 'dashboard' | 'moderation' | 'subscribers' | 'dispatch' | 'review' | 'agents';
   pendingCount?: number;
+  reviewCount?: number;
 }
-const { title, active, pendingCount = 0 } = Astro.props;
+const { title, active, pendingCount = 0, reviewCount = 0 } = Astro.props;
 ---
 
 <!doctype html>
@@ -37,6 +38,11 @@ const { title, active, pendingCount = 0 } = Astro.props;
           <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
           Dashboard
         </a>
+        <span class="sidebar-nav-section">Konten</span>
+        <a href="/admin/review" class:list={[{ active: active === 'review' }]}>
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          Review {reviewCount > 0 && <span class="badge">{reviewCount}</span>}
+        </a>
         <span class="sidebar-nav-section">Engagement</span>
         <a href="/admin/moderation" class:list={[{ active: active === 'moderation' }]}>
           <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
@@ -49,6 +55,11 @@ const { title, active, pendingCount = 0 } = Astro.props;
         <a href="/admin/dispatch" class:list={[{ active: active === 'dispatch' }]}>
           <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
           Dispatch
+        </a>
+        <span class="sidebar-nav-section">Sistem</span>
+        <a href="/admin/agents" class:list={[{ active: active === 'agents' }]}>
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1.27A7 7 0 0 1 14 22h-4a7 7 0 0 1-6.73-3H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z"/></svg>
+          Agents
         </a>
         <span class="sidebar-nav-section">Lain</span>
         <a href="/" target="_blank">

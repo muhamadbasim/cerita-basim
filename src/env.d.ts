@@ -16,6 +16,8 @@ type Runtime = import('@astrojs/cloudflare').Runtime<{
   ADMIN_TOKEN: string;
   ENCRYPTION_KEY: string;
   ENCRYPTION_SALT: string;
+  AGENT_PUBLISH_RATE_LIMIT_PER_HOUR?: string;
+  AGENT_PUBLISH_MAX_PENDING?: string;
 }>;
 
 declare namespace App {

@@ -1,0 +1,226 @@
+---
+import AdminLayout from '@/components/layout/AdminLayout.astro';
+import { getDB, queryAll } from '@/lib/db';
+import { requireAdmin } from '@/lib/access';
+
+export const prerender = false;
+
+const env = Astro.locals.runtime.env;
+const authError = await requireAdmin(Astro.request, env.ADMIN_EMAIL, env.ADMIN_TOKEN);
+if (authError) return authError;
+
+const db = getDB(Astro.locals);
+
+// Fetch staging drafts with agent stats for trust badge
+const drafts = await queryAll<{
+  slug: string;
+  title: string;
+  source: string;
+  body_md: string;
+  tags: string;
+  created_at: number;
+  total_submitted: number;
+  total_approved: number;
+}>(
+  db,
+  `SELECT
+    p.slug,
+    p.title,
+    p.source,
+    p.body_md,
+    p.tags,
+    p.created_at,
+    COALESCE(s.total_submitted, 0) AS total_submitted,
+    COALESCE(s.total_approved, 0) AS total_approved
+  FROM posts p
+  LEFT JOIN agent_stats s ON p.source = s.agent_id
+  WHERE p.status = 'draft' AND p.source != 'manual'
+  ORDER BY p.created_at DESC`
+);
+
+// Quality warning heuristics (same logic as API)
+const TAG_WHITELIST = ['produk', 'teknis', 'karier', 'catatan', 'eksperimen'];
+const URL_REGEX = /https?:\/\/[^\s)]+/g;
+const BLACKLIST_WORDS = ['casino', 'viagra', 'crypto-pump', 'click here'];
+
+function countWarnings(bodyMd: string, tagsJson: string): number {
+  let count = 0;
+  try {
+    const tags: string[] = JSON.parse(tagsJson || '[]');
+    if (tags.some(t => !TAG_WHITELIST.includes(t))) count++;
+  } catch { count++; }
+  const urlMatches = bodyMd.match(URL_REGEX) || [];
+  if (urlMatches.length > 10) count++;
+  const lower = bodyMd.toLowerCase();
+  if (BLACKLIST_WORDS.some(w => lower.includes(w))) count++;
+  const lines = bodyMd.split('\n').filter(l => l.trim().length > 0);
+  const freq = new Map<string, number>();
+  for (const line of lines) { freq.set(line, (freq.get(line) || 0) + 1); }
+  if ([...freq.values()].some(c => c > 3)) count++;
+  return count;
+}
+
+function isTrusted(totalSubmitted: number, totalApproved: number): boolean {
+  if (totalSubmitted === 0) return false;
+  const ratio = totalApproved / totalSubmitted;
+  return ratio >= 0.8 && totalApproved >= 3;
+}
+
+function timeAgo(ms: number): string {
+  const diff = Date.now() - ms;
+  const min = Math.floor(diff / 60000);
+  if (min < 1) return 'baru saja';
+  if (min < 60) return `${min} menit lalu`;
+  const hr = Math.floor(min / 60);
+  if (hr < 24) return `${hr} jam lalu`;
+  const d = Math.floor(hr / 24);
+  return `${d} hari lalu`;
+}
+
+function formatBodyLength(len: number): string {
+  if (len < 1000) return `${len} char`;
+  return `${(len / 1000).toFixed(1)}k char`;
+}
+
+const pendingCount = drafts.length;
+---
+
+<AdminLayout title="Review Queue" active="review" reviewCount={pendingCount}>
+  <span class="eyebrow">Admin · Review Queue</span>
+  <h1>
+    Draft dari Agent
+    {pendingCount > 0 && <span class="count-badge">{pendingCount}</span>}
+  </h1>
+  <p class="muted">Draft konten dari AI agent yang menunggu review. Approve untuk publish, atau reject untuk hapus.</p>
+
+  {pendingCount === 0 ? (
+    <div class="empty-state">
+      <h3>Antrian kosong</h3>
+      <p class="muted">Tidak ada draft agent yang menunggu review.</p>
+    </div>
+  ) : (
+    <div class="queue-list">
+      {drafts.map(draft => {
+        const warnings = countWarnings(draft.body_md, draft.tags);
+        const trusted = isTrusted(draft.total_submitted, draft.total_approved);
+        return (
+          <a href={`/admin/review/${draft.slug}`} class="queue-item">
+            <div class="item-main">
+              <div class="item-title">
+                {draft.title}
+              </div>
+              <div class="item-meta">
+                <span class="agent-name">{draft.source}</span>
+                {trusted ? (
+                  <span class="pill pill-trusted">Trusted</span>
+                ) : (
+                  <span class="pill pill-new">New</span>
+                )}
+                <span class="separator">·</span>
+                <span class="body-len">{formatBodyLength(draft.body_md.length)}</span>
+                <span class="separator">·</span>
+                <span class="time">{timeAgo(draft.created_at)}</span>
+                {warnings > 0 && (
+                  <span class="warnings-badge" title={`${warnings} quality warning${warnings > 1 ? 's' : ''}`}>
+                    ⚠ {warnings}
+                  </span>
+                )}
+              </div>
+            </div>
+            <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+          </a>
+        );
+      })}
+    </div>
+  )}
+</AdminLayout>
+
+<style>
+  h1 { margin: 4px 0 4px; font-size: 32px; display: flex; align-items: center; gap: 12px; }
+  .eyebrow { font-weight: 700; letter-spacing: .14em; text-transform: uppercase; font-size: 12px; color: var(--accent); }
+  .muted { color: var(--ink-2); margin-bottom: 24px; }
+  .count-badge { display: inline-flex; align-items: center; justify-content: center; background: var(--accent); color: #fff; font-size: 14px; font-weight: 700; min-width: 28px; height: 28px; padding: 0 8px; border-radius: 999px; }
+  .empty-state { text-align: center; padding: 56px 24px; }
+  .empty-state h3 { font-size: 24px; margin: 0 0 6px; }
+
+  .queue-list { display: flex; flex-direction: column; gap: 8px; }
+
+  .queue-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-radius: 14px;
+    padding: 18px 22px;
+    text-decoration: none;
+    color: inherit;
+    transition: background 200ms, transform 200ms, box-shadow 200ms;
+  }
+  .queue-item:hover {
+    background: var(--bg-2);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .item-main { flex: 1; min-width: 0; }
+
+  .item-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .item-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--ink-3);
+    flex-wrap: wrap;
+  }
+
+  .agent-name { font-weight: 600; color: var(--ink-2); }
+
+  .pill {
+    display: inline-flex;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 999px;
+  }
+  .pill-trusted { background: rgba(47,125,86,.12); color: var(--ok); }
+  .pill-new { background: rgba(181,129,5,.12); color: var(--gold); }
+
+  .separator { color: var(--rule-2); }
+
+  .body-len { font-variant-numeric: tabular-nums; }
+
+  .time { color: var(--ink-3); }
+
+  .warnings-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    background: rgba(185,28,28,.1);
+    color: var(--danger);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 999px;
+    margin-left: 4px;
+  }
+
+  .chevron { width: 20px; height: 20px; color: var(--ink-3); flex-shrink: 0; }
+
+  @media (max-width: 600px) {
+    .queue-item { padding: 14px 16px; }
+    .item-meta { font-size: 12px; }
+  }
+</style>
