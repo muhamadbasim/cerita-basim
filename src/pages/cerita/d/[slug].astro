@@ -1,0 +1,101 @@
+---
+/**
+ * Dynamic post page — serves posts from D1 database (published via API/webhook).
+ * URL: /cerita/d/{slug}
+ * Separate from static /cerita/{slug} which serves markdown from Git.
+ */
+import BaseLayout from '@/components/layout/BaseLayout.astro';
+import ReadingProgress from '@/components/post/ReadingProgress.astro';
+import ReactionBar from '@/components/post/ReactionBar.astro';
+import CommentList from '@/components/post/CommentList.astro';
+import CommentForm from '@/components/post/CommentForm.astro';
+import { getDB, queryFirst } from '@/lib/db';
+import { renderCommentMarkdown } from '@/lib/markdown';
+
+export const prerender = false;
+
+const { slug } = Astro.params;
+const db = getDB(Astro.locals);
+
+const post = await queryFirst<{
+  id: number;
+  slug: string;
+  title: string;
+  description: string;
+  body_md: string;
+  tags: string;
+  cover: string | null;
+  status: string;
+  author: string;
+  published_at: number | null;
+  created_at: number;
+}>(db, `SELECT * FROM posts WHERE slug = ? AND status = 'published'`, [slug]);
+
+if (!post) {
+  return Astro.redirect('/404');
+}
+
+const tags: string[] = JSON.parse(post.tags || '[]');
+const readingTime = Math.ceil(post.body_md.split(/\s+/).length / 200);
+const publishDate = post.published_at ? new Date(post.published_at) : new Date(post.created_at);
+
+// Simple markdown to HTML (reuse safe renderer but allow headings for post body)
+function renderBody(md: string): string {
+  let html = md
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/^### (.+)$/gm, '<h3 id="$1">$1</h3>')
+    .replace(/^## (.+)$/gm, '<h2 id="$1">$1</h2>')
+    .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    .replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>')
+    .replace(/^- (.+)$/gm, '<li>$1</li>')
+    .replace(/(<li>.*<\/li>\n?)+/g, (m) => `<ul>${m}</ul>`)
+    .replace(/^> (.+)$/gm, '<blockquote>$1</blockquote>')
+    .replace(/\n{2,}/g, '</p><p>')
+    .replace(/\n/g, '<br>');
+  return `<p>${html}</p>`;
+}
+---
+
+<BaseLayout title={post.title} description={post.description} active="cerita">
+  <ReadingProgress />
+  <article class="container-narrow" style="padding: 48px 0;">
+    <a href="/cerita" class="back">← Kembali ke cerita</a>
+    <span class="eyebrow">{tags.join(' · ')} · {publishDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+    <h1>{post.title}</h1>
+    <p class="lead">{post.description}</p>
+    <div class="article-meta">
+      <span><strong>{post.author}</strong> · {readingTime} menit baca</span>
+    </div>
+
+    <div class="prose" set:html={renderBody(post.body_md)} />
+
+    <ReactionBar slug={post.slug} />
+    <CommentList slug={post.slug} />
+    <CommentForm slug={post.slug} />
+
+    <div class="subscribe-cta">
+      <p>Suka cerita ini? <a href="/subscribe">Subscribe</a> untuk cerita berikutnya.</p>
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .container-narrow { max-width: 720px; margin: 0 auto; padding: 0 28px; }
+  .back { font-size: 13.5px; color: var(--ink-3); display: inline-block; margin-bottom: 14px; }
+  .back:hover { color: var(--accent); }
+  h1 { margin: 12px 0 12px; }
+  .lead { font-size: 19px; color: var(--ink-2); line-height: 1.5; margin-bottom: 18px; }
+  .article-meta { font-size: 14px; color: var(--ink-2); margin-bottom: 36px; padding-bottom: 18px; border-bottom: 1px solid var(--rule); }
+  .prose { font-size: 17.5px; line-height: 1.75; }
+  .prose :global(h2) { margin-top: 56px; font-family: var(--font-display); font-weight: 700; font-size: 28px; }
+  .prose :global(h3) { margin-top: 36px; font-family: var(--font-display); font-weight: 700; font-size: 21px; }
+  .prose :global(blockquote) { border-left: 3px solid var(--accent); padding: 6px 22px; margin: 24px 0; font-style: italic; color: var(--ink-2); }
+  .prose :global(ul) { padding-left: 22px; }
+  .prose :global(li) { margin: 6px 0; }
+  .prose :global(code) { background: var(--bg-2); padding: 1px 6px; border-radius: 6px; border: 1px solid var(--rule); font-size: .85em; }
+  .subscribe-cta { margin-top: 48px; padding: 24px; background: var(--paper); border: 1px solid var(--rule); border-radius: 14px; text-align: center; }
+  .subscribe-cta a { color: var(--accent); font-weight: 600; }
+</style>

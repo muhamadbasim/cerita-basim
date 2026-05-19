@@ -148,11 +148,30 @@ const { slug } = Astro.props;
   // Refresh on demand
   document.addEventListener('cb:comments-refresh', loadComments);
 
-  // Initial load + Astro page transitions
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', loadComments);
-  } else {
-    loadComments();
+  // Defer initial load until section is visible (client:visible behavior)
+  function observeAndLoad() {
+    const section = document.getElementById('comments-section');
+    if (!section) return;
+    if (!('IntersectionObserver' in window)) {
+      loadComments();
+      return;
+    }
+    const observer = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) {
+          observer.disconnect();
+          loadComments();
+          break;
+        }
+      }
+    }, { rootMargin: '200px' });
+    observer.observe(section);
   }
-  document.addEventListener('astro:page-load', loadComments);
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', observeAndLoad);
+  } else {
+    observeAndLoad();
+  }
+  document.addEventListener('astro:page-load', observeAndLoad);
 </script>

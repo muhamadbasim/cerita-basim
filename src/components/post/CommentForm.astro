@@ -198,10 +198,30 @@ const { slug } = Astro.props;
     });
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initCommentForm);
-  } else {
-    initCommentForm();
+  // Defer initialization until section is visible (client:visible behavior)
+  function observeAndInit() {
+    const section = document.getElementById('comment-form-section');
+    if (!section) return;
+    if (!('IntersectionObserver' in window)) {
+      initCommentForm();
+      return;
+    }
+    const observer = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) {
+          observer.disconnect();
+          initCommentForm();
+          break;
+        }
+      }
+    }, { rootMargin: '200px' });
+    observer.observe(section);
   }
-  document.addEventListener('astro:page-load', initCommentForm);
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', observeAndInit);
+  } else {
+    observeAndInit();
+  }
+  document.addEventListener('astro:page-load', observeAndInit);
 </script>
