@@ -1,0 +1,450 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PRFAQ · Cerita Basim</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,800;9..144,900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #f6f1e7;
+      --bg-2: #efe6d3;
+      --paper: #fffaf0;
+      --ink: #1b1410;
+      --ink-2: #4a3c33;
+      --rule: #d9cdb7;
+      --accent: #c2410c;
+      --accent-2: #1b3b2f;
+      --gold: #b58105;
+      --shadow: 0 1px 0 rgba(27,20,16,.05), 0 14px 36px -22px rgba(27,20,16,.22);
+      --radius: 14px;
+      --font-display: 'Fraunces', Georgia, serif;
+      --font-body: 'DM Sans', system-ui, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; }
+    body {
+      font-family: var(--font-body); color: var(--ink);
+      background:
+        radial-gradient(900px 500px at 0% -10%, rgba(194,65,12,.08), transparent 60%),
+        radial-gradient(800px 500px at 110% 30%, rgba(27,59,47,.08), transparent 60%),
+        var(--bg);
+      line-height: 1.65;
+    }
+    .wrap { max-width: 880px; margin: 0 auto; padding: 56px 28px 96px; }
+
+    .eyebrow {
+      font-family: var(--font-body); font-weight: 700; letter-spacing: .14em;
+      text-transform: uppercase; font-size: 12px; color: var(--accent);
+    }
+    h1 { font-family: var(--font-display); font-weight: 800; font-size: 56px; letter-spacing: -0.02em; line-height: 1.04; margin: 8px 0 12px; }
+    h1 em { font-style: italic; color: var(--accent-2); font-weight: 600; }
+    .subtitle { color: var(--ink-2); font-size: 19px; max-width: 60ch; margin: 0; }
+    .meta-top { color: var(--ink-2); font-size: 14px; margin-top: 16px; }
+    .meta-top strong { color: var(--ink); }
+
+    .divider { height: 1px; background: var(--rule); margin: 36px 0; }
+
+    h2 { font-family: var(--font-display); font-weight: 700; font-size: 30px; letter-spacing: -0.01em; margin: 28px 0 6px; }
+    h3 { font-family: var(--font-display); font-weight: 700; font-size: 21px; margin: 22px 0 6px; }
+
+    a { color: var(--accent-2); text-decoration: none; border-bottom: 1px solid rgba(27,59,47,.35); }
+    a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+    .pr-card {
+      background: var(--paper); border: 1px solid var(--rule); border-radius: var(--radius);
+      padding: 36px 32px; box-shadow: var(--shadow);
+    }
+    .dateline {
+      font-family: var(--font-display); font-weight: 700; font-size: 14px;
+      letter-spacing: .05em; text-transform: uppercase; color: var(--accent-2);
+      border-bottom: 1px solid var(--rule); padding-bottom: 14px; margin-bottom: 18px;
+    }
+    .headline {
+      font-family: var(--font-display); font-weight: 800; font-size: 36px;
+      letter-spacing: -0.015em; line-height: 1.1; margin: 6px 0 8px;
+    }
+    .deck {
+      font-family: var(--font-display); font-style: italic; font-weight: 500;
+      font-size: 19px; color: var(--ink-2); margin: 0 0 22px; line-height: 1.45;
+    }
+
+    .pr-body p { margin: 0 0 14px; font-size: 16px; }
+    .pr-body p strong { color: var(--ink); }
+
+    .quote {
+      border-left: 3px solid var(--accent);
+      background: rgba(194,65,12,.04);
+      padding: 14px 20px; margin: 20px 0;
+      font-family: var(--font-display); font-style: italic; font-size: 19px;
+      line-height: 1.5; color: var(--ink);
+    }
+    .quote .attr {
+      display: block; font-family: var(--font-body); font-style: normal; font-weight: 600;
+      font-size: 13px; letter-spacing: .04em; color: var(--ink-2);
+      margin-top: 10px; text-transform: uppercase;
+    }
+
+    details {
+      background: var(--paper); border: 1px solid var(--rule); border-radius: 12px;
+      padding: 0; margin: 12px 0; overflow: hidden;
+      transition: box-shadow .25s ease;
+    }
+    details[open] { box-shadow: var(--shadow); }
+    summary {
+      cursor: pointer; padding: 18px 22px; list-style: none;
+      font-family: var(--font-display); font-weight: 700; font-size: 18px;
+      display: flex; align-items: center; gap: 14px;
+    }
+    summary::-webkit-details-marker { display: none; }
+    summary::before {
+      content: "+"; font-family: var(--font-display); font-weight: 800;
+      width: 26px; height: 26px; display: inline-grid; place-items: center;
+      border-radius: 8px; background: var(--bg-2); color: var(--accent);
+      font-size: 18px; transition: transform .2s ease, background .2s ease;
+      flex-shrink: 0;
+    }
+    details[open] summary::before { content: "−"; background: var(--accent); color: #fff; }
+    .faq-body { padding: 0 22px 20px 62px; color: var(--ink-2); font-size: 15.5px; }
+    .faq-body p { margin: 0 0 10px; }
+    .faq-body ul { margin: 6px 0 10px 18px; padding: 0; }
+
+    .tag {
+      display: inline-block; font-size: 11px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .06em;
+      padding: 3px 8px; border-radius: 6px; margin-right: 6px;
+      background: var(--bg-2); color: var(--ink-2);
+    }
+    .tag.internal { background: #fde9cf; color: var(--gold); }
+    .tag.external { background: #dcefe1; color: #2f7d56; }
+
+    .principles {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;
+    }
+    @media (max-width: 720px) { .principles { grid-template-columns: 1fr; } h1 { font-size: 42px; } .headline { font-size: 28px; } }
+    .principle {
+      background: var(--paper); border: 1px solid var(--rule); border-radius: 12px;
+      padding: 18px 20px;
+    }
+    .principle .num {
+      font-family: var(--font-display); font-weight: 800; font-size: 14px;
+      color: var(--accent); letter-spacing: .08em;
+    }
+    .principle h4 {
+      font-family: var(--font-display); font-weight: 700; font-size: 18px;
+      margin: 4px 0 6px;
+    }
+    .principle p { margin: 0; font-size: 14.5px; color: var(--ink-2); }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <div class="eyebrow">Phase 2 · PRFAQ</div>
+    <h1>Press Release &amp;<br/><em>Frequently Asked Questions.</em></h1>
+    <p class="subtitle">
+      Working Backwards untuk Cerita Basim — ditulis seolah produk sudah diluncurkan, dari sudut
+      pandang pembaca dan kreator yang akan memakainya.
+    </p>
+    <div class="meta-top">
+      Versi: <strong>Draft 1.0</strong> · Tanggal: <strong>19 Mei 2026</strong> ·
+      Untuk: <strong>Basim (creator), pembaca, &amp; future open-source contributors</strong>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- ============== PRESS RELEASE ============== -->
+    <div class="eyebrow" style="color:var(--accent-2);">Bagian 1 · Press Release</div>
+
+    <article class="pr-card" style="margin-top: 14px;">
+      <div class="dateline">Jakarta, 1 Juli 2026 — Untuk Disebarluaskan</div>
+
+      <h2 class="headline">Basim luncurkan Cerita Basim, satu rumah untuk karya dan tulisan — bebas algoritma, gratis selamanya.</h2>
+      <p class="deck">
+        cerita.basim.id menggabungkan portofolio project, blog editorial, komentar
+        terkurasi, dan newsletter dalam satu domain personal. Dibangun di atas Astro
+        dan Cloudflare, biaya operasionalnya nol rupiah per bulan.
+      </p>
+
+      <div class="pr-body">
+        <p>
+          Hari ini Basim mengumumkan peluncuran <strong>Cerita Basim</strong>
+          (<a href="https://cerita.basim.id" target="_blank">cerita.basim.id</a>), platform
+          portofolio dan blog personal yang dirancang untuk profesional umum yang ingin memiliki
+          ruang sendiri di internet — tanpa perlu tunduk pada algoritma platform sosial atau
+          membayar langganan bulanan.
+        </p>
+
+        <p>
+          Selama satu dekade, profesional yang ingin berbagi karya dan tulisan dipaksa membagi
+          identitas mereka ke beberapa platform. <strong>Project mereka di Behance, Notion, atau
+          Linktree. Tulisan mereka di Medium, Substack, atau LinkedIn.</strong> Akibatnya, mereka
+          memiliki dua URL, dua brand, dan tidak satu pun yang benar-benar mereka miliki.
+          Penelitian Cerita Basim menunjukkan 57% penulis Medium tidak menghasilkan apa-apa,
+          sementara Substack memotong 10% dari setiap pendapatan, dan Ghost membebankan minimal
+          $180 per tahun untuk fitur dasar.
+        </p>
+
+        <p>
+          Cerita Basim mengubah ini dengan menyediakan <strong>satu domain personal yang
+          menampung project showcase, cerita panjang, halaman tentang, komentar terkurasi, dan
+          newsletter</strong> — semua di bawah cerita.basim.id. Pembaca tidak perlu membuat akun
+          untuk membaca atau berlangganan. Komentar dimoderasi untuk menjaga kualitas diskusi.
+          Newsletter dikirim langsung dari domain pemilik tanpa branding pihak ketiga.
+        </p>
+
+        <p>
+          Karena Cerita Basim dibangun di atas <strong>Astro dan Cloudflare Pages</strong>, situs
+          terbit sebagai static HTML yang di-cache di 300+ data center global. Halaman terbuka
+          dalam ratusan milidetik dari mana saja di Indonesia. Komentar, reaksi, dan subscriber
+          email dikelola lewat Cloudflare D1, KV, dan Workers — semuanya dalam batas free tier
+          untuk traffic personal blog.
+        </p>
+
+        <div class="quote">
+          "Saya menulis dan membuat project sejak lama, tapi karya saya tersebar di mana-mana.
+          Cerita Basim adalah ruang yang akhirnya merangkum semuanya — dengan bahasa saya
+          sendiri, di domain saya sendiri, tanpa harus membayar siapa pun atau khawatir
+          algoritma akan mengubah aturan main."
+          <span class="attr">— Basim, Founder &amp; Creator</span>
+        </div>
+
+        <p>
+          Pembaca dapat mengeksplorasi project dengan filter berdasarkan kategori (web, mobile,
+          tools, eksperimen) atau membaca cerita dengan filter topik. Setiap post mendukung
+          komentar threaded (dimoderasi) dan reaksi emoji ringan. Subscriber newsletter mendapat
+          email plain text yang dirancang untuk dibaca di kotak masuk, bukan untuk klik.
+        </p>
+
+        <div class="quote">
+          "Akhirnya ada blog Indonesia yang terasa <em>premium</em> tanpa banner ads atau popup
+          minta langganan. Saya bisa langsung baca, komentar, dan pulang lewat email tanpa
+          kerepotan."
+          <span class="attr">— Salsa, pembaca dari Bandung</span>
+        </div>
+
+        <p>
+          Cerita Basim adalah personal project yang akan tetap <strong>gratis dan bebas
+          iklan</strong>. Pembaca yang ingin memberi dukungan dapat melakukannya melalui tombol
+          Saweria atau Buy Me a Coffee yang tertaut langsung — tanpa potongan platform.
+        </p>
+
+        <p>
+          Cerita Basim dapat diakses sekarang di
+          <a href="https://cerita.basim.id" target="_blank">cerita.basim.id</a>. Untuk
+          berlangganan newsletter, kunjungi <em>/subscribe</em>.
+        </p>
+      </div>
+    </article>
+
+    <div class="divider"></div>
+
+    <!-- ============== EXTERNAL FAQ ============== -->
+    <div class="eyebrow" style="color:var(--accent-2);">Bagian 2 · FAQ Eksternal</div>
+    <h2>Pertanyaan dari pembaca dan calon kreator</h2>
+    <p style="color: var(--ink-2);">
+      Pertanyaan yang akan ditanyakan publik begitu Cerita Basim diumumkan.
+    </p>
+
+    <details open>
+      <summary><span class="tag external">Pembaca</span> Apa bedanya Cerita Basim dengan Medium atau blog biasa?</summary>
+      <div class="faq-body">
+        <p>Tiga perbedaan utama:</p>
+        <ul>
+          <li><strong>Tidak ada paywall.</strong> Semua tulisan dan project bebas diakses. Tidak ada batas "5 artikel per bulan" seperti di Medium.</li>
+          <li><strong>Dimuat dalam satu kedipan mata.</strong> Sebagai static site di Cloudflare, halaman dimuat dalam &lt;500ms dari Indonesia. Tidak ada loading spinner, tidak ada lazy-loaded ads.</li>
+          <li><strong>Dimiliki oleh Basim, bukan platform.</strong> Kalau Cerita Basim suatu hari pindah CMS atau redesign, URL post lama tetap permanen. Konten kamu sebagai pembaca tidak akan tiba-tiba dipindah ke balik paywall.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details>
+      <summary><span class="tag external">Pembaca</span> Saya tidak mau bikin akun. Bisa baca dan komentar tanpa daftar?</summary>
+      <div class="faq-body">
+        <p>Bisa. Membaca tidak perlu akun apapun. Untuk komentar, kamu cukup memasukkan nama panggilan dan email (tidak ditampilkan publik, hanya untuk anti-spam dan notifikasi balasan). Untuk newsletter, hanya alamat email. Tidak ada password, tidak ada profile setup.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary><span class="tag external">Pembaca</span> Apakah komentar saya akan langsung tampil?</summary>
+      <div class="faq-body">
+        <p>Komentar pertama dari email baru akan masuk antrian moderasi (biasanya disetujui dalam 12 jam). Setelah komentar pertamamu disetujui, komentar berikutnya tampil otomatis. Spam dan komentar yang melanggar pedoman komunitas tidak akan muncul. Pendekatan ini menjaga kualitas diskusi sembari tetap mudah dipakai.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary><span class="tag external">Pembaca</span> Bagaimana saya tahu kalau ada cerita baru?</summary>
+      <div class="faq-body">
+        <p>Tiga cara: (1) berlangganan newsletter di <em>/subscribe</em> — email dikirim setiap kali ada cerita baru, plain text, tidak ada tracking pixel; (2) RSS feed di <em>/rss.xml</em> untuk pembaca pakai Feedly/Reeder; (3) follow akun media sosial Basim, di mana setiap cerita baru di-share.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary><span class="tag external">Kreator</span> Bisakah saya bikin Cerita Basim versi saya sendiri?</summary>
+      <div class="faq-body">
+        <p>Ya — Cerita Basim akan tersedia sebagai template open-source di GitHub (rencana setelah versi stabil rilis). Kamu bisa fork, ganti nama, deploy ke Cloudflare Pages dengan domainmu sendiri. Stack: Astro 5+, Cloudflare Pages, D1 untuk konten dinamis, Resend untuk email. Biaya bulanan: nol selama traffic kamu &lt;100k pageview.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary><span class="tag external">Pembaca</span> Apakah datanya aman? Email saya akan dijual?</summary>
+      <div class="faq-body">
+        <p>Tidak. Cerita Basim tidak menjalankan iklan, tidak memakai trackers analytic invasive (cuma Cloudflare Web Analytics tanpa cookie), dan tidak menjual data ke pihak manapun. Email subscriber hanya dipakai untuk mengirim cerita baru. Kamu bisa unsubscribe dari setiap email dengan satu klik.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary><span class="tag external">Kreator</span> Saya juga punya domain Cloudflare. Berapa lama setup-nya?</summary>
+      <div class="faq-body">
+        <p>Setup pertama (deploy template, hubungkan domain, konfig D1 + KV + Resend) memakan waktu sekitar 30–45 menit untuk seseorang yang familiar dengan Git. Menulis post pertama setelah itu: 5 menit. Dokumentasi lengkap akan tersedia di repository.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary><span class="tag external">Pembaca</span> Mengapa Bahasa Indonesia, bukan English?</summary>
+      <div class="faq-body">
+        <p>Karena Basim menulis untuk pembaca yang berpikir dan merasakan dalam Bahasa Indonesia. Long-form Bahasa Indonesia underserved — sebagian besar konten teknis dan editorial profesional di Internet masih English-first. Cerita Basim tidak memaksakan English untuk terlihat "global". Sebagian post bisa bilingual atau English murni jika konteksnya menuntut.</p>
+      </div>
+    </details>
+
+    <div class="divider"></div>
+
+    <!-- ============== INTERNAL FAQ ============== -->
+    <div class="eyebrow" style="color:var(--accent-2);">Bagian 3 · FAQ Internal</div>
+    <h2>Pertanyaan dari diri sendiri (skeptical)</h2>
+    <p style="color: var(--ink-2);">
+      Pertanyaan keras yang Basim harus jawab sebelum invest waktu. Tidak ada "softball".
+    </p>
+
+    <details open>
+      <summary><span class="tag internal">Strategi</span> Kenapa bikin platform sendiri kalau Hashnode sudah gratis dan punya custom domain?</summary>
+      <div class="faq-body">
+        <p>Tiga alasan substantif:</p>
+        <ul>
+          <li><strong>Hashnode adalah platform developer-first.</strong> Audience-nya teknis, dan kustomisasi visual terbatas pada theme bawaan. Cerita Basim ditulis untuk profesional umum, dengan editorial direction yang tidak bisa dicapai di Hashnode.</li>
+          <li><strong>Tidak ada modul portfolio.</strong> Hashnode adalah blog. Cerita Basim menggabungkan project showcase dan blog di satu tempat — Hashnode tidak punya ini.</li>
+          <li><strong>Stack ownership.</strong> Hashnode bisa berubah aturan main, ditutup, atau di-acquire. Stack Astro+Cloudflare bisa di-export sebagai folder file kapan saja.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details>
+      <summary><span class="tag internal">Risiko</span> Apa kalau hanya 0 orang yang baca selama 6 bulan pertama?</summary>
+      <div class="faq-body">
+        <p>Ini risiko paling besar. Mitigasi: (1) cerita ditulis terlebih dahulu untuk diri sendiri — kalau tidak ada pembaca, tetap punya nilai sebagai personal archive; (2) SEO sempurna sejak hari pertama (Astro static + structured data + sitemap) untuk discovery jangka panjang; (3) syndicate cross-post selektif ke dev.to/Hashnode untuk discoverability; (4) progress traffic diukur di milestone 6 dan 12 bulan, bukan minggu pertama. Personal blogs tidak compound dalam hitungan minggu.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary><span class="tag internal">Teknis</span> Mengapa Astro, bukan Next.js atau plain HTML?</summary>
+      <div class="faq-body">
+        <p>Astro 5+ unggul di tiga hal: (a) <strong>zero JS by default</strong> — halaman blog terbit sebagai HTML murni, performance-nya kompetitif dengan plain HTML; (b) <strong>islands architecture</strong> — komentar dan subscribe form bisa interaktif tanpa membuat seluruh halaman jadi React app; (c) <strong>content collection</strong> — markdown dengan typed frontmatter, ideal untuk blog. Next.js overkill untuk content site personal. Plain HTML kekurangan komponen reuse. Cloudflare juga punya official adapter untuk Astro.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary><span class="tag internal">Teknis</span> Mengapa Cloudflare, bukan Vercel atau AWS?</summary>
+      <div class="faq-body">
+        <p>Tiga alasan kunci:</p>
+        <ul>
+          <li><strong>Free tier yang generous tanpa kartu kredit.</strong> Pages: unlimited deploy, unlimited bandwidth. D1: 5GB storage, 5M reads/day. KV: 100k reads/day. Workers: 100k req/day. Untuk personal blog ini melebihi kebutuhan dengan kelipatan 10x.</li>
+          <li><strong>Kecepatan global.</strong> Cloudflare punya 300+ data center termasuk Jakarta dan Singapore, latency dari Indonesia sangat rendah.</li>
+          <li><strong>Domain sudah ada di Cloudflare.</strong> Konfigurasi DNS, SSL, dan deploy jadi seamless. Tidak perlu vendor management ke 3 perusahaan berbeda.</li>
+        </ul>
+        <p>Catatan: panduan kerja menyebut "AWS-native preferred", tapi konstrain user (domain di Cloudflare, framework Astro+Cloudflare) dan model gratis menjadikan Cloudflare pilihan yang justified untuk use case ini.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary><span class="tag internal">Risiko</span> Kalau saya berhenti maintain, bagaimana?</summary>
+      <div class="faq-body">
+        <p>Risiko yang harus diterima sebagai personal project. Mitigasi: (a) konten markdown disimpan di Git, bisa di-export ke platform lain dalam hitungan menit; (b) D1 backup mingguan otomatis ke R2; (c) tidak ada vendor lock-in proprietary — Astro adalah framework open standard. Jika produksi berhenti, situs static tetap menyala karena Cloudflare Pages tidak butuh server live.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary><span class="tag internal">Strategi</span> Apa metric kesuksesan 12 bulan pertama?</summary>
+      <div class="faq-body">
+        <p>Realistis dan personal-grade, bukan startup metric:</p>
+        <ul>
+          <li><strong>Konsistensi:</strong> minimal 1 cerita per bulan, 12 cerita di akhir tahun pertama.</li>
+          <li><strong>Project showcase:</strong> minimal 6 case study project lengkap.</li>
+          <li><strong>Subscriber:</strong> 100 email subscriber organik (tanpa paid ads).</li>
+          <li><strong>Traffic:</strong> 5.000 pageview/bulan di bulan ke-12 (modest tapi nyata).</li>
+          <li><strong>Performance:</strong> Lighthouse 95+ di setiap halaman, sustained.</li>
+          <li><strong>Cost:</strong> $0/bulan operasional. Jika harus naik tier Cloudflare, ada masalah produk.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details>
+      <summary><span class="tag internal">Risiko</span> Apa indikator ini gagal dan harus dihentikan?</summary>
+      <div class="faq-body">
+        <p>Tiga indikator stop-loss:</p>
+        <ul>
+          <li>Tidak ada cerita baru selama 90 hari berturut-turut <strong>dan</strong> tidak ada keinginan untuk menulis lagi.</li>
+          <li>Effort maintenance teknis melebihi waktu yang dialokasikan untuk menulis (lebih dari 30% per bulan).</li>
+          <li>Setelah 18 bulan, tidak ada satu cerita pun yang men-generate respons bermakna (komentar berkualitas, email pembaca, share organik).</li>
+        </ul>
+        <p>Jika dua dari tiga terjadi, evaluasi serius: pivot, simplifikasi, atau sunset.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary><span class="tag internal">Teknis</span> Cloudflare D1 masih relatif baru. Apa kalau ada outage atau diskontinu?</summary>
+      <div class="faq-body">
+        <p>D1 sudah GA (general availability) sejak April 2024, dipakai produksi oleh banyak SaaS. Outage Cloudflare berdampak ke seluruh internet — risiko bersistem, bukan spesifik. Mitigasi: (a) konten primer (post + project) <em>tidak</em> di D1 — tetap di Git/markdown sehingga blog tetap menyala dari static cache walau D1 down; (b) hanya komentar dan subscriber list yang di D1 — bisa graceful-degrade. Risiko diskontinu: kecil; kalau pun terjadi, migrasi D1 → SQLite atau Turso adalah operasi rutin.</p>
+      </div>
+    </details>
+
+    <div class="divider"></div>
+
+    <!-- ============== TENETS ============== -->
+    <h2>Tenets Produk</h2>
+    <p style="color:var(--ink-2);">Prinsip yang akan dipakai untuk setiap keputusan desain dan teknis.</p>
+
+    <div class="principles">
+      <div class="principle">
+        <div class="num">01</div>
+        <h4>Kepemilikan, bukan platform</h4>
+        <p>Konten, audience, dan URL semuanya milik Basim. Tidak ada rajah platform pihak ketiga di branding utama.</p>
+      </div>
+      <div class="principle">
+        <div class="num">02</div>
+        <h4>Cepat, di mana saja</h4>
+        <p>Halaman terbuka &lt;500ms dari Indonesia. Lighthouse 95+ di setiap halaman. Static-first selalu.</p>
+      </div>
+      <div class="principle">
+        <div class="num">03</div>
+        <h4>Hangat, tidak generik</h4>
+        <p>Tipografi serif editorial, warna sand &amp; terracotta. Bukan "yet another dev blog" purple gradient.</p>
+      </div>
+      <div class="principle">
+        <div class="num">04</div>
+        <h4>Tulis, jangan ribet</h4>
+        <p>Markdown di Git, deploy otomatis. Tidak ada CMS rumit. Menulis = commit, baca = klik.</p>
+      </div>
+      <div class="principle">
+        <div class="num">05</div>
+        <h4>Engagement berkualitas</h4>
+        <p>Komentar dimoderasi. Reaksi ringan. Tidak ada feed algoritma. Pembaca yang serius.</p>
+      </div>
+      <div class="principle">
+        <div class="num">06</div>
+        <h4>Gratis, selamanya</h4>
+        <p>Operasional &lt; $0/bulan. Jika harus bayar, fitur itu ditolak — bukan dipaksakan ke pembaca.</p>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <h2>Referensi</h2>
+    <p style="color:var(--ink-2);">
+      Press release dan FAQ ini didasarkan pada temuan Phase 1 di
+      <a href="MarketResearch_CeritaBasim_2026-05-19.html">MarketResearch_CeritaBasim_2026-05-19.html</a>.
+      Setiap angka dan klaim (median income Medium, biaya Substack/Ghost, traffic potensial) dapat ditelusuri ke sumber bernomor di dokumen tersebut.
+    </p>
+  </main>
+</body>
+</html>

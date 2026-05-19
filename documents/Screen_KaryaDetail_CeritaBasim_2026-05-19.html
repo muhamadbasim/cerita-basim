@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Penjaja — case study · Cerita Basim</title>
+  <meta name="description" content="Marketplace untuk pedagang kaki lima Jakarta. Bagaimana 200 pedagang Tanah Abang kelola order WA dengan satu app." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,800&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="cerita-basim.css" />
+  <style>
+    .case-hero { padding: 56px 0 24px; }
+    .case-cover { aspect-ratio: 21/9; border-radius: var(--r-3); overflow: hidden; margin: 24px 0 36px; box-shadow: var(--shadow-md); }
+    .case-cover .cover-art { font-size: 140px; }
+    .case-meta { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; padding: 20px 0; border-block: 1px solid var(--rule); margin: 32px 0; }
+    @media (max-width: 720px) { .case-meta { grid-template-columns: repeat(2, 1fr); } .case-cover .cover-art { font-size: 80px; } }
+    .case-meta .item .label { font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); }
+    .case-meta .item .value { font-family: var(--font-display); font-weight: 700; font-size: 16px; color: var(--ink); margin-top: 4px; }
+    .results { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 28px 0; }
+    @media (max-width: 720px) { .results { grid-template-columns: 1fr; } }
+    .result-card { padding: 22px 24px; background: var(--paper); border: 1px solid var(--rule); border-radius: var(--r-3); }
+    .result-card .num { font-family: var(--font-display); font-weight: 800; font-size: 38px; color: var(--accent); line-height: 1; }
+    .result-card .text { color: var(--ink-2); font-size: 14.5px; margin-top: 6px; }
+    .breadcrumb { font-size: 13px; color: var(--ink-3); margin-bottom: 14px; }
+    .breadcrumb a { color: var(--ink-3); }
+    .breadcrumb a:hover { color: var(--accent); }
+    .next-prev { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 56px 0 0; }
+    @media (max-width: 720px) { .next-prev { grid-template-columns: 1fr; } }
+    .np-card { padding: 18px 20px; background: var(--paper); border: 1px solid var(--rule); border-radius: var(--r-3); text-decoration: none; color: var(--ink); transition: all var(--duration-fast); }
+    .np-card:hover { border-color: var(--accent); transform: translateY(-2px); color: var(--ink); }
+    .np-card .label { font-size: 11px; color: var(--ink-3); letter-spacing: .12em; text-transform: uppercase; }
+    .np-card .title { font-family: var(--font-display); font-weight: 700; margin-top: 4px; }
+  </style>
+</head>
+<body>
+  <a href="#main" class="skip-to-main">Lewati ke konten</a>
+  <header class="topnav">
+    <div class="topnav-inner">
+      <a class="brand" href="Screen_Home_CeritaBasim_2026-05-19.html"><span class="brand-mark">cb</span><span class="brand-name">Cerita <em>Basim</em></span></a>
+      <nav class="topnav-links" aria-label="Primer">
+        <a href="Screen_Home_CeritaBasim_2026-05-19.html">Beranda</a>
+        <a href="Screen_KaryaIndex_CeritaBasim_2026-05-19.html" class="active">Karya</a>
+        <a href="Screen_CeritaIndex_CeritaBasim_2026-05-19.html">Cerita</a>
+        <a href="Screen_Tentang_CeritaBasim_2026-05-19.html">Tentang</a>
+      </nav>
+      <div class="topnav-actions">
+        <a href="Screen_Subscribe_CeritaBasim_2026-05-19.html" class="btn btn-primary btn-sm">Subscribe</a>
+        <button class="theme-toggle" type="button" aria-label="Ganti tema" onclick="toggleTheme()">
+          <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2m10-10h-2M4 12H2m15.5-7.5L16 6m-8 12l-1.5 1.5M19.5 19.5L18 18M6 6L4.5 4.5"/></svg>
+          <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main" class="container-narrow case-hero">
+    <div class="breadcrumb"><a href="Screen_KaryaIndex_CeritaBasim_2026-05-19.html">← Karya</a> · Web · 2025</div>
+    <span class="eyebrow">Case Study</span>
+    <h1 class="h-display">Penjaja —<br/><em>marketplace untuk pedagang kaki lima.</em></h1>
+    <p class="muted" style="font-size:18px;max-width:60ch;">200 pedagang di Tanah Abang kini kelola order WA mereka lewat satu app yang ringan dan offline-friendly. Berikut cerita di balik desainnya.</p>
+  </main>
+
+  <div class="container-narrow">
+    <div class="case-cover cover-mix"><div class="cover-art">Penjaja</div></div>
+
+    <div class="case-meta">
+      <div class="item"><span class="label">Peran</span><span class="value">Solo Founder</span></div>
+      <div class="item"><span class="label">Durasi</span><span class="value">8 bulan</span></div>
+      <div class="item"><span class="label">Stack</span><span class="value">Astro · D1 · WA API</span></div>
+      <div class="item"><span class="label">Status</span><span class="value">Live · 2025</span></div>
+    </div>
+  </div>
+
+  <article class="container-narrow prose">
+    <h2>Masalah</h2>
+    <p>Pedagang kaki lima di Tanah Abang menerima rata-rata 40-60 order per hari lewat WhatsApp. Catatan dilakukan di kertas, salah hitung sering, dan begitu order &gt;100 mereka kewalahan. Beberapa coba pakai Google Form atau spreadsheet, tapi grup target ini umumnya tidak nyaman dengan tab yang terlalu banyak.</p>
+
+    <blockquote>"Saya cuma butuh satu layar yang nampilkan order hari ini, urut, lengkap dengan alamat. Sudah." — Bu Eni, pedagang batik, 12 tahun jualan online.</blockquote>
+
+    <h2>Proses</h2>
+    <p>Selama 4 minggu pertama saya tidak menulis kode. Saya nongkrong di toko Bu Eni dan dua pedagang lain, mencatat workflow mereka. Pola yang muncul:</p>
+    <ul>
+      <li>Order datang via WA — chat panjang dengan banyak gambar.</li>
+      <li>Pedagang reply manual: konfirmasi stok, harga, ongkir, total.</li>
+      <li>Buyer transfer, kirim bukti.</li>
+      <li>Pedagang catat di kertas, kasih ke kurir.</li>
+    </ul>
+    <p>Yang menarik: setiap pedagang punya cara berbeda, tapi semua berakhir di kertas yang sama bentuknya. Kertas itu yang harus saya digitalisasi, bukan chat-nya.</p>
+
+    <h3>Decision penting</h3>
+    <p>Saya memutuskan <strong>tidak menggantikan WhatsApp</strong>. Penjaja hanya jadi "panel di samping" — pedagang tetap chat seperti biasa, tapi sekali klik bisa generate order baru ke aplikasi. Buyer sama sekali tidak perlu install apapun.</p>
+
+    <h2>Hasil</h2>
+    <div class="results">
+      <div class="result-card"><div class="num">200+</div><div class="text">pedagang aktif di Tanah Abang setelah 6 bulan</div></div>
+      <div class="result-card"><div class="num">12 dtk</div><div class="text">rata-rata waktu konfirmasi order (dari ~3 menit)</div></div>
+      <div class="result-card"><div class="num">$0</div><div class="text">biaya hosting / bulan — Cloudflare free tier</div></div>
+    </div>
+
+    <h2>Yang saya pelajari</h2>
+    <p>Membangun untuk audiens yang bukan diri sendiri membutuhkan kerendahan hati. Asumsi saya soal "interface yang clean" hampir selalu salah — mereka butuh font besar, kontras tinggi, dan tombol yang sengaja gemuk. Iterasi tidak datang dari A/B test, datang dari ngobrol langsung di toko sambil menyeruput kopi.</p>
+
+    <p><a href="#" onclick="toast('Demo: penjaja.id (mock)');return false;">Coba demo →</a> · <a href="#" onclick="toast('GitHub repo: github.com/basim/penjaja');return false;">GitHub</a></p>
+
+    <hr/>
+
+    <div class="next-prev">
+      <a class="np-card" href="Screen_KaryaDetail_CeritaBasim_2026-05-19.html">
+        <div class="label">← Sebelumnya</div>
+        <div class="title">Lurah</div>
+      </a>
+      <a class="np-card" href="Screen_KaryaDetail_CeritaBasim_2026-05-19.html" style="text-align:right;">
+        <div class="label">Selanjutnya →</div>
+        <div class="title">Kayu</div>
+      </a>
+    </div>
+  </article>
+
+  <footer class="footer-cb">
+    <div class="footer-cb-inner">
+      <div><a class="brand" href="Screen_Home_CeritaBasim_2026-05-19.html"><span class="brand-mark">cb</span><span class="brand-name">Cerita <em>Basim</em></span></a><p class="meta">Karya, cerita, dan pembaca — sejak 2026.</p></div>
+      <div><h5>Jelajah</h5><ul><li><a href="Screen_Home_CeritaBasim_2026-05-19.html">Beranda</a></li><li><a href="Screen_KaryaIndex_CeritaBasim_2026-05-19.html">Karya</a></li><li><a href="Screen_CeritaIndex_CeritaBasim_2026-05-19.html">Cerita</a></li></ul></div>
+      <div><h5>Tetap terhubung</h5><ul><li><a href="Screen_Subscribe_CeritaBasim_2026-05-19.html">Newsletter</a></li></ul></div>
+      <div><h5>Lain-lain</h5><ul><li><a href="Screen_AdminLogin_CeritaBasim_2026-05-19.html">Admin</a></li></ul></div>
+    </div>
+  </footer>
+
+  <div class="toast-region" id="toasts" aria-live="polite"></div>
+
+  <script>
+    function toggleTheme(){const r=document.documentElement;const c=r.getAttribute('data-theme')||'light';const n=c==='light'?'dark':'light';r.setAttribute('data-theme',n);try{localStorage.setItem('cb-theme',n)}catch(e){}}
+    (function(){try{const s=localStorage.getItem('cb-theme');if(s)document.documentElement.setAttribute('data-theme',s);else if(window.matchMedia('(prefers-color-scheme: dark)').matches)document.documentElement.setAttribute('data-theme','dark')}catch(e){}})();
+    function toast(msg,k){const r=document.getElementById('toasts');const el=document.createElement('div');el.className='toast'+(k?' toast-'+k:'');el.textContent=msg;r.appendChild(el);setTimeout(()=>el.remove(),3000);}
+  </script>
+</body>
+</html>

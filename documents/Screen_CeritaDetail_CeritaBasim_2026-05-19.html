@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Kenapa saya pindah dari Medium ke domain sendiri · Cerita Basim</title>
+  <meta name="description" content="Tiga bulan setelah migrasi, traffic organik naik 3×. Catatan kecil yang berguna kalau kamu mempertimbangkan hal yang sama." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,800&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="cerita-basim.css" />
+  <style>
+    .article-grid { display: grid; grid-template-columns: 220px 1fr; gap: 56px; padding: 32px 0 64px; }
+    @media (max-width: 1000px) { .article-grid { grid-template-columns: 1fr; gap: 24px; } .toc { position: static; display: none; } }
+    .article-meta { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; color: var(--ink-2); font-size: 14px; margin: 18px 0 28px; }
+    .author-chip { display: flex; align-items: center; gap: 10px; }
+    .author-chip .avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-2), var(--accent-2-deep)); color: #fff; display: grid; place-items: center; font-family: var(--font-display); font-weight: 700; font-size: 13px; }
+    .related { background: var(--paper); border: 1px solid var(--rule); border-radius: var(--r-3); padding: 28px; margin-top: 48px; }
+    .related h3 { margin: 0 0 16px; }
+    .related-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    @media (max-width: 720px) { .related-list { grid-template-columns: 1fr; } }
+    .related-card { display: block; padding: 16px; background: var(--bg); border: 1px solid var(--rule); border-radius: var(--r-2); text-decoration: none; color: var(--ink); transition: all var(--duration-fast); }
+    .related-card:hover { border-color: var(--accent); transform: translateY(-2px); color: var(--ink); }
+    .related-card .date { font-size: 11px; color: var(--ink-3); letter-spacing: .08em; text-transform: uppercase; }
+    .related-card h4 { font-size: 16px; margin: 4px 0 0; }
+    .reaction-section { display: flex; align-items: center; gap: 16px; padding: 28px 0; border-block: 1px solid var(--rule); margin: 36px 0; }
+    .comment-form { background: var(--paper); border: 1px solid var(--rule); border-radius: var(--r-3); padding: 24px; margin: 32px 0; }
+    .comment-form h3 { margin: 0 0 16px; }
+    .turnstile-mock { background: var(--bg-2); border: 1px solid var(--rule); border-radius: var(--r-2); padding: 12px 14px; font-size: 13px; color: var(--ink-2); display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .turnstile-mock .check { width: 18px; height: 18px; border-radius: 4px; border: 2px solid var(--ink-3); }
+    .turnstile-mock.verified .check { background: var(--ok); border-color: var(--ok); }
+    .turnstile-mock.verified .check::after { content:"✓"; color:#fff; font-size:12px; font-weight:bold; display:grid; place-items:center; height: 100%; line-height:1; }
+    .typing-indicator { display: none; align-items: center; gap: 8px; color: var(--ink-2); font-size: 13px; padding: 10px 0; }
+    .typing-indicator .dots { display: inline-flex; gap: 4px; }
+    .typing-indicator .dots span { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: bump 1s var(--ease-out) infinite; }
+    .typing-indicator .dots span:nth-child(2) { animation-delay: .15s; }
+    .typing-indicator .dots span:nth-child(3) { animation-delay: .3s; }
+    .typing-indicator.show { display: inline-flex; }
+  </style>
+</head>
+<body>
+  <a href="#main" class="skip-to-main">Lewati ke konten</a>
+  <div class="reading-progress" aria-hidden="true"><div id="progressFill"></div></div>
+
+  <header class="topnav">
+    <div class="topnav-inner">
+      <a class="brand" href="Screen_Home_CeritaBasim_2026-05-19.html"><span class="brand-mark">cb</span><span class="brand-name">Cerita <em>Basim</em></span></a>
+      <nav class="topnav-links" aria-label="Primer">
+        <a href="Screen_Home_CeritaBasim_2026-05-19.html">Beranda</a>
+        <a href="Screen_KaryaIndex_CeritaBasim_2026-05-19.html">Karya</a>
+        <a href="Screen_CeritaIndex_CeritaBasim_2026-05-19.html" class="active">Cerita</a>
+        <a href="Screen_Tentang_CeritaBasim_2026-05-19.html">Tentang</a>
+      </nav>
+      <div class="topnav-actions">
+        <a href="Screen_Subscribe_CeritaBasim_2026-05-19.html" class="btn btn-primary btn-sm">Subscribe</a>
+        <button class="theme-toggle" type="button" aria-label="Ganti tema" onclick="toggleTheme()">
+          <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2m10-10h-2M4 12H2m15.5-7.5L16 6m-8 12l-1.5 1.5M19.5 19.5L18 18M6 6L4.5 4.5"/></svg>
+          <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main" class="container-narrow" style="padding-top: 48px;">
+    <div style="margin-bottom: 14px;"><a href="Screen_CeritaIndex_CeritaBasim_2026-05-19.html" style="font-size: 13.5px; color: var(--ink-3);">← Kembali ke cerita</a></div>
+    <span class="eyebrow">Produk · Karier · 12 Mei 2026</span>
+    <h1 class="h-display" style="margin: 12px 0 12px;">Kenapa saya pindah dari Medium ke <em>domain sendiri</em>.</h1>
+    <p class="muted" style="font-size: 19px; line-height: 1.5;">Tiga bulan setelah migrasi, traffic organik naik 3×. Catatan kecil yang berguna kalau kamu mempertimbangkan hal yang sama.</p>
+    <div class="article-meta">
+      <div class="author-chip"><div class="avatar">BS</div><span><strong>Basim</strong> · Founder, Cerita Basim</span></div>
+      <span>·</span>
+      <span>8 menit baca</span>
+      <span>·</span>
+      <span>Diperbarui: 12 Mei 2026</span>
+    </div>
+  </main>
+
+  <div class="container">
+    <div class="article-grid">
+      <aside class="toc" aria-label="Daftar isi">
+        <h6>Daftar isi</h6>
+        <ol id="tocList">
+          <li><a href="#alasan" class="active">Tiga alasan pindah</a></li>
+          <li><a href="#stack">Pilihan stack</a></li>
+          <li class="h3"><a href="#stack-cf">Kenapa Cloudflare</a></li>
+          <li class="h3"><a href="#stack-astro">Kenapa Astro</a></li>
+          <li><a href="#hasil">Hasil tiga bulan</a></li>
+          <li><a href="#pelajaran">Yang saya pelajari</a></li>
+        </ol>
+      </aside>
+
+      <article class="prose" id="article">
+        <p>Saya menulis di Medium selama empat tahun. 60-an artikel, beberapa lumayan dibaca, satu-dua viral kecil. Pada Februari 2026 saya migrasi semua tulisan saya ke domain sendiri. Ini bukan keputusan yang ringan, dan saya butuh tiga bulan baru bisa menilai hasilnya. Ringkasannya: <strong>traffic organik naik 3× dan saya tidur lebih lelap</strong>.</p>
+
+        <h2 id="alasan">Tiga alasan pindah</h2>
+        <p>Yang membuat saya akhirnya pindah bukan satu hal, tapi akumulasi tiga alasan yang muncul bersamaan:</p>
+        <ol>
+          <li><strong>Audience saya bukan milik saya.</strong> Begitu saya berhenti bayar Medium membership, statistik berhenti, follower tidak bisa di-export, dan reach tiba-tiba turun karena algoritma berubah. Empat tahun investasi, saya tidak bisa bawa apa-apa.</li>
+          <li><strong>Paywall yang membuat tulisan saya terkunci.</strong> Tulisan teknis yang seharusnya membantu komunitas malah jadi member-only. Beberapa pembaca complain tidak bisa baca padahal mereka mau belajar.</li>
+          <li><strong>Tampilannya makin generik.</strong> Setiap update Medium ke template-nya bikin tulisan saya terlihat seperti tulisan orang lain. Tidak ada lagi sense of place.</li>
+        </ol>
+
+        <blockquote>"Owning your platform is not about ego. It's about the simple acknowledgment that audience is the asset, not content. Without owned access to your audience, every piece of content is a rental."</blockquote>
+
+        <h2 id="stack">Pilihan stack</h2>
+        <p>Saya ingin tiga properti dari stack baru: <em>cepat, gratis, dan owned</em>. Setelah riset 2 minggu, pilihan saya:</p>
+
+        <h3 id="stack-cf">Kenapa Cloudflare</h3>
+        <p>Saya sudah punya domain di Cloudflare. Pages gratis dengan unlimited bandwidth. D1 (SQLite) cukup untuk komentar dan subscriber list selama bertahun-tahun. Workers free tier 100k request per hari, yang berarti 3,3 juta request per bulan — jauh lebih besar dari yang saya butuhkan untuk situs personal.</p>
+        <p>Yang menarik: <code>wrangler pages deploy</code> selesai dalam 30 detik. Setiap commit ke main langsung live. Ini lebih cepat dari Medium men-publish artikel saya dulu.</p>
+
+        <h3 id="stack-astro">Kenapa Astro</h3>
+        <p>Astro 5 punya pendekatan yang sangat cocok untuk content site: zero JavaScript by default, content collections untuk markdown bertypings, dan islands architecture untuk komponen interaktif. Halaman post saya kini cuma 8KB HTML (tanpa font), dimuat dalam 200ms dari mana pun.</p>
+
+        <h2 id="hasil">Hasil tiga bulan</h2>
+        <p>Tiga metrik utama:</p>
+        <ul>
+          <li><strong>Traffic organik:</strong> dari ~800 pageview/bulan di Medium akhir, ke 2.400 pageview/bulan setelah 3 bulan di domain sendiri.</li>
+          <li><strong>Email subscriber:</strong> 0 → 78 dalam 3 bulan, semuanya organik via newsletter form.</li>
+          <li><strong>Komentar berkualitas:</strong> dari nyaris nol di Medium (yang biasanya hanya emoji clap), ke 12 komentar substansial yang membuka diskusi nyata.</li>
+        </ul>
+
+        <h2 id="pelajaran">Yang saya pelajari</h2>
+        <p>Pertama, <em>kebebasan datang dengan biaya kecil</em>. Saya harus moderasi komentar sendiri. Saya harus mendesain template sendiri. Tapi semua ini adalah pekerjaan yang sebenarnya saya nikmati — dan menghasilkan situs yang terasa <em>milik saya</em>.</p>
+        <p>Kedua, <em>discoverability lebih sulit, tapi audience lebih loyal</em>. Tidak ada lagi distribusi gratis dari algoritma Medium. Saya harus share di tempat-tempat yang saya percaya: dev.to untuk tulisan teknis, Twitter untuk catatan ringan, newsletter untuk yang panjang.</p>
+        <p>Ketiga, <em>menulis untuk audience yang saya pilih sendiri lebih menyenangkan</em>. Tidak ada lagi tekanan SEO untuk topik trending. Saya bisa menulis "Catatan kecil sabtu pagi" tanpa khawatir performa.</p>
+
+        <p>Kalau kamu mempertimbangkan hal yang sama, mulailah dari memahami bahwa proses ini bukan hanya teknis. Ini adalah keputusan strategis tentang bagaimana kamu ingin menulis untuk dekade berikutnya. Worth it.</p>
+
+        <hr/>
+        <p style="font-size: 14px; color: var(--ink-2);">Tulisan ini juga di-syndicate ke <a href="#" onclick="toast('Akan dialihkan ke dev.to');return false;">dev.to</a>. Kalau kamu suka, <a href="Screen_Subscribe_CeritaBasim_2026-05-19.html">subscribe</a> untuk cerita berikutnya.</p>
+
+        <!-- Reactions -->
+        <div class="reaction-section">
+          <span class="muted" style="font-size: 14px; font-weight: 600;">Bagaimana menurutmu?</span>
+          <div class="reaction-bar" role="group" aria-label="Reaksi untuk artikel ini">
+            <button class="reaction-btn" data-emoji="love" aria-pressed="false"><span class="emoji">❤️</span><span class="count">42</span></button>
+            <button class="reaction-btn" data-emoji="insight" aria-pressed="false"><span class="emoji">💡</span><span class="count">28</span></button>
+            <button class="reaction-btn" data-emoji="fire" aria-pressed="false"><span class="emoji">🔥</span><span class="count">19</span></button>
+            <button class="reaction-btn" data-emoji="thinking" aria-pressed="false"><span class="emoji">🤔</span><span class="count">11</span></button>
+            <button class="reaction-btn" data-emoji="applause" aria-pressed="false"><span class="emoji">👏</span><span class="count">7</span></button>
+          </div>
+        </div>
+
+        <!-- Comments -->
+        <h2 style="margin-top: 0;">Komentar (3)</h2>
+        <div class="comment-list" id="commentList">
+          <div class="comment">
+            <div class="avatar">SR</div>
+            <div>
+              <div class="meta"><span class="name">Salsa Ramadhani</span> <span class="time">2 jam lalu</span></div>
+              <div class="body">Setuju, terutama soal owned audience. Setelah pindah dari Medium ke domain sendiri, traffic organik saya juga naik 3× dalam 6 bulan. Yang menarik, komentar yang masuk jauh lebih substantif — feels like real readers, bukan random clappers.</div>
+              <div class="comment-actions"><button onclick="this.parentNode.parentNode.parentNode.querySelector('.reply-form')?.classList.toggle('show') || addReplyForm(this)">Balas</button> <button>👍 4</button></div>
+            </div>
+          </div>
+          <div class="comment is-reply">
+            <div class="avatar">BS</div>
+            <div>
+              <div class="meta"><span class="name">Basim</span> <span class="pill pill-accent" style="font-size:10px">author</span> <span class="time">1 jam lalu</span></div>
+              <div class="body">Wah pengalaman serupa. Pertanyaan: kamu pakai Astro juga, atau Hugo/Eleventy? Saya curious soal trade-off-nya.</div>
+              <div class="comment-actions"><button>Balas</button> <button>👍 1</button></div>
+            </div>
+          </div>
+          <div class="comment">
+            <div class="avatar">AR</div>
+            <div>
+              <div class="meta"><span class="name">Andre Rahman</span> <span class="time">8 jam lalu</span></div>
+              <div class="body">Pertanyaan teknis: berapa sering kamu hit limit Cloudflare D1 free tier? Saya khawatir di 1000 subscriber+ akan mulai bermasalah.</div>
+              <div class="comment-actions"><button>Balas</button> <button>👍 2</button></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Comment form -->
+        <form class="comment-form" id="commentForm" onsubmit="onSubmitComment(event)">
+          <h3>Tinggalkan komentar</h3>
+          <p class="muted" style="font-size:13.5px;margin-top:-8px;">Komentar pertama dari email baru akan dimoderasi. Markdown ringan (bold, italic, link) didukung.</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+            <div class="field"><label for="cf-name">Nama</label><input id="cf-name" class="input" type="text" required /></div>
+            <div class="field"><label for="cf-email">Email <span class="dim" style="font-weight:400">(tidak ditampilkan)</span></label><input id="cf-email" class="input" type="email" required /></div>
+          </div>
+          <div class="field"><label for="cf-body">Komentar</label><textarea id="cf-body" class="textarea" required maxlength="2000" placeholder="Tulis komentar kamu…"></textarea><span class="field-help"><span id="charCount">0</span>/2000 karakter</span></div>
+          <label class="checkbox"><input type="checkbox" id="cf-notify" /> Beri tahu saya saat ada balasan</label>
+          <div class="turnstile-mock" id="turnstile" style="margin: 14px 0;">
+            <span class="check"></span>
+            <span id="turnstileLabel">Cloudflare Turnstile · klik untuk verifikasi</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:14px;">
+            <button type="submit" class="btn btn-primary" id="cf-submit">Kirim komentar</button>
+            <span class="typing-indicator" id="typing"><span class="dots"><span></span><span></span><span></span></span> Mengirim…</span>
+          </div>
+        </form>
+
+        <!-- Related -->
+        <div class="related">
+          <h3>Cerita terkait</h3>
+          <div class="related-list">
+            <a class="related-card" href="Screen_CeritaDetail_CeritaBasim_2026-05-19.html"><div class="date">28 Apr 2026</div><h4>Belajar dari product yang gagal: Lurah v1</h4></a>
+            <a class="related-card" href="Screen_CeritaDetail_CeritaBasim_2026-05-19.html"><div class="date">15 Apr 2026</div><h4>Notes on Cloudflare D1 setelah 6 bulan</h4></a>
+            <a class="related-card" href="Screen_CeritaDetail_CeritaBasim_2026-05-19.html"><div class="date">22 Feb 2026</div><h4>Membangun komentar threaded yang tidak menyebalkan</h4></a>
+          </div>
+        </div>
+      </article>
+    </div>
+  </div>
+
+  <footer class="footer-cb">
+    <div class="footer-cb-inner">
+      <div><a class="brand" href="Screen_Home_CeritaBasim_2026-05-19.html"><span class="brand-mark">cb</span><span class="brand-name">Cerita <em>Basim</em></span></a><p class="meta">Karya, cerita, dan pembaca — sejak 2026.</p></div>
+      <div><h5>Jelajah</h5><ul><li><a href="Screen_Home_CeritaBasim_2026-05-19.html">Beranda</a></li><li><a href="Screen_KaryaIndex_CeritaBasim_2026-05-19.html">Karya</a></li><li><a href="Screen_CeritaIndex_CeritaBasim_2026-05-19.html">Cerita</a></li></ul></div>
+      <div><h5>Tetap terhubung</h5><ul><li><a href="Screen_Subscribe_CeritaBasim_2026-05-19.html">Newsletter</a></li></ul></div>
+      <div><h5>Lain-lain</h5><ul><li><a href="Screen_AdminLogin_CeritaBasim_2026-05-19.html">Admin</a></li></ul></div>
+    </div>
+  </footer>
+
+  <div class="toast-region" id="toasts" aria-live="polite"></div>
+
+  <script>
+    function toggleTheme(){const r=document.documentElement;const c=r.getAttribute('data-theme')||'light';const n=c==='light'?'dark':'light';r.setAttribute('data-theme',n);try{localStorage.setItem('cb-theme',n)}catch(e){}}
+    (function(){try{const s=localStorage.getItem('cb-theme');if(s)document.documentElement.setAttribute('data-theme',s);else if(window.matchMedia('(prefers-color-scheme: dark)').matches)document.documentElement.setAttribute('data-theme','dark')}catch(e){}})();
+    function toast(msg,k){const r=document.getElementById('toasts');const el=document.createElement('div');el.className='toast'+(k?' toast-'+k:'');el.textContent=msg;r.appendChild(el);setTimeout(()=>el.remove(),3000);}
+
+    // Reading progress
+    const progressFill = document.getElementById('progressFill');
+    const article = document.getElementById('article');
+    function onScroll(){
+      const rect = article.getBoundingClientRect();
+      const total = rect.height - window.innerHeight + rect.top;
+      const passed = Math.min(Math.max(window.scrollY - article.offsetTop + window.innerHeight * 0.3, 0), total);
+      const pct = Math.min(Math.max((passed / total) * 100, 0), 100);
+      progressFill.style.width = pct + '%';
+      // TOC active highlight
+      const headings = article.querySelectorAll('h2[id], h3[id]');
+      let activeId = null;
+      headings.forEach(h => { if (h.getBoundingClientRect().top < 120) activeId = h.id; });
+      document.querySelectorAll('#tocList a').forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + activeId));
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+
+    // Reactions
+    document.querySelectorAll('.reaction-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const pressed = btn.getAttribute('aria-pressed') === 'true';
+        btn.setAttribute('aria-pressed', pressed ? 'false' : 'true');
+        const c = btn.querySelector('.count');
+        c.textContent = (parseInt(c.textContent) + (pressed ? -1 : 1)).toString();
+        btn.classList.add('bumping');
+        setTimeout(() => btn.classList.remove('bumping'), 320);
+      });
+    });
+
+    // Char counter
+    const cfBody = document.getElementById('cf-body');
+    const charCount = document.getElementById('charCount');
+    cfBody.addEventListener('input', () => charCount.textContent = cfBody.value.length);
+
+    // Turnstile mock
+    const turnstile = document.getElementById('turnstile');
+    let verified = false;
+    turnstile.addEventListener('click', () => {
+      if (verified) return;
+      const lbl = document.getElementById('turnstileLabel');
+      lbl.textContent = 'Memverifikasi…';
+      setTimeout(() => {
+        turnstile.classList.add('verified');
+        lbl.textContent = 'Verifikasi sukses';
+        verified = true;
+      }, 700);
+    });
+
+    // Submit comment
+    function onSubmitComment(e) {
+      e.preventDefault();
+      if (!verified) { toast('Klik kotak verifikasi dulu', 'danger'); return; }
+      const submit = document.getElementById('cf-submit');
+      const typing = document.getElementById('typing');
+      submit.disabled = true; typing.classList.add('show');
+      setTimeout(() => {
+        submit.disabled = false; typing.classList.remove('show');
+        // Append a new pending comment optimistically
+        const list = document.getElementById('commentList');
+        const name = document.getElementById('cf-name').value || 'Pembaca';
+        const body = cfBody.value || '(kosong)';
+        const initials = name.split(' ').map(s=>s[0]).slice(0,2).join('').toUpperCase();
+        const el = document.createElement('div');
+        el.className = 'comment';
+        el.innerHTML = `<div class="avatar">${initials}</div><div>
+          <div class="meta"><span class="name">${name}</span> <span class="pill pill-warn" style="font-size:10px">menunggu moderasi</span> <span class="time">baru saja</span></div>
+          <div class="body">${body.replace(/</g,'&lt;')}</div>
+        </div>`;
+        list.appendChild(el);
+        document.getElementById('commentForm').reset();
+        cfBody.value=''; charCount.textContent='0';
+        verified=false; turnstile.classList.remove('verified');
+        document.getElementById('turnstileLabel').textContent='Cloudflare Turnstile · klik untuk verifikasi';
+        toast('Komentar masuk antrian moderasi', 'ok');
+      }, 1100);
+    }
+  </script>
+</body>
+</html>

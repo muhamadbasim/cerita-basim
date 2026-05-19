@@ -1,0 +1,44 @@
+---
+title: "Kenapa saya pindah dari Medium ke domain sendiri"
+description: "Tiga bulan setelah migrasi, traffic organik naik 3×. Catatan kecil yang berguna kalau kamu mempertimbangkan hal yang sama."
+publishedAt: 2026-05-12
+tags: ["produk", "karier"]
+cover: "/images/posts/medium-migration.jpg"
+featured: true
+---
+
+Saya menulis di Medium selama empat tahun. 60-an artikel, beberapa lumayan dibaca, satu-dua viral kecil. Pada Februari 2026 saya migrasi semua tulisan saya ke domain sendiri. Ini bukan keputusan yang ringan, dan saya butuh tiga bulan baru bisa menilai hasilnya. Ringkasannya: **traffic organik naik 3× dan saya tidur lebih lelap**.
+
+## Tiga alasan pindah
+
+Yang membuat saya akhirnya pindah bukan satu hal, tapi akumulasi tiga alasan yang muncul bersamaan:
+
+1. **Audience saya bukan milik saya.** Begitu saya berhenti bayar Medium membership, statistik berhenti, follower tidak bisa di-export, dan reach tiba-tiba turun karena algoritma berubah.
+2. **Paywall yang membuat tulisan saya terkunci.** Tulisan teknis yang seharusnya membantu komunitas malah jadi member-only.
+3. **Tampilannya makin generik.** Setiap update Medium ke template-nya bikin tulisan saya terlihat seperti tulisan orang lain.
+
+## Pilihan stack
+
+Saya ingin tiga properti dari stack baru: *cepat, gratis, dan owned*.
+
+### Kenapa Cloudflare
+
+Pages gratis dengan unlimited bandwidth. D1 cukup untuk komentar dan subscriber list selama bertahun-tahun. Workers free tier 100k request per hari.
+
+### Kenapa Astro
+
+Astro 5 punya pendekatan yang sangat cocok untuk content site: zero JavaScript by default, content collections untuk markdown bertypings, dan islands architecture untuk komponen interaktif.
+
+## Hasil tiga bulan
+
+- **Traffic organik:** dari ~800 pageview/bulan ke 2.400 pageview/bulan.
+- **Email subscriber:** 0 → 78 dalam 3 bulan, semuanya organik.
+- **Komentar berkualitas:** dari nyaris nol di Medium ke 12 komentar substansial.
+
+## Yang saya pelajari
+
+Pertama, *kebebasan datang dengan biaya kecil*. Saya harus moderasi komentar sendiri. Tapi semua ini adalah pekerjaan yang sebenarnya saya nikmati.
+
+Kedua, *discoverability lebih sulit, tapi audience lebih loyal*. Tidak ada lagi distribusi gratis dari algoritma Medium.
+
+Ketiga, *menulis untuk audience yang saya pilih sendiri lebih menyenangkan*. Worth it.

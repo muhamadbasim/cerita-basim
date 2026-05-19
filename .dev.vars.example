@@ -1,0 +1,8 @@
+# Local development secrets (copy to .dev.vars)
+# These override wrangler.toml [vars] for local dev
+
+TURNSTILE_SECRET=1x0000000000000000000000000000000AA
+RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxxxxxxxxxxx
+ADMIN_EMAIL=basim@cerita.basim.id
+ENCRYPTION_KEY=0123456789abcdef0123456789abcdef
+ENCRYPTION_SALT=cerita-basim-salt-change-me

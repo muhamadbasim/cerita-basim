@@ -1,0 +1,59 @@
+---
+import BaseLayout from '@/components/layout/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+export const prerender = true;
+
+export async function getStaticPaths() {
+  const posts = await getCollection('posts');
+  return posts.map(post => ({
+    params: { slug: post.slug },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content } = await post.render();
+
+const readingTime = Math.ceil(post.body.split(/\s+/).length / 200);
+---
+
+<BaseLayout title={post.data.title} description={post.data.description} active="cerita">
+  <article class="container-narrow" style="padding: 48px 0;">
+    <a href="/cerita" class="back">← Kembali ke cerita</a>
+    <span class="eyebrow">{post.data.tags.join(' · ')} · {post.data.publishedAt.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+    <h1>{post.data.title}</h1>
+    <p class="lead">{post.data.description}</p>
+    <div class="article-meta">
+      <span><strong>Basim</strong> · {readingTime} menit baca</span>
+    </div>
+
+    <div class="prose">
+      <Content />
+    </div>
+
+    <div class="subscribe-cta">
+      <p>Suka cerita ini? <a href="/subscribe">Subscribe</a> untuk cerita berikutnya langsung ke email kamu.</p>
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .container-narrow { max-width: 720px; margin: 0 auto; padding: 0 28px; }
+  .back { font-size: 13.5px; color: var(--ink-3); display: inline-block; margin-bottom: 14px; }
+  .back:hover { color: var(--accent); }
+  h1 { margin: 12px 0 12px; }
+  .lead { font-size: 19px; color: var(--ink-2); line-height: 1.5; margin-bottom: 18px; }
+  .article-meta { font-size: 14px; color: var(--ink-2); margin-bottom: 36px; padding-bottom: 18px; border-bottom: 1px solid var(--rule); }
+  .prose { font-size: 17.5px; line-height: 1.75; }
+  .prose :global(h2) { margin-top: 56px; }
+  .prose :global(h3) { margin-top: 36px; }
+  .prose :global(blockquote) { border-left: 3px solid var(--accent); padding: 6px 22px; margin: 24px 0; font-family: var(--font-display); font-style: italic; font-size: 19px; color: var(--ink-2); }
+  .prose :global(ul), .prose :global(ol) { padding-left: 22px; }
+  .prose :global(li) { margin: 6px 0; }
+  .prose :global(code:not(pre code)) { background: var(--bg-2); padding: 1px 6px; border-radius: 6px; border: 1px solid var(--rule); font-size: .85em; }
+  .prose :global(pre) { background: var(--ink); color: var(--bg); padding: 16px 18px; border-radius: 10px; font-size: 13px; overflow-x: auto; margin: 14px 0; }
+  .prose :global(hr) { border: 0; border-top: 1px solid var(--rule); margin: 36px 0; }
+  .subscribe-cta { margin-top: 48px; padding: 24px; background: var(--paper); border: 1px solid var(--rule); border-radius: 14px; text-align: center; }
+  .subscribe-cta a { color: var(--accent); font-weight: 600; border-bottom: 1px solid rgba(194,65,12,.3); }
+</style>

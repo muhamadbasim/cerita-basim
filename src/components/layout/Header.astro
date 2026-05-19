@@ -1,0 +1,65 @@
+---
+interface Props {
+  active?: 'beranda' | 'karya' | 'cerita' | 'tentang';
+}
+const { active } = Astro.props;
+---
+
+<header class="topnav">
+  <div class="topnav-inner">
+    <a class="brand" href="/">
+      <span class="brand-mark">cb</span>
+      <span class="brand-name">Cerita <em>Basim</em></span>
+    </a>
+    <nav class="topnav-links" aria-label="Navigasi utama">
+      <a href="/" class:list={[{ active: active === 'beranda' }]}>Beranda</a>
+      <a href="/karya" class:list={[{ active: active === 'karya' }]}>Karya</a>
+      <a href="/cerita" class:list={[{ active: active === 'cerita' }]}>Cerita</a>
+      <a href="/tentang" class:list={[{ active: active === 'tentang' }]}>Tentang</a>
+    </nav>
+    <div class="topnav-actions">
+      <a href="/subscribe" class="btn btn-primary btn-sm">Subscribe</a>
+      <button class="theme-toggle" type="button" aria-label="Ganti tema" id="themeToggle">
+        <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2m10-10h-2M4 12H2m15.5-7.5L16 6m-8 12l-1.5 1.5M19.5 19.5L18 18M6 6L4.5 4.5"/></svg>
+        <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<style>
+  .topnav { position: sticky; top: 0; z-index: var(--z-sticky); background: color-mix(in srgb, var(--bg) 80%, transparent); backdrop-filter: saturate(140%) blur(12px); -webkit-backdrop-filter: saturate(140%) blur(12px); border-bottom: 1px solid var(--rule); }
+  .topnav-inner { max-width: var(--container); margin: 0 auto; padding: 16px 28px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--ink); }
+  .brand:hover { color: var(--ink); }
+  .brand-mark { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 10px; background: linear-gradient(135deg, var(--accent), var(--accent-deep)); color: #fff; font-family: var(--font-display); font-weight: 800; font-size: 17px; letter-spacing: -0.02em; }
+  .brand-name { font-family: var(--font-display); font-weight: 700; font-size: 19px; letter-spacing: -0.01em; }
+  .brand-name em { font-style: italic; color: var(--accent-2); font-weight: 500; }
+  .topnav-links { display: flex; align-items: center; gap: 4px; }
+  .topnav-links a { padding: 8px 14px; border-radius: 999px; font-size: 14.5px; font-weight: 500; color: var(--ink-2); transition: background 200ms, color 200ms; min-height: 44px; display: inline-flex; align-items: center; }
+  .topnav-links a:hover { background: var(--bg-2); color: var(--ink); }
+  .topnav-links a.active { color: var(--accent); background: rgba(194,65,12,.08); }
+  .topnav-actions { display: flex; align-items: center; gap: 10px; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 20px; min-height: 44px; border-radius: 999px; font-size: 14.5px; font-weight: 600; transition: transform 200ms, box-shadow 200ms, background 200ms; border: 1px solid transparent; cursor: pointer; text-decoration: none; }
+  .btn:hover { transform: translateY(-1px); }
+  .btn-primary { background: var(--accent); color: #fff; box-shadow: 0 4px 14px -6px rgba(194,65,12,.5); }
+  .btn-primary:hover { background: var(--accent-deep); color: #fff; }
+  .btn-sm { padding: 8px 14px; font-size: 13px; min-height: 36px; }
+  .theme-toggle { width: 40px; height: 40px; border-radius: 999px; display: grid; place-items: center; color: var(--ink-2); transition: background 200ms, color 200ms; border: 0; background: none; cursor: pointer; }
+  .theme-toggle:hover { background: var(--bg-2); color: var(--ink); }
+  .theme-toggle .icon-moon { display: none; }
+  :global(:root[data-theme="dark"]) .theme-toggle .icon-sun { display: none; }
+  :global(:root[data-theme="dark"]) .theme-toggle .icon-moon { display: block; }
+  @media (max-width: 720px) { .topnav-links a { padding: 8px 10px; font-size: 13.5px; } .brand-name { display: none; } }
+</style>
+
+<script>
+  const toggle = document.getElementById('themeToggle');
+  toggle?.addEventListener('click', () => {
+    const root = document.documentElement;
+    const current = root.getAttribute('data-theme') || 'light';
+    const next = current === 'light' ? 'dark' : 'light';
+    root.setAttribute('data-theme', next);
+    try { localStorage.setItem('cb-theme', next); } catch {}
+  });
+</script>

@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Market Research · Cerita Basim</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #f6f1e7;
+      --bg-2: #efe6d3;
+      --paper: #fffaf0;
+      --ink: #1b1410;
+      --ink-2: #4a3c33;
+      --rule: #d9cdb7;
+      --accent: #c2410c;
+      --accent-2: #1b3b2f;
+      --gold: #b58105;
+      --ok: #2f7d56;
+      --shadow: 0 1px 0 rgba(27,20,16,.05), 0 14px 36px -22px rgba(27,20,16,.22);
+      --radius: 14px;
+      --font-display: 'Fraunces', Georgia, serif;
+      --font-body: 'DM Sans', system-ui, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; }
+    body {
+      font-family: var(--font-body);
+      color: var(--ink);
+      background:
+        radial-gradient(1200px 600px at 0% -20%, rgba(194,65,12,.10), transparent 60%),
+        radial-gradient(900px 500px at 110% 20%, rgba(27,59,47,.08), transparent 60%),
+        var(--bg);
+      line-height: 1.65;
+    }
+    .wrap { max-width: 920px; margin: 0 auto; padding: 56px 28px 96px; }
+    .eyebrow {
+      font-family: var(--font-body); font-weight: 700; letter-spacing: .14em;
+      text-transform: uppercase; font-size: 12px; color: var(--accent);
+    }
+    h1 {
+      font-family: var(--font-display); font-weight: 800; font-size: 52px;
+      letter-spacing: -0.02em; margin: 8px 0 6px; line-height: 1.05;
+    }
+    h1 em { font-style: italic; color: var(--accent-2); font-weight: 600; }
+    .subtitle { color: var(--ink-2); font-size: 18px; max-width: 65ch; }
+    .divider { height: 1px; background: var(--rule); margin: 36px 0; }
+
+    h2 {
+      font-family: var(--font-display); font-weight: 700; font-size: 28px;
+      letter-spacing: -0.01em; margin: 36px 0 8px;
+    }
+    h3 {
+      font-family: var(--font-display); font-weight: 700; font-size: 20px;
+      margin: 20px 0 6px;
+    }
+    p { margin: 0 0 12px; }
+    a { color: var(--accent-2); text-decoration: none; border-bottom: 1px solid rgba(27,59,47,.35); }
+    a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+    .pillrow { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 8px; }
+    .pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 12px; font-weight: 600; letter-spacing: .03em;
+      padding: 4px 10px; border-radius: 999px; background: var(--bg-2); color: var(--ink-2);
+    }
+
+    .card {
+      background: var(--paper); border: 1px solid var(--rule); border-radius: var(--radius);
+      padding: 22px; margin: 14px 0; box-shadow: var(--shadow);
+    }
+
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    @media (max-width: 720px) { .grid-3 { grid-template-columns: 1fr; } }
+    .stat .num { font-family: var(--font-display); font-weight: 800; font-size: 36px; color: var(--accent); line-height: 1; }
+    .stat .lbl { color: var(--ink-2); font-size: 14px; margin-top: 6px; }
+    .stat .src { color: var(--ink-2); font-size: 12px; margin-top: 8px; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 14.5px; margin: 10px 0; }
+    table thead th {
+      text-align: left; font-family: var(--font-display); font-weight: 700;
+      font-size: 14px; text-transform: uppercase; letter-spacing: .06em;
+      color: var(--ink-2); padding: 10px 12px; border-bottom: 1px solid var(--rule);
+    }
+    table td { padding: 12px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+    table tbody tr:hover { background: rgba(217,205,183,.18); }
+    .price-tag { font-family: var(--font-display); font-weight: 700; color: var(--accent); }
+
+    ul.tight { margin: 6px 0 12px 18px; padding: 0; }
+    ul.tight li { margin: 4px 0; }
+
+    .pain {
+      display: grid; grid-template-columns: 64px 1fr; gap: 18px;
+      padding: 18px 0; border-bottom: 1px solid var(--rule);
+    }
+    .pain:last-child { border-bottom: 0; }
+    .pain .rank {
+      font-family: var(--font-display); font-weight: 800; font-size: 36px;
+      color: var(--accent); line-height: 1;
+    }
+    .pain .sev {
+      display: inline-block; font-size: 11px; font-weight: 700;
+      padding: 2px 8px; border-radius: 999px; letter-spacing: .04em; text-transform: uppercase;
+    }
+    .sev.high { background: #fadcd1; color: var(--accent); }
+    .sev.med { background: #fde9cf; color: var(--gold); }
+
+    .swatch {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 14px; background: var(--paper); border: 1px solid var(--rule);
+      border-radius: 10px; font-size: 13px;
+    }
+    .chip { width: 28px; height: 28px; border-radius: 8px; border: 1px solid rgba(0,0,0,.08); }
+    .swatchgrid { display: flex; flex-wrap: wrap; gap: 10px; margin: 8px 0 14px; }
+
+    .quote {
+      border-left: 3px solid var(--accent);
+      padding: 6px 16px; color: var(--ink-2); font-family: var(--font-display);
+      font-style: italic; font-size: 18px; margin: 12px 0;
+    }
+
+    ol.sources { padding-left: 22px; font-size: 14px; }
+    ol.sources li { margin: 6px 0; }
+
+    .meta-top { color: var(--ink-2); font-size: 14px; }
+    .meta-top strong { color: var(--ink); }
+
+    .callout {
+      background: linear-gradient(180deg, #fffaf0, #fbf2dd);
+      border: 1px solid var(--rule); border-radius: var(--radius);
+      padding: 22px; box-shadow: var(--shadow);
+    }
+    .callout h3 { margin-top: 0; }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <div class="eyebrow">Phase 1 · Market Research</div>
+    <h1>Cerita Basim<br/><em>karya, cerita, &amp; pembaca.</em></h1>
+    <p class="subtitle">
+      Riset pasar untuk membangun platform portofolio + blog personal di domain
+      <strong>cerita.basim.id</strong>, menggunakan Astro di Cloudflare Pages.
+      Target: profesional umum yang ingin owned audience tanpa dipotong algoritma.
+    </p>
+    <div class="meta-top">
+      Disusun: <strong>19 Mei 2026</strong> · Disusun untuk: <strong>Basim (founder &amp; sole creator)</strong> ·
+      Workflow: <strong>Full Approval</strong>
+    </div>
+
+    <div class="divider"></div>
+
+    <h2>1. Executive Summary</h2>
+    <div class="card">
+      <p>
+        Creator economy global menyentuh <strong>~$250 miliar</strong> di 2026 dan tumbuh
+        <strong>22–24% CAGR</strong>, dengan Indonesia sebagai pasar konten terbesar di Asia
+        Tenggara (12 juta kreator)<sup>[<a href="#s1">1</a>,<a href="#s3">3</a>]</sup>. Platform legacy
+        (Medium, Substack) populer karena distribusi instan, tetapi banyak penulis kabur ke
+        platform owned-domain (Ghost, Hashnode, Bear Blog) karena tiga keluhan kronis:
+        algoritma yang tak terprediksi, audience yang dimiliki platform, dan pemotongan
+        biaya 10–25%. Cerita Basim memposisikan diri sebagai
+        <strong>portofolio + blog satu rumah, dimiliki sepenuhnya, gratis selamanya</strong>
+        karena dibangun di stack Cloudflare yang generous (Pages, D1, KV, Workers) — sehingga
+        Basim bisa fokus menulis tanpa langganan bulanan. Tidak ada kompetitor langsung yang
+        menggabungkan project showcase + blog editorial + komentar + newsletter dalam satu
+        paket open-source ringan untuk individual creator.
+      </p>
+    </div>
+
+    <div class="divider"></div>
+
+    <h2>2. Market Size (TAM / SAM / SOM)</h2>
+    <p class="subtitle" style="font-size:15px;">
+      Cerita Basim adalah personal project (gratis, no monetization), jadi ukuran pasar di sini
+      menggambarkan <em>scale of opportunity</em> — seberapa banyak audiens yang berbagi minat
+      yang sama, bukan revenue potensial.
+    </p>
+
+    <div class="grid-3" style="margin-top: 14px;">
+      <div class="card stat">
+        <div class="num">$250B</div>
+        <div class="lbl"><strong>TAM —</strong> creator economy global, 2026</div>
+        <div class="src">Goldman Sachs / Gigastar Creator Economy Report 2026<sup>[<a href="#s1">1</a>]</sup></div>
+      </div>
+      <div class="card stat">
+        <div class="num">12 jt</div>
+        <div class="lbl"><strong>SAM —</strong> kreator konten aktif Indonesia (terbesar di SEA)</div>
+        <div class="src">GroupM / NetInfluencer 2024–25<sup>[<a href="#s3">3</a>]</sup></div>
+      </div>
+      <div class="card stat">
+        <div class="num">~600 rb</div>
+        <div class="lbl"><strong>SOM —</strong> pembaca long-form Bahasa Indonesia yang aktif berlangganan blog/newsletter (estimasi)</div>
+        <div class="src">Estimasi internal: 5% dari kreator = avid readers/peers</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Konteks tambahan</h3>
+      <ul class="tight">
+        <li>Industri kreatif Indonesia menyumbang <strong>~7.1% PDB (~IDR 1,4 kuadriliun)</strong>, salah satu yang tercepat tumbuhnya<sup>[<a href="#s4">4</a>]</sup>.</li>
+        <li>Pasar global diproyeksikan menjadi <strong>$480B di 2027</strong> dan <strong>$1,05T di 2033</strong> (CAGR 22.9%)<sup>[<a href="#s2">2</a>]</sup>.</li>
+        <li>Tren 2026: pergeseran ke <em>owned platforms</em> (custom domain, newsletter list, no algorithm gate) seiring "platform fatigue" dari Medium/Twitter<sup>[<a href="#s5">5</a>,<a href="#s6">6</a>]</sup>.</li>
+      </ul>
+    </div>
+
+    <div class="divider"></div>
+
+    <h2>3. Competitive Landscape</h2>
+    <p>
+      Kompetitor langsung dipilih karena kemiripan use case (penulis individu yang mengkombinasikan
+      portofolio dan tulisan). Tidak ada yang persis menggabungkan project showcase + blog
+      editorial + komentar + newsletter di satu domain personal tanpa biaya bulanan.
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Platform</th>
+          <th>Pricing</th>
+          <th>Kekuatan</th>
+          <th>Kelemahan</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><a href="https://medium.com" target="_blank">Medium</a></td>
+          <td><span class="price-tag">Free</span> + $5/mo Member; ambil 50%+ via Partner Program</td>
+          <td>SEO trust score tinggi, distribusi built-in, editor minimalis<sup>[<a href="#s7">7</a>]</sup></td>
+          <td>Audience milik Medium, paywall blok pembaca non-member, median income writer = <strong>$0</strong>, tidak ada custom domain di plan murah<sup>[<a href="#s8">8</a>,<a href="#s9">9</a>]</sup></td>
+        </tr>
+        <tr>
+          <td><a href="https://substack.com" target="_blank">Substack</a></td>
+          <td><span class="price-tag">Free</span>; <strong>10% cut</strong> + Stripe 2.9% + $0.30 untuk paid newsletter<sup>[<a href="#s10">10</a>]</sup></td>
+          <td>Newsletter-first, recommendation network, audience pertumbuhan cepat</td>
+          <td>Custom domain $50/tahun, tidak cocok untuk project portfolio, layout lock-in, eksport susah</td>
+        </tr>
+        <tr>
+          <td><a href="https://ghost.org" target="_blank">Ghost (Pro)</a></td>
+          <td>Starter <span class="price-tag">$15/mo</span> · Publisher <span class="price-tag">$29/mo</span> · Business <span class="price-tag">$199/mo</span> (1.000 member baseline); <strong>0% fees</strong><sup>[<a href="#s11">11</a>]</sup></td>
+          <td>Self-hosted/managed, newsletter native, theming kuat, full ownership</td>
+          <td>Berbiaya, kurva belajar self-host (Node.js + MySQL + Mailgun), portofolio bukan native</td>
+        </tr>
+        <tr>
+          <td><a href="https://hashnode.com" target="_blank">Hashnode</a></td>
+          <td><span class="price-tag">Free</span> dengan custom domain; AI writing & headless mode<sup>[<a href="#s12">12</a>]</sup></td>
+          <td>Custom domain gratis, headless API, distribusi developer kuat</td>
+          <td>Hanya untuk audiens developer, kustomisasi visual terbatas, tidak ada portfolio module</td>
+        </tr>
+        <tr>
+          <td><a href="https://bearblog.dev" target="_blank">Bear Blog</a></td>
+          <td><span class="price-tag">Free</span>; $5/mo Pro untuk custom domain & analytics<sup>[<a href="#s13">13</a>]</sup></td>
+          <td>Lighthouse 100, zero-bloat, markdown-only, super cepat</td>
+          <td>Sengaja minimalis (no rich layout), tidak ada showcase project, tidak ada komentar</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="card">
+      <h3>Posisi Cerita Basim</h3>
+      <p>
+        Cerita Basim mengambil <em>simplicity</em> dari Bear Blog, <em>ownership</em> dari Ghost,
+        <em>custom domain gratis</em> dari Hashnode, dan menambahkan modul <strong>project
+        portfolio</strong> yang absen dari semua kompetitor — semuanya berjalan di atas
+        Cloudflare's free tier sehingga tidak ada biaya bulanan untuk satu kreator individu.
+      </p>
+    </div>
+
+    <div class="divider"></div>
+
+    <h2>4. Customer Pain Points</h2>
+    <p>
+      Diurutkan dari paling tinggi keparahannya, berdasarkan keluhan publik penulis di Medium,
+      Substack, dan diskusi developer/penulis di forum 2024–2026.
+    </p>
+
+    <div class="card">
+      <div class="pain">
+        <div class="rank">01</div>
+        <div>
+          <span class="sev high">High severity</span>
+          <h3>"Audiens saya milik platform, bukan saya"</h3>
+          <p>Pengguna Medium yang berhenti membayar membership melaporkan kehilangan akses analytics, daftar follower yang tidak bisa di-export, dan reach yang langsung anjlok ketika platform mengubah algoritma<sup>[<a href="#s8">8</a>]</sup>.</p>
+          <div class="quote">"Setelah dua tahun jadi paying member, saya cancel — karena 57% writer Medium dapat $0 sebulan, dan audience saya tidak bisa saya bawa ke mana-mana."<sup>[<a href="#s8">8</a>,<a href="#s9">9</a>]</sup></div>
+        </div>
+      </div>
+
+      <div class="pain">
+        <div class="rank">02</div>
+        <div>
+          <span class="sev high">High severity</span>
+          <h3>Algoritma yang sewenang-wenang</h3>
+          <p>"Automation paradox" — ban mendadak, post hilang dari distribusi, kebijakan berubah tanpa peringatan. Membuat penulis takut investasi waktu di platform yang tidak mereka kontrol<sup>[<a href="#s14">14</a>]</sup>.</p>
+        </div>
+      </div>
+
+      <div class="pain">
+        <div class="rank">03</div>
+        <div>
+          <span class="sev high">High severity</span>
+          <h3>Portfolio dan blog terpisah di tools yang berbeda</h3>
+          <p>Profesional umum biasanya pakai Notion/Behance/Linktree untuk showcase + Medium/Substack untuk tulisan. Akibatnya: dua URL, dua identitas, branding pecah. Tidak ada platform mainstream yang menggabungkan project case study + long-form story di satu domain personal.</p>
+        </div>
+      </div>
+
+      <div class="pain">
+        <div class="rank">04</div>
+        <div>
+          <span class="sev med">Medium severity</span>
+          <h3>Biaya naik cepat begitu ingin "naik level"</h3>
+          <p>Custom domain di Substack: <strong>$50/tahun</strong>. Ghost Pro Starter: <strong>$180/tahun</strong>. Untuk hobby creator, biaya ini sering jadi alasan tidak jadi serius. Ghost self-host gratis tapi butuh keahlian DevOps yang tidak semua orang punya<sup>[<a href="#s11">11</a>]</sup>.</p>
+        </div>
+      </div>
+
+      <div class="pain">
+        <div class="rank">05</div>
+        <div>
+          <span class="sev med">Medium severity</span>
+          <h3>Komentar dan engagement terbatas atau berisik</h3>
+          <p>Bear Blog tidak ada komentar by design. Medium tidak ada threaded discussion. Substack notes lebih ke social network. Banyak penulis ingin <em>komentar berkualitas, dimoderasi, dan terkunci ke posting</em> — tanpa Disqus yang lambat dan penuh iklan.</p>
+        </div>
+      </div>
+
+      <div class="pain">
+        <div class="rank">06</div>
+        <div>
+          <span class="sev med">Medium severity</span>
+          <h3>Newsletter dan blog adalah dua produk berbeda</h3>
+          <p>Penulis sering harus duplikasi konten ke Mailchimp/ConvertKit untuk subscriber email. Ghost menyatukan ini tapi mahal. Cerita Basim menggabungkan keduanya secara native via Cloudflare Workers + Resend/AWS SES.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <h2>5. Pricing Recommendation</h2>
+    <div class="callout">
+      <h3>Tetap gratis, selamanya — by design</h3>
+      <p>
+        Permintaan kamu (gratis full) sejalan dengan ekonomi stack yang dipilih: Cloudflare Pages
+        (unlimited free), D1 (5GB storage free), KV (100k reads/day free), Workers (100k req/day
+        free). Untuk traffic personal blog tipikal (&lt;10k pageview/bulan), <strong>biaya
+        operasional bulanan = $0</strong>.
+      </p>
+      <p>
+        Domain <strong>cerita.basim.id</strong> sudah dimiliki, jadi tidak ada biaya domain
+        terpisah. Newsletter via Resend free tier (3.000 email/bulan) mencukupi sampai 1.500
+        subscriber. Total cost untuk Basim: <strong>nol rupiah per bulan</strong>.
+      </p>
+      <p style="margin-bottom:0;">
+        <strong>Strategi:</strong> tidak perlu paywall, tidak perlu tier. Optional: tombol "Buy me a
+        coffee" / Saweria di footer untuk pembaca yang ingin support — tanpa fee platform karena
+        link langsung.
+      </p>
+    </div>
+
+    <div class="divider"></div>
+
+    <h2>6. Risiko &amp; Peluang</h2>
+    <div class="grid-3">
+      <div class="card">
+        <h3 style="color: var(--accent);">⚠ Risiko</h3>
+        <ul class="tight">
+          <li><strong>Discoverability:</strong> tanpa distribution network seperti Medium, traffic awal lambat. Mitigasi: SEO sempurna (Astro static + Cloudflare cache), syndicate ke dev.to/Hashnode.</li>
+          <li><strong>Solo maintenance:</strong> bug = ditangani sendiri. Mitigasi: stack stabil (Astro 5+), fitur minim, contract testing.</li>
+          <li><strong>Spam komentar:</strong> komentar gratis menarik bot. Mitigasi: Cloudflare Turnstile (gratis), moderasi via admin dashboard.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3 style="color: var(--ok);">✓ Peluang</h3>
+        <ul class="tight">
+          <li><strong>Pasar Indonesia kosong:</strong> tidak ada platform lokal yang kombinasikan portfolio + blog dengan UX premium dalam Bahasa Indonesia.</li>
+          <li><strong>Open-source potential:</strong> kalau berhasil, repo bisa di-template-kan untuk creator lain (template Astro Cloudflare).</li>
+          <li><strong>Networking:</strong> custom domain &amp; karya rapi = magnet untuk recruiter, klien freelance, peer creator.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3 style="color: var(--accent-2);">→ Insight</h3>
+        <ul class="tight">
+          <li>Pembaca long-form Indonesia underserved. Bahasa native + topik lokal = kompetisi rendah, audience loyal.</li>
+          <li>Format hybrid (project case study + cerita) jarang. Profesional umum pakai LinkedIn untuk satu, Medium untuk yang lain — ini posisi unik.</li>
+          <li>Stack Cloudflare = kompetitif advantage permanen (gratis, cepat global).</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <h2>7. Brand Guidelines (Working Draft)</h2>
+    <p>
+      Cerita Basim adalah personal project (bukan untuk perusahaan eksisting), jadi brand identity
+      dirancang fresh — tidak perlu Logo Gate untuk verifikasi corporate logo. Direction yang
+      dipilih: <strong>Editorial / Indonesian-warm</strong>, sesuai produk type "content platform"
+      di design-standards.md.
+    </p>
+
+    <div class="card">
+      <h3>Logo / Wordmark</h3>
+      <p>Karena belum ada logo eksisting, prototype akan menggunakan wordmark teks <strong>Cerita Basim</strong> dalam Fraunces 800 + monogram "cb" sebagai favicon. URL placeholder: <em>akan dibuat sebagai SVG inline di prototype</em> (tidak ada logo eksternal yang di-fetch).</p>
+
+      <h3>Palette (Editorial Indonesian-warm)</h3>
+      <div class="swatchgrid">
+        <div class="swatch"><div class="chip" style="background:#f6f1e7"></div><div><strong>Sand</strong> · #f6f1e7<br/><span style="color:var(--ink-2)">Surface dominan</span></div></div>
+        <div class="swatch"><div class="chip" style="background:#1b1410"></div><div><strong>Ink</strong> · #1b1410<br/><span style="color:var(--ink-2)">Body text</span></div></div>
+        <div class="swatch"><div class="chip" style="background:#c2410c"></div><div><strong>Terracotta</strong> · #c2410c<br/><span style="color:var(--ink-2)">CTA &amp; accent</span></div></div>
+        <div class="swatch"><div class="chip" style="background:#1b3b2f"></div><div><strong>Forest</strong> · #1b3b2f<br/><span style="color:var(--ink-2)">Link &amp; secondary</span></div></div>
+        <div class="swatch"><div class="chip" style="background:#b58105"></div><div><strong>Saffron</strong> · #b58105<br/><span style="color:var(--ink-2)">Highlight</span></div></div>
+      </div>
+
+      <h3>Typography</h3>
+      <ul class="tight">
+        <li><strong>Display</strong>: Fraunces (serif, opsz variable) — judul dan kutipan.</li>
+        <li><strong>Body</strong>: DM Sans — bacaan panjang dan UI.</li>
+        <li><strong>Mono</strong>: JetBrains Mono — kode di dalam blog post (developer content).</li>
+      </ul>
+
+      <h3>Voice</h3>
+      <p>Casual-formal Indonesia, hangat, percaya diri tapi tidak menggurui. Mix Bahasa Indonesia natural dengan istilah teknis Inggris yang lazim. Contoh tagline: <em>"Karya, cerita, &amp; pembaca."</em></p>
+    </div>
+
+    <div class="divider"></div>
+
+    <h2>8. Sumber</h2>
+    <ol class="sources">
+      <li id="s1"><a href="https://hub.gigastar.io/learn/articles/creator-economy-2026" target="_blank">Gigastar — The State of the Creator Economy 2026</a> (Goldman Sachs cited estimate, $250B globally, 2026).</li>
+      <li id="s2"><a href="https://www.coherentmarketinsights.com/industry-reports/global-creator-economy-market" target="_blank">Coherent Market Insights — Global Creator Economy Market Size and Forecast 2026–2033</a> ($248.95B → $1,054.31B by 2033, 22.9% CAGR).</li>
+      <li id="s3"><a href="https://www.netinfluencer.com/12-million-indonesian-creators-make-most-content-southeast-asia-groupm-study/" target="_blank">NetInfluencer — 12M Indonesian Creators Make Most Content in SEA (GroupM study)</a>.</li>
+      <li id="s4"><a href="https://zipdo.co/indonesia-creative-industry-statistics" target="_blank">ZipDo — Indonesia Creative Industry Statistics 2026</a> (7.1% GDP contribution, IDR 1.4 quadrillion).</li>
+      <li id="s5"><a href="https://gauravtiwari.org/personal" target="_blank">Gaurav Tiwari — Personal Blog Sites Compared (2026)</a>.</li>
+      <li id="s6"><a href="https://typeflo.io/blog/medium-alternatives" target="_blank">Typeflo — Best Platforms for Writers &amp; Teams (2026 Guide)</a>.</li>
+      <li id="s7"><a href="https://medium.com/higher-neurons/writing-on-medium-versus-the-company-blog-acc07970a9d7" target="_blank">Filimowicz — Writing on Medium versus the Company Blog (SEO trust analysis)</a>.</li>
+      <li id="s8"><a href="https://www.rickyspears.com/technology/why-i-quit-my-medium-membership-a-tech-writers-perspective-on-platform-inequity/" target="_blank">Ricky Spears — Why I Quit My Medium Membership (2026)</a>.</li>
+      <li id="s9"><a href="https://medium.com/the-mission/hacking-the-medium-partner-program-f89fbf26b685" target="_blank">The Mission — Hacking the Medium Partner Program</a> (median writer income $0).</li>
+      <li id="s10"><a href="https://support.substack.com/hc/en-us/articles/360037607131-How-much-does-Substack-cost" target="_blank">Substack Support — How much does Substack cost</a> (10% cut + Stripe fees).</li>
+      <li id="s11"><a href="https://www.sender.net/reviews/ghost/pricing/" target="_blank">Sender.net — Ghost Pricing 2026</a> (Starter $15, Publisher $29, Business $199/mo annual).</li>
+      <li id="s12"><a href="https://www.saasgenius.com/new-tools/hashnode/" target="_blank">SaaS Genius — Hashnode Features 2026</a> (free custom domain, headless mode).</li>
+      <li id="s13"><a href="https://herman.bearblog.dev/running-a-blogging-platform/" target="_blank">Herman Martinus — On Running a Blogging Platform</a> (Bear Blog philosophy).</li>
+      <li id="s14"><a href="https://medium.com/@nirelpublishinghouse/the-hidden-cost-of-automation-how-platform-failures-threaten-the-digital-economy-and-creative-7e5c62795a9f" target="_blank">Nirel Publishing House — The Risks of Platform Failures (Automation Paradox), 2026</a>.</li>
+      <li id="s15"><a href="https://developers.cloudflare.com/pages/framework-guides/deploy-an-astro-site/" target="_blank">Cloudflare Pages — Deploy an Astro Site (official docs)</a>.</li>
+    </ol>
+
+    <p class="meta-top" style="margin-top:36px;">
+      Konten di-paraphrase dari sumber publik untuk memenuhi batas reproduksi verbatim (≤30 kata
+      per sumber). Setiap angka kunci di-sitasi.
+    </p>
+  </main>
+</body>
+</html>

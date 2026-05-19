@@ -1,0 +1,49 @@
+---
+import BaseLayout from '@/components/layout/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('posts'))
+  .filter(p => !p.data.draft)
+  .sort((a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime());
+---
+
+<BaseLayout title="Cerita" description="Tulisan panjang dari Basim — pengembangan produk, karier, dan catatan kerja." active="cerita">
+  <section class="container-narrow" style="padding: 56px 0 24px;">
+    <span class="eyebrow">Cerita · {posts.length} tulisan</span>
+    <h1>Tulisan <em>panjang</em>.</h1>
+    <p class="muted">Catatan, esai, dan eksperimen pikiran.</p>
+
+    <div class="post-list">
+      {posts.map(post => (
+        <a class="post-row" href={`/cerita/${post.slug}`}>
+          <div class="post-date">
+            <span class="day">{post.data.publishedAt.getDate()}</span>
+            <span>{post.data.publishedAt.toLocaleDateString('id-ID', { month: 'short', year: 'numeric' })}</span>
+          </div>
+          <div class="post-content">
+            <h2 class="post-title">{post.data.title}</h2>
+            <p class="post-excerpt">{post.data.description}</p>
+            <div class="post-tags">
+              {post.data.tags.map(tag => <span class="pill">{tag}</span>)}
+            </div>
+          </div>
+        </a>
+      ))}
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .container-narrow { max-width: 720px; margin: 0 auto; padding: 0 28px; }
+  h1 em { font-style: italic; color: var(--accent-2); font-weight: 600; }
+  .muted { color: var(--ink-2); font-size: 17px; }
+  .post-list { display: flex; flex-direction: column; margin-top: 24px; }
+  .post-row { display: grid; grid-template-columns: 80px 1fr; gap: 24px; align-items: start; padding: 24px 0; border-bottom: 1px solid var(--rule); text-decoration: none; color: var(--ink); }
+  .post-row:hover .post-title { color: var(--accent); }
+  .post-date { font-family: var(--font-display); font-weight: 600; font-size: 13px; color: var(--ink-3); display: flex; flex-direction: column; }
+  .post-date .day { font-size: 28px; color: var(--ink); font-weight: 800; }
+  .post-title { font-family: var(--font-display); font-weight: 700; font-size: 22px; margin: 0 0 6px; transition: color 200ms; }
+  .post-excerpt { color: var(--ink-2); font-size: 14.5px; margin: 0 0 8px; }
+  .post-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+  .pill { display: inline-flex; font-size: 12px; font-weight: 600; letter-spacing: .03em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px; background: var(--bg-2); color: var(--ink-2); border: 1px solid var(--rule); }
+</style>

@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Subscriber · Admin Cerita Basim</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="cerita-basim.css" />
+  <style>
+    .filter-row { display: flex; gap: 10px; align-items: center; margin: 24px 0 14px; flex-wrap: wrap; }
+    .filter-row .input { max-width: 320px; }
+    .pagination { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; font-size: 13.5px; color: var(--ink-2); }
+    .page-btns { display: flex; gap: 4px; }
+    .page-btn { width: 36px; height: 36px; display: grid; place-items: center; border-radius: var(--r-2); color: var(--ink-2); background: var(--paper); border: 1px solid var(--rule); }
+    .page-btn:hover { background: var(--bg-2); color: var(--ink); }
+    .page-btn.active { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+    .page-btn[disabled] { opacity: .4; cursor: not-allowed; }
+    .row-detail { display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: center; }
+    .sortable { cursor: pointer; user-select: none; }
+    .sortable:hover { color: var(--accent); }
+    .sortable .arrow { display: inline-block; margin-left: 4px; opacity: .4; }
+    .sortable.asc .arrow::before { content: "▲"; opacity: 1; }
+    .sortable.desc .arrow::before { content: "▼"; opacity: 1; }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <span class="brand-mark">cb</span>
+        <span class="brand-name">Cerita <em>Basim</em></span>
+      </div>
+      <nav class="sidebar-nav" aria-label="Admin">
+        <span class="sidebar-nav-section">Beranda</span>
+        <a href="Screen_AdminDashboard_CeritaBasim_2026-05-19.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>Dashboard</a>
+        <span class="sidebar-nav-section">Engagement</span>
+        <a href="Screen_AdminModeration_CeritaBasim_2026-05-19.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Moderasi <span class="badge">3</span></a>
+        <a href="Screen_AdminSubscribers_CeritaBasim_2026-05-19.html" class="active"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>Subscriber</a>
+        <a href="Screen_AdminDispatch_CeritaBasim_2026-05-19.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>Dispatch</a>
+        <span class="sidebar-nav-section">Lain</span>
+        <a href="Screen_Home_CeritaBasim_2026-05-19.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M14 10l7-7M9 21H3v-6M10 14l-7 7"/></svg>Lihat situs</a>
+        <a href="Screen_AdminLogin_CeritaBasim_2026-05-19.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>Keluar</a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="avatar">B</div>
+        <div><div style="font-weight: 600; color: var(--ink); font-size: 13.5px;">Basim</div><div style="font-size: 11.5px;" class="dim">basim@cerita.basim.id</div></div>
+      </div>
+    </aside>
+
+    <main class="app-main">
+      <div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:14px;">
+        <div>
+          <span class="eyebrow">Admin · Subscriber</span>
+          <h1 style="margin: 4px 0 4px; font-size: 32px;">Daftar subscriber</h1>
+          <p class="muted">Total 142 active · 8 unconfirmed · 3 unsubscribed.</p>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn btn-secondary btn-sm" onclick="exportCsv()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+            Export CSV
+          </button>
+          <button class="btn btn-primary btn-sm" onclick="openAddModal()">+ Tambah manual</button>
+        </div>
+      </div>
+
+      <div class="filter-row">
+        <input class="input" id="search" type="search" placeholder="Cari email…" />
+        <button class="filter-pill" data-status="all" aria-pressed="true">Semua</button>
+        <button class="filter-pill" data-status="active" aria-pressed="false">Active</button>
+        <button class="filter-pill" data-status="unconfirmed" aria-pressed="false">Unconfirmed</button>
+        <button class="filter-pill" data-status="unsubscribed" aria-pressed="false">Unsubscribed</button>
+      </div>
+
+      <table class="data-table" id="subTable">
+        <thead>
+          <tr>
+            <th class="sortable desc" data-sort="email">Email <span class="arrow"></span></th>
+            <th class="sortable" data-sort="status">Status <span class="arrow"></span></th>
+            <th class="sortable" data-sort="source">Source <span class="arrow"></span></th>
+            <th class="sortable" data-sort="created">Joined <span class="arrow"></span></th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="tbody">
+          <tr data-status="active"><td>salsa.r***@gmail.com</td><td><span class="pill pill-ok">Active</span></td><td>inline_post</td><td>3 hari lalu</td><td><div class="row-actions"><button class="btn btn-sm btn-secondary" onclick="toast('Detail subscriber')">Detail</button></div></td></tr>
+          <tr data-status="active"><td>rio.h***@notion.so</td><td><span class="pill pill-ok">Active</span></td><td>subscribe_page</td><td>1 minggu lalu</td><td><div class="row-actions"><button class="btn btn-sm btn-secondary" onclick="toast('Detail subscriber')">Detail</button></div></td></tr>
+          <tr data-status="unconfirmed"><td>andre@***.dev</td><td><span class="pill pill-warn">Unconfirmed</span></td><td>footer</td><td>2 hari lalu</td><td><div class="row-actions"><button class="btn btn-sm btn-secondary" onclick="toast('Email konfirmasi dikirim ulang','ok')">Resend</button></div></td></tr>
+          <tr data-status="active"><td>maya.k***@gmail.com</td><td><span class="pill pill-ok">Active</span></td><td>inline_post</td><td>5 hari lalu</td><td><div class="row-actions"><button class="btn btn-sm btn-secondary" onclick="toast('Detail subscriber')">Detail</button></div></td></tr>
+          <tr data-status="active"><td>budi.s***@yahoo.com</td><td><span class="pill pill-ok">Active</span></td><td>subscribe_page</td><td>1 minggu lalu</td><td><div class="row-actions"><button class="btn btn-sm btn-secondary" onclick="toast('Detail subscriber')">Detail</button></div></td></tr>
+          <tr data-status="active"><td>lina.p***@outlook.com</td><td><span class="pill pill-ok">Active</span></td><td>inline_post</td><td>2 minggu lalu</td><td><div class="row-actions"><button class="btn btn-sm btn-secondary" onclick="toast('Detail subscriber')">Detail</button></div></td></tr>
+          <tr data-status="unsubscribed"><td>danny@***.id</td><td><span class="pill">Unsubscribed</span></td><td>footer</td><td>3 minggu lalu</td><td><div class="row-actions"><button class="btn btn-sm btn-ghost">—</button></div></td></tr>
+          <tr data-status="active"><td>fitri.h***@gmail.com</td><td><span class="pill pill-ok">Active</span></td><td>inline_post</td><td>3 minggu lalu</td><td><div class="row-actions"><button class="btn btn-sm btn-secondary" onclick="toast('Detail subscriber')">Detail</button></div></td></tr>
+          <tr data-status="active"><td>iwan.t***@protonmail.com</td><td><span class="pill pill-ok">Active</span></td><td>subscribe_page</td><td>1 bulan lalu</td><td><div class="row-actions"><button class="btn btn-sm btn-secondary" onclick="toast('Detail subscriber')">Detail</button></div></td></tr>
+          <tr data-status="active"><td>nadya.p***@gmail.com</td><td><span class="pill pill-ok">Active</span></td><td>inline_post</td><td>1 bulan lalu</td><td><div class="row-actions"><button class="btn btn-sm btn-secondary" onclick="toast('Detail subscriber')">Detail</button></div></td></tr>
+        </tbody>
+      </table>
+
+      <div class="pagination">
+        <span>Menampilkan 1–10 dari 142</span>
+        <div class="page-btns">
+          <button class="page-btn" disabled>‹</button>
+          <button class="page-btn active">1</button>
+          <button class="page-btn" onclick="toast('Page 2 — demo only')">2</button>
+          <button class="page-btn" onclick="toast('Page 3 — demo only')">3</button>
+          <span class="dim" style="padding: 0 8px;">…</span>
+          <button class="page-btn" onclick="toast('Page 15 — demo only')">15</button>
+          <button class="page-btn" onclick="toast('Page selanjutnya — demo only')">›</button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Add Subscriber Modal -->
+  <div class="modal-backdrop" id="addModal" aria-hidden="true" role="dialog" aria-labelledby="addTitle">
+    <div class="modal" role="document">
+      <div class="modal-header">
+        <h3 id="addTitle" style="margin:0">Tambah subscriber manual</h3>
+        <button class="modal-close" onclick="closeAddModal()" aria-label="Tutup">✕</button>
+      </div>
+      <p class="muted" style="font-size: 13.5px;">Useful untuk import dari sumber lain (Mailchimp export, dsb).</p>
+      <form id="addForm" onsubmit="onAdd(event)">
+        <div class="field"><label>Email</label><input class="input" type="email" required /></div>
+        <div class="field"><label>Source</label>
+          <select class="select">
+            <option>manual_import</option>
+            <option>partner</option>
+            <option>event</option>
+          </select>
+        </div>
+        <label class="checkbox" style="margin: 4px 0 14px;"><input type="checkbox" /> Skip double opt-in (sudah konfirmasi via channel lain)</label>
+        <div style="display:flex;gap:10px;justify-content:flex-end;">
+          <button type="button" class="btn btn-secondary" onclick="closeAddModal()">Batal</button>
+          <button type="submit" class="btn btn-primary">Tambah</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="toast-region" id="toasts" aria-live="polite"></div>
+
+  <script>
+    function toggleTheme(){const r=document.documentElement;const c=r.getAttribute('data-theme')||'light';const n=c==='light'?'dark':'light';r.setAttribute('data-theme',n);try{localStorage.setItem('cb-theme',n)}catch(e){}}
+    (function(){try{const s=localStorage.getItem('cb-theme');if(s)document.documentElement.setAttribute('data-theme',s);else if(window.matchMedia('(prefers-color-scheme: dark)').matches)document.documentElement.setAttribute('data-theme','dark')}catch(e){}})();
+    function toast(msg,k){const r=document.getElementById('toasts');const el=document.createElement('div');el.className='toast'+(k?' toast-'+k:'');el.textContent=msg;r.appendChild(el);setTimeout(()=>el.remove(),3000);}
+
+    // Filter
+    const filterRow = document.querySelector('.filter-row');
+    const search = document.getElementById('search');
+    const tbody = document.getElementById('tbody');
+    let activeStatus = 'all';
+    function applyFilter() {
+      const q = search.value.trim().toLowerCase();
+      tbody.querySelectorAll('tr').forEach(r => {
+        const status = r.dataset.status;
+        const text = r.textContent.toLowerCase();
+        const ok = (activeStatus === 'all' || status === activeStatus) && (!q || text.includes(q));
+        r.style.display = ok ? '' : 'none';
+      });
+    }
+    filterRow.querySelectorAll('.filter-pill').forEach(p => {
+      p.addEventListener('click', () => {
+        filterRow.querySelectorAll('.filter-pill').forEach(x => x.setAttribute('aria-pressed','false'));
+        p.setAttribute('aria-pressed','true');
+        activeStatus = p.dataset.status;
+        applyFilter();
+      });
+    });
+    search.addEventListener('input', applyFilter);
+
+    // Sort (visual only — toggles arrow)
+    document.querySelectorAll('.sortable').forEach(th => {
+      th.addEventListener('click', () => {
+        const wasAsc = th.classList.contains('asc');
+        document.querySelectorAll('.sortable').forEach(x => x.classList.remove('asc','desc'));
+        th.classList.add(wasAsc ? 'desc' : 'asc');
+        // Real sort omitted in prototype
+      });
+    });
+
+    // Modal
+    const modal = document.getElementById('addModal');
+    function openAddModal(){ modal.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden'; }
+    function closeAddModal(){ modal.setAttribute('aria-hidden','true'); document.body.style.overflow=''; }
+    modal.addEventListener('click', e => { if (e.target === modal) closeAddModal(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && modal.getAttribute('aria-hidden')==='false') closeAddModal(); });
+    function onAdd(e) { e.preventDefault(); closeAddModal(); toast('Subscriber ditambahkan','ok'); e.target.reset(); }
+
+    function exportCsv() { toast('CSV berisi 142 baris diunduh','ok'); }
+  </script>
+</body>
+</html>

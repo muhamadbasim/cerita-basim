@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Karya · Cerita Basim</title>
+  <meta name="description" content="Project yang sudah dikerjakan Basim — web, mobile, tools, dan eksperimen." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="cerita-basim.css" />
+  <style>
+    .filter-bar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 32px 0 28px; }
+    .filter-bar .label { font-size: 13px; color: var(--ink-3); margin-right: 6px; }
+  </style>
+</head>
+<body>
+  <a href="#main" class="skip-to-main">Lewati ke konten</a>
+  <header class="topnav">
+    <div class="topnav-inner">
+      <a class="brand" href="Screen_Home_CeritaBasim_2026-05-19.html"><span class="brand-mark">cb</span><span class="brand-name">Cerita <em>Basim</em></span></a>
+      <nav class="topnav-links" aria-label="Primer">
+        <a href="Screen_Home_CeritaBasim_2026-05-19.html">Beranda</a>
+        <a href="Screen_KaryaIndex_CeritaBasim_2026-05-19.html" class="active">Karya</a>
+        <a href="Screen_CeritaIndex_CeritaBasim_2026-05-19.html">Cerita</a>
+        <a href="Screen_Tentang_CeritaBasim_2026-05-19.html">Tentang</a>
+      </nav>
+      <div class="topnav-actions">
+        <a href="Screen_Subscribe_CeritaBasim_2026-05-19.html" class="btn btn-primary btn-sm">Subscribe</a>
+        <button class="theme-toggle" type="button" aria-label="Ganti tema" onclick="toggleTheme()">
+          <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2m10-10h-2M4 12H2m15.5-7.5L16 6m-8 12l-1.5 1.5M19.5 19.5L18 18M6 6L4.5 4.5"/></svg>
+          <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main" class="container" style="padding: 56px 0 24px;">
+    <span class="eyebrow">Karya · 12 project</span>
+    <h1 class="h-display">Project &amp; <em>eksperimen</em>.</h1>
+    <p class="muted" style="max-width: 60ch; font-size: 17px;">Hal yang sudah dibangun — sebagian dipakai orang, sebagian hanya untuk belajar. Semua diceritakan dengan jujur.</p>
+
+    <div class="filter-bar" id="filterBar" role="tablist" aria-label="Filter kategori">
+      <span class="label">Filter:</span>
+      <button class="filter-pill" data-filter="all" aria-pressed="true">Semua</button>
+      <button class="filter-pill" data-filter="web" aria-pressed="false">Web</button>
+      <button class="filter-pill" data-filter="mobile" aria-pressed="false">Mobile</button>
+      <button class="filter-pill" data-filter="tools" aria-pressed="false">Tools</button>
+      <button class="filter-pill" data-filter="experiment" aria-pressed="false">Eksperimen</button>
+    </div>
+
+    <div class="project-grid stagger" id="grid">
+      <a class="project-card" data-cat="web" href="Screen_KaryaDetail_CeritaBasim_2026-05-19.html"><div class="cover cover-terra"><div class="cover-art">Pe</div></div><div class="body"><span class="pill pill-accent">Web</span><h3 class="title">Penjaja</h3><p class="tagline">Marketplace untuk pedagang kaki lima Jakarta.</p><div class="meta"><span class="pill">2025</span><span class="pill">Astro</span></div></div></a>
+      <a class="project-card" data-cat="tools" href="Screen_KaryaDetail_CeritaBasim_2026-05-19.html"><div class="cover cover-forest"><div class="cover-art">Lu</div></div><div class="body"><span class="pill pill-forest">Tools</span><h3 class="title">Lurah</h3><p class="tagline">CLI audit konfigurasi Cloudflare. &gt;1k stars.</p><div class="meta"><span class="pill">2024</span><span class="pill">Rust</span></div></div></a>
+      <a class="project-card" data-cat="mobile" href="Screen_KaryaDetail_CeritaBasim_2026-05-19.html"><div class="cover cover-gold"><div class="cover-art">Ka</div></div><div class="body"><span class="pill pill-gold">Mobile</span><h3 class="title">Kayu</h3><p class="tagline">App catat kebiasaan harian. Simpel dan cepat.</p><div class="meta"><span class="pill">2024</span><span class="pill">React Native</span></div></div></a>
+      <a class="project-card" data-cat="web" href="Screen_KaryaDetail_CeritaBasim_2026-05-19.html"><div class="cover cover-mix"><div class="cover-art">Te</div></div><div class="body"><span class="pill pill-accent">Web</span><h3 class="title">Tepi</h3><p class="tagline">Aggregator newsletter Bahasa Indonesia. Discontinued.</p><div class="meta"><span class="pill">2023</span><span class="pill">Next.js</span></div></div></a>
+      <a class="project-card" data-cat="experiment" href="Screen_KaryaDetail_CeritaBasim_2026-05-19.html"><div class="cover cover-ink"><div class="cover-art">Re</div></div><div class="body"><span class="pill">Eksperimen</span><h3 class="title">Resep</h3><p class="tagline">Eksperimen visualisasi resep masakan rumah. Side project.</p><div class="meta"><span class="pill">2023</span><span class="pill">SVG</span></div></div></a>
+      <a class="project-card" data-cat="tools" href="Screen_KaryaDetail_CeritaBasim_2026-05-19.html"><div class="cover cover-forest"><div class="cover-art">Po</div></div><div class="body"><span class="pill pill-forest">Tools</span><h3 class="title">Pohon</h3><p class="tagline">VS Code extension untuk navigasi spec Kiro. Beta.</p><div class="meta"><span class="pill">2025</span><span class="pill">TypeScript</span></div></div></a>
+      <a class="project-card" data-cat="web" href="Screen_KaryaDetail_CeritaBasim_2026-05-19.html"><div class="cover cover-sand"><div class="cover-art">Pa</div></div><div class="body"><span class="pill pill-accent">Web</span><h3 class="title">Pasar</h3><p class="tagline">Daftar fashion lokal Jakarta — direktori, bukan marketplace.</p><div class="meta"><span class="pill">2024</span><span class="pill">Astro</span></div></div></a>
+      <a class="project-card" data-cat="mobile" href="Screen_KaryaDetail_CeritaBasim_2026-05-19.html"><div class="cover cover-gold"><div class="cover-art">Sa</div></div><div class="body"><span class="pill pill-gold">Mobile</span><h3 class="title">Sabuk</h3><p class="tagline">Pengingat olahraga ringan untuk WFH. Personal use.</p><div class="meta"><span class="pill">2025</span><span class="pill">Flutter</span></div></div></a>
+      <a class="project-card" data-cat="experiment" href="Screen_KaryaDetail_CeritaBasim_2026-05-19.html"><div class="cover cover-mix"><div class="cover-art">Ja</div></div><div class="body"><span class="pill">Eksperimen</span><h3 class="title">Jalan</h3><p class="tagline">Generative art dari data jalan kaki — peta personal.</p><div class="meta"><span class="pill">2024</span></div></div></a>
+    </div>
+
+    <div class="empty-state" id="emptyState" style="display:none;">
+      <div class="icon-bg"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></div>
+      <h4 style="margin:0 0 4px;">Tidak ada project di kategori ini</h4>
+      <p style="font-size:14px; margin:0;">Coba pilih kategori lain.</p>
+    </div>
+  </main>
+
+  <footer class="footer-cb">
+    <div class="footer-cb-inner">
+      <div>
+        <a class="brand" href="Screen_Home_CeritaBasim_2026-05-19.html"><span class="brand-mark">cb</span><span class="brand-name">Cerita <em>Basim</em></span></a>
+        <p class="meta">Karya, cerita, dan pembaca — sejak 2026.</p>
+      </div>
+      <div><h5>Jelajah</h5><ul><li><a href="Screen_Home_CeritaBasim_2026-05-19.html">Beranda</a></li><li><a href="Screen_KaryaIndex_CeritaBasim_2026-05-19.html">Karya</a></li><li><a href="Screen_CeritaIndex_CeritaBasim_2026-05-19.html">Cerita</a></li><li><a href="Screen_Tentang_CeritaBasim_2026-05-19.html">Tentang</a></li></ul></div>
+      <div><h5>Tetap terhubung</h5><ul><li><a href="Screen_Subscribe_CeritaBasim_2026-05-19.html">Newsletter</a></li><li><a href="#" onclick="toast('RSS feed di rss.xml');return false;">RSS</a></li></ul></div>
+      <div><h5>Lain-lain</h5><ul><li><a href="Screen_404_CeritaBasim_2026-05-19.html">404</a></li><li><a href="Screen_AdminLogin_CeritaBasim_2026-05-19.html">Admin</a></li></ul></div>
+    </div>
+  </footer>
+
+  <div class="toast-region" id="toasts" aria-live="polite"></div>
+
+  <script>
+    function toggleTheme(){const r=document.documentElement;const c=r.getAttribute('data-theme')||'light';const n=c==='light'?'dark':'light';r.setAttribute('data-theme',n);try{localStorage.setItem('cb-theme',n)}catch(e){}}
+    (function(){try{const s=localStorage.getItem('cb-theme');if(s)document.documentElement.setAttribute('data-theme',s);else if(window.matchMedia('(prefers-color-scheme: dark)').matches)document.documentElement.setAttribute('data-theme','dark')}catch(e){}})();
+    function toast(msg,k){const r=document.getElementById('toasts');const el=document.createElement('div');el.className='toast'+(k?' toast-'+k:'');el.textContent=msg;r.appendChild(el);setTimeout(()=>el.remove(),3000);}
+    // Filter logic
+    const filterBar = document.getElementById('filterBar');
+    const grid = document.getElementById('grid');
+    const empty = document.getElementById('emptyState');
+    filterBar.addEventListener('click', e => {
+      const btn = e.target.closest('.filter-pill'); if (!btn) return;
+      filterBar.querySelectorAll('.filter-pill').forEach(b => b.setAttribute('aria-pressed','false'));
+      btn.setAttribute('aria-pressed','true');
+      const f = btn.dataset.filter;
+      let visible = 0;
+      grid.querySelectorAll('.project-card').forEach(c => {
+        const show = f === 'all' || c.dataset.cat === f;
+        c.style.display = show ? '' : 'none';
+        if (show) visible++;
+      });
+      empty.style.display = visible === 0 ? 'block' : 'none';
+    });
+  </script>
+</body>
+</html>

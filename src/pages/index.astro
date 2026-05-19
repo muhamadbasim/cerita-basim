@@ -1,0 +1,138 @@
+---
+import BaseLayout from '@/components/layout/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('posts'))
+  .filter(p => !p.data.draft)
+  .sort((a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime())
+  .slice(0, 3);
+
+const projects = (await getCollection('projects'))
+  .filter(p => p.data.featured)
+  .sort((a, b) => a.data.order - b.data.order)
+  .slice(0, 3);
+---
+
+<BaseLayout title="Karya, cerita, & pembaca" active="beranda">
+  <section class="container hero">
+    <span class="eyebrow">Sebuah ruang personal</span>
+    <h1>Karya, cerita,<br/><em>& pembaca</em>.</h1>
+    <p class="lead">
+      Tempat untuk menyimpan project yang sudah dikerjakan dan tulisan yang belum selesai dipikirkan.
+      Tidak ada algoritma, tidak ada paywall, tidak ada bunyi notifikasi.
+    </p>
+    <div class="actions">
+      <a href="/cerita" class="btn btn-primary">Baca cerita terbaru</a>
+      <a href="/karya" class="btn btn-secondary">Lihat karya →</a>
+    </div>
+  </section>
+
+  <section class="container">
+    <div class="section-head">
+      <h2>Cerita terbaru</h2>
+      <a href="/cerita">Semua cerita →</a>
+    </div>
+    <div class="post-list">
+      {posts.map(post => (
+        <a class="post-row" href={`/cerita/${post.slug}`}>
+          <div class="post-date">
+            <span class="day">{post.data.publishedAt.getDate()}</span>
+            <span>{post.data.publishedAt.toLocaleDateString('id-ID', { month: 'short', year: 'numeric' })}</span>
+          </div>
+          <div class="post-content">
+            <h3 class="post-title">{post.data.title}</h3>
+            <p class="post-excerpt">{post.data.description}</p>
+            <div class="post-tags">
+              {post.data.tags.map(tag => <span class="pill">{tag}</span>)}
+            </div>
+          </div>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <section class="container" style="margin-top: 64px;">
+    <div class="section-head">
+      <h2>Karya pilihan</h2>
+      <a href="/karya">Lihat semua →</a>
+    </div>
+    <div class="project-grid">
+      {projects.map(project => (
+        <a class="project-card" href={`/karya/${project.slug}`}>
+          <div class={`cover cover-${project.data.coverColor}`}>
+            <div class="cover-art">{project.data.title.slice(0, 2)}</div>
+          </div>
+          <div class="body">
+            <span class="pill pill-accent">{project.data.category}</span>
+            <h3 class="title">{project.data.title}</h3>
+            <p class="tagline">{project.data.tagline}</p>
+          </div>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <section class="container cta-band">
+    <div>
+      <span class="eyebrow">Newsletter</span>
+      <h3>Cerita baru langsung ke kotak masuk</h3>
+      <p>Plain text, tidak ada tracking pixel, satu klik unsubscribe.</p>
+    </div>
+    <form class="subscribe-form" action="/api/subscribe" method="POST">
+      <input class="input" type="email" name="email" placeholder="kamu@email.com" aria-label="Email" required />
+      <button type="submit" class="btn btn-primary">Subscribe</button>
+    </form>
+  </section>
+</BaseLayout>
+
+<style>
+  .hero { padding: 80px 0 60px; }
+  .hero h1 { font-size: clamp(40px, 7vw, 76px); max-width: 18ch; }
+  .hero h1 em { font-style: italic; color: var(--accent-2); font-weight: 600; }
+  .lead { font-size: clamp(17px, 2vw, 20px); color: var(--ink-2); max-width: 60ch; margin: 0 0 28px; }
+  .actions { display: flex; flex-wrap: wrap; gap: 12px; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 20px; min-height: 44px; border-radius: 999px; font-size: 14.5px; font-weight: 600; transition: transform 200ms, box-shadow 200ms, background 200ms; border: 1px solid transparent; cursor: pointer; text-decoration: none; }
+  .btn:hover { transform: translateY(-1px); }
+  .btn-primary { background: var(--accent); color: #fff; box-shadow: 0 4px 14px -6px rgba(194,65,12,.5); }
+  .btn-primary:hover { background: var(--accent-deep); color: #fff; }
+  .btn-secondary { background: var(--paper); color: var(--ink); border-color: var(--rule); }
+  .btn-secondary:hover { background: var(--bg-2); }
+
+  .container { max-width: var(--container); margin: 0 auto; padding: 0 28px; }
+  .section-head { display: flex; justify-content: space-between; align-items: end; gap: 16px; margin: 0 0 24px; }
+  .section-head h2 { margin: 0; }
+  .section-head a { font-size: 14.5px; font-weight: 600; color: var(--accent-2); }
+
+  .post-list { display: flex; flex-direction: column; }
+  .post-row { display: grid; grid-template-columns: 80px 1fr; gap: 24px; align-items: start; padding: 24px 0; border-bottom: 1px solid var(--rule); text-decoration: none; color: var(--ink); }
+  .post-row:hover .post-title { color: var(--accent); }
+  .post-date { font-family: var(--font-display); font-weight: 600; font-size: 13px; color: var(--ink-3); display: flex; flex-direction: column; }
+  .post-date .day { font-size: 28px; color: var(--ink); font-weight: 800; }
+  .post-title { font-family: var(--font-display); font-weight: 700; font-size: 22px; margin: 0 0 6px; transition: color 200ms; }
+  .post-excerpt { color: var(--ink-2); font-size: 14.5px; margin: 0 0 8px; }
+  .post-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+  .pill { display: inline-flex; font-size: 12px; font-weight: 600; letter-spacing: .03em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px; background: var(--bg-2); color: var(--ink-2); border: 1px solid var(--rule); }
+  .pill-accent { background: rgba(194,65,12,.1); color: var(--accent); border-color: rgba(194,65,12,.2); }
+
+  .project-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 22px; }
+  .project-card { display: flex; flex-direction: column; background: var(--paper); border: 1px solid var(--rule); border-radius: 14px; overflow: hidden; text-decoration: none; color: var(--ink); transition: transform 300ms cubic-bezier(0.16,1,0.3,1), box-shadow 300ms; }
+  .project-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+  .cover { aspect-ratio: 16/10; position: relative; overflow: hidden; }
+  .cover-art { position: absolute; inset: 0; display: grid; place-items: center; font-family: var(--font-display); font-weight: 800; font-size: 56px; color: #fff; }
+  .cover-terra { background: linear-gradient(135deg, var(--accent), var(--accent-deep)); }
+  .cover-forest { background: linear-gradient(135deg, var(--accent-2), var(--accent-2-deep)); }
+  .cover-gold { background: linear-gradient(135deg, var(--gold), #8a5f00); }
+  .cover-ink { background: linear-gradient(135deg, var(--ink-2), var(--ink)); }
+  .cover-mix { background: linear-gradient(135deg, var(--accent), var(--accent-2)); }
+  .cover-sand { background: linear-gradient(135deg, var(--bg-3), var(--rule-2)); }
+  .project-card .body { padding: 18px 20px 22px; }
+  .project-card .title { font-family: var(--font-display); font-weight: 700; font-size: 19px; margin: 8px 0 4px; }
+  .project-card .tagline { color: var(--ink-2); font-size: 14px; }
+
+  .cta-band { background: linear-gradient(135deg, var(--paper), var(--bg-2)); border: 1px solid var(--rule); border-radius: 14px; padding: 36px; box-shadow: var(--shadow-md); display: flex; gap: 28px; align-items: center; flex-wrap: wrap; justify-content: space-between; margin-top: 64px; }
+  .cta-band h3 { margin: 0 0 4px; font-size: 24px; }
+  .cta-band p { margin: 0; color: var(--ink-2); }
+  .subscribe-form { display: flex; gap: 8px; align-items: stretch; }
+  .input { padding: 11px 14px; min-height: 44px; background: var(--paper); border: 1px solid var(--rule); border-radius: 10px; font-size: 15px; color: var(--ink); }
+  .input:focus { outline: 0; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(194,65,12,.15); }
+</style>

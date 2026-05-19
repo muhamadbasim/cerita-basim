@@ -1,0 +1,78 @@
+/* Cerita Basim — Global Styles
+ * Ported from prototype cerita-basim.css
+ * Only core tokens + reset + typography here.
+ * Component styles live in Astro components.
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,800&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  --bg: #f6f1e7; --bg-2: #efe6d3; --bg-3: #e7dcc4; --paper: #fffaf0;
+  --ink: #1b1410; --ink-2: #4a3c33; --ink-3: #7a695b;
+  --rule: #d9cdb7; --rule-2: #c8b894;
+  --accent: #c2410c; --accent-deep: #7a2607;
+  --accent-2: #1b3b2f; --accent-2-deep: #0f2419;
+  --gold: #b58105; --ok: #2f7d56; --warn: #b58105; --danger: #b91c1c;
+
+  --r-1: 6px; --r-2: 10px; --r-3: 14px; --r-pill: 999px;
+  --shadow-sm: 0 1px 0 rgba(27,20,16,.05);
+  --shadow-md: 0 1px 0 rgba(27,20,16,.05), 0 14px 36px -22px rgba(27,20,16,.22);
+  --shadow-lg: 0 4px 12px -8px rgba(27,20,16,.18), 0 32px 64px -32px rgba(27,20,16,.30);
+
+  --duration-fast: 200ms; --duration-normal: 300ms; --duration-slow: 500ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+
+  --container: 1100px; --container-narrow: 720px;
+  --z-sticky: 100; --z-modal: 800; --z-toast: 900;
+}
+
+:root[data-theme="dark"] {
+  --bg: #14110d; --bg-2: #1c1814; --bg-3: #25211b; --paper: #1c1814;
+  --ink: #f0e7d5; --ink-2: #c9bda8; --ink-3: #91826d;
+  --rule: #2e2820; --rule-2: #3d352a;
+  --accent: #e0723b; --accent-deep: #c2410c;
+  --accent-2: #6db088; --accent-2-deep: #4d8a64;
+  --gold: #d6a31c;
+  --shadow-md: 0 1px 0 rgba(0,0,0,.3), 0 14px 36px -22px rgba(0,0,0,.6);
+  --shadow-lg: 0 4px 12px -8px rgba(0,0,0,.5), 0 32px 64px -32px rgba(0,0,0,.7);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-body); color: var(--ink);
+  background:
+    radial-gradient(1200px 600px at 0% -20%, rgba(194,65,12,.08), transparent 60%),
+    radial-gradient(900px 500px at 110% 30%, rgba(27,59,47,.08), transparent 60%),
+    var(--bg);
+  background-attachment: fixed;
+  line-height: 1.6; font-size: 16px; min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  transition: background-color var(--duration-normal) var(--ease-out),
+              color var(--duration-normal) var(--ease-out);
+}
+img, svg, video { max-width: 100%; display: block; }
+button { font: inherit; cursor: pointer; border: 0; background: none; color: inherit; }
+input, textarea, select { font: inherit; color: inherit; }
+a { color: var(--accent-2); text-decoration: none; transition: color var(--duration-fast); }
+a:hover { color: var(--accent); }
+
+h1, h2, h3, h4, h5 { font-family: var(--font-display); font-weight: 700; letter-spacing: -0.01em; }
+h1 { font-size: clamp(36px, 6vw, 56px); line-height: 1.05; margin: 0 0 16px; }
+h2 { font-size: clamp(26px, 3.5vw, 34px); line-height: 1.15; margin: 36px 0 8px; }
+h3 { font-size: 21px; margin: 22px 0 6px; }
+p { margin: 0 0 12px; }
+code { font-family: var(--font-mono); font-size: .9em; }
+
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: var(--r-1); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 1ms !important; transition-duration: 1ms !important; }
+}

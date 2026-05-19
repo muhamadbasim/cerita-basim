@@ -1,0 +1,65 @@
+---
+import BaseLayout from '@/components/layout/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+export const prerender = true;
+
+export async function getStaticPaths() {
+  const projects = await getCollection('projects');
+  return projects.map(project => ({
+    params: { slug: project.slug },
+    props: { project },
+  }));
+}
+
+const { project } = Astro.props;
+const { Content } = await project.render();
+---
+
+<BaseLayout title={project.data.title} description={project.data.tagline} active="karya">
+  <article class="container-narrow" style="padding: 56px 0;">
+    <div class="breadcrumb"><a href="/karya">← Karya</a> · {project.data.category} · {project.data.year}</div>
+    <span class="eyebrow">Case Study</span>
+    <h1>{project.data.title} — <em>{project.data.tagline}</em></h1>
+
+    <div class="case-meta">
+      <div class="item"><span class="label">Peran</span><span class="value">{project.data.role}</span></div>
+      {project.data.duration && <div class="item"><span class="label">Durasi</span><span class="value">{project.data.duration}</span></div>}
+      <div class="item"><span class="label">Stack</span><span class="value">{project.data.stack.join(' · ')}</span></div>
+      <div class="item"><span class="label">Status</span><span class="value">{project.data.status}</span></div>
+    </div>
+
+    <div class="prose">
+      <Content />
+    </div>
+
+    <div class="links">
+      {project.data.demoUrl && <a href={project.data.demoUrl} target="_blank" rel="noopener" class="btn btn-primary">Coba demo →</a>}
+      {project.data.repoUrl && <a href={project.data.repoUrl} target="_blank" rel="noopener" class="btn btn-secondary">GitHub</a>}
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .container-narrow { max-width: 720px; margin: 0 auto; padding: 0 28px; }
+  .breadcrumb { font-size: 13px; color: var(--ink-3); margin-bottom: 14px; }
+  .breadcrumb a { color: var(--ink-3); }
+  .breadcrumb a:hover { color: var(--accent); }
+  h1 { margin: 12px 0 24px; }
+  h1 em { font-style: italic; color: var(--accent-2); font-weight: 600; font-size: .7em; }
+  .case-meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 18px; padding: 20px 0; border-block: 1px solid var(--rule); margin: 32px 0; }
+  .case-meta .label { font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); }
+  .case-meta .value { font-family: var(--font-display); font-weight: 700; font-size: 16px; color: var(--ink); margin-top: 4px; }
+  .prose { font-size: 17.5px; line-height: 1.75; }
+  .prose :global(h2) { margin-top: 56px; }
+  .prose :global(h3) { margin-top: 36px; }
+  .prose :global(blockquote) { border-left: 3px solid var(--accent); padding: 6px 22px; margin: 24px 0; font-family: var(--font-display); font-style: italic; font-size: 19px; color: var(--ink-2); }
+  .prose :global(ul), .prose :global(ol) { padding-left: 22px; }
+  .links { display: flex; gap: 12px; margin-top: 36px; flex-wrap: wrap; }
+  .btn { display: inline-flex; align-items: center; padding: 12px 20px; min-height: 44px; border-radius: 999px; font-size: 14.5px; font-weight: 600; text-decoration: none; border: 1px solid transparent; transition: transform 200ms, background 200ms; }
+  .btn:hover { transform: translateY(-1px); }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: var(--accent-deep); color: #fff; }
+  .btn-secondary { background: var(--paper); color: var(--ink); border-color: var(--rule); }
+  .btn-secondary:hover { background: var(--bg-2); }
+</style>

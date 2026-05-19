@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dashboard · Admin Cerita Basim</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="cerita-basim.css" />
+  <style>
+    .dash-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 22px; margin-top: 24px; }
+    @media (max-width: 900px) { .dash-grid { grid-template-columns: 1fr; } }
+    .chart-card { background: var(--paper); border: 1px solid var(--rule); border-radius: var(--r-3); padding: 22px; }
+    .chart-card h3 { margin: 0 0 14px; font-size: 17px; }
+    .chart-bars { display: grid; grid-template-columns: repeat(30, 1fr); gap: 4px; align-items: end; height: 160px; }
+    .chart-bars .bar { background: linear-gradient(180deg, var(--accent), var(--accent-deep)); border-radius: 2px; transition: opacity .15s; cursor: pointer; }
+    .chart-bars .bar:hover { opacity: .8; }
+    .chart-legend { display: flex; gap: 20px; margin-top: 12px; font-size: 12.5px; color: var(--ink-3); }
+    .top-posts { display: flex; flex-direction: column; gap: 12px; margin-top: 12px; }
+    .top-posts .row { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: var(--r-2); transition: background var(--duration-fast); cursor: pointer; }
+    .top-posts .row:hover { background: var(--bg-2); }
+    .top-posts .rank { font-family: var(--font-display); font-weight: 800; font-size: 18px; color: var(--accent); width: 24px; text-align: center; }
+    .top-posts .row .title { flex: 1; font-size: 14px; font-weight: 500; }
+    .top-posts .row .views { font-family: var(--font-mono); font-size: 13px; color: var(--ink-3); }
+    .activity { display: flex; flex-direction: column; gap: 10px; max-height: 320px; overflow-y: auto; }
+    .activity .item { padding: 10px 12px; border-left: 2px solid var(--rule); font-size: 13.5px; color: var(--ink-2); }
+    .activity .item .when { font-size: 11px; color: var(--ink-3); margin-top: 2px; display: block; }
+    .activity .item.new { border-left-color: var(--accent); background: rgba(194,65,12,.04); }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <span class="brand-mark">cb</span>
+        <span class="brand-name">Cerita <em>Basim</em></span>
+      </div>
+      <nav class="sidebar-nav" aria-label="Admin">
+        <span class="sidebar-nav-section">Beranda</span>
+        <a href="Screen_AdminDashboard_CeritaBasim_2026-05-19.html" class="active">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+          Dashboard
+        </a>
+        <span class="sidebar-nav-section">Engagement</span>
+        <a href="Screen_AdminModeration_CeritaBasim_2026-05-19.html">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          Moderasi <span class="badge">3</span>
+        </a>
+        <a href="Screen_AdminSubscribers_CeritaBasim_2026-05-19.html">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          Subscriber
+        </a>
+        <a href="Screen_AdminDispatch_CeritaBasim_2026-05-19.html">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          Dispatch
+        </a>
+        <span class="sidebar-nav-section">Lain</span>
+        <a href="Screen_Home_CeritaBasim_2026-05-19.html">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M14 10l7-7M9 21H3v-6M10 14l-7 7"/></svg>
+          Lihat situs
+        </a>
+        <a href="Screen_AdminLogin_CeritaBasim_2026-05-19.html" onclick="if(!confirm('Yakin keluar?'))event.preventDefault();">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+          Keluar
+        </a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="avatar">B</div>
+        <div>
+          <div style="font-weight: 600; color: var(--ink); font-size: 13.5px;">Basim</div>
+          <div style="font-size: 11.5px;" class="dim">basim@cerita.basim.id</div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="app-main">
+      <div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:14px;">
+        <div>
+          <span class="eyebrow">Admin · Dashboard</span>
+          <h1 style="margin: 4px 0 4px; font-size: 32px;">Selamat pagi, <em>Basim</em>.</h1>
+          <p class="muted">Berikut yang terjadi di Cerita Basim hari ini.</p>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="toast('Refresh data dari Cloudflare Analytics','ok')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          Refresh
+        </button>
+      </div>
+
+      <div class="stat-grid stagger" style="margin-top: 24px;">
+        <div class="stat-card">
+          <span class="label">Subscriber Active</span>
+          <span class="value">142</span>
+          <span class="delta">+12 minggu ini</span>
+        </div>
+        <div class="stat-card">
+          <span class="label">Pageview 30 hari</span>
+          <span class="value">8,247</span>
+          <span class="delta">+18%</span>
+        </div>
+        <div class="stat-card">
+          <span class="label">Komentar pending</span>
+          <span class="value" style="color: var(--accent)">3</span>
+          <span class="delta down">perlu moderasi</span>
+        </div>
+        <div class="stat-card">
+          <span class="label">Reaksi total</span>
+          <span class="value">487</span>
+          <span class="delta">+24 minggu ini</span>
+        </div>
+      </div>
+
+      <div class="dash-grid">
+        <div class="chart-card">
+          <div style="display:flex;justify-content:space-between;align-items:end;margin-bottom:12px;">
+            <h3>Pageview · 30 hari terakhir</h3>
+            <span class="muted" style="font-size: 13px;">Sumber: Cloudflare Web Analytics</span>
+          </div>
+          <div class="chart-bars" id="chart"></div>
+          <div class="chart-legend"><span><strong style="color:var(--ink)">8,247</strong> total · 275/hari rata-rata · puncak 12 Mei</span></div>
+        </div>
+        <div class="chart-card">
+          <h3>Cerita teratas (30 hari)</h3>
+          <div class="top-posts">
+            <div class="row" onclick="window.location='Screen_CeritaDetail_CeritaBasim_2026-05-19.html'">
+              <span class="rank">1</span>
+              <span class="title">Kenapa saya pindah dari Medium ke domain sendiri</span>
+              <span class="views">1,892</span>
+            </div>
+            <div class="row" onclick="window.location='Screen_CeritaDetail_CeritaBasim_2026-05-19.html'">
+              <span class="rank">2</span>
+              <span class="title">Belajar dari product yang gagal: Lurah v1</span>
+              <span class="views">1,247</span>
+            </div>
+            <div class="row" onclick="window.location='Screen_CeritaDetail_CeritaBasim_2026-05-19.html'">
+              <span class="rank">3</span>
+              <span class="title">Notes on Cloudflare D1 setelah 6 bulan produksi</span>
+              <span class="views">896</span>
+            </div>
+            <div class="row" onclick="window.location='Screen_CeritaDetail_CeritaBasim_2026-05-19.html'">
+              <span class="rank">4</span>
+              <span class="title">Tahun pertama jadi solo founder</span>
+              <span class="views">724</span>
+            </div>
+            <div class="row" onclick="window.location='Screen_CeritaDetail_CeritaBasim_2026-05-19.html'">
+              <span class="rank">5</span>
+              <span class="title">Astro 5 island architecture untuk pemula</span>
+              <span class="views">512</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dash-grid" style="margin-top: 22px;">
+        <div class="chart-card">
+          <h3>Aksi cepat</h3>
+          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 8px;">
+            <a class="btn btn-secondary" href="Screen_AdminModeration_CeritaBasim_2026-05-19.html">Moderasi 3 komentar</a>
+            <a class="btn btn-secondary" href="Screen_AdminDispatch_CeritaBasim_2026-05-19.html">Kirim newsletter baru</a>
+            <a class="btn btn-secondary" href="Screen_AdminSubscribers_CeritaBasim_2026-05-19.html">Lihat subscriber</a>
+            <a class="btn btn-ghost" href="Screen_Home_CeritaBasim_2026-05-19.html" target="_blank">Buka situs publik ↗</a>
+          </div>
+        </div>
+        <div class="chart-card">
+          <h3>Aktivitas terbaru</h3>
+          <div class="activity">
+            <div class="item new"><strong>3 komentar baru</strong> menunggu moderasi di "Kenapa saya pindah dari Medium…"<span class="when">5 menit lalu</span></div>
+            <div class="item"><strong>+1 subscriber:</strong> salsa.r***@gmail.com (sudah konfirmasi)<span class="when">1 jam lalu</span></div>
+            <div class="item"><strong>Build sukses:</strong> deploy ke production · 47 detik<span class="when">3 jam lalu</span></div>
+            <div class="item"><strong>+1 subscriber:</strong> rio.h***@notion.so (menunggu konfirmasi)<span class="when">5 jam lalu</span></div>
+            <div class="item"><strong>Newsletter terkirim:</strong> "Notes on Cloudflare D1" → 138 dari 138 subscriber<span class="when">2 hari lalu</span></div>
+            <div class="item"><strong>Backup mingguan:</strong> D1 → R2 sukses, 487 records<span class="when">3 hari lalu</span></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="toast-region" id="toasts" aria-live="polite"></div>
+
+  <script>
+    function toggleTheme(){const r=document.documentElement;const c=r.getAttribute('data-theme')||'light';const n=c==='light'?'dark':'light';r.setAttribute('data-theme',n);try{localStorage.setItem('cb-theme',n)}catch(e){}}
+    (function(){try{const s=localStorage.getItem('cb-theme');if(s)document.documentElement.setAttribute('data-theme',s);else if(window.matchMedia('(prefers-color-scheme: dark)').matches)document.documentElement.setAttribute('data-theme','dark')}catch(e){}})();
+    function toast(msg,k){const r=document.getElementById('toasts');const el=document.createElement('div');el.className='toast'+(k?' toast-'+k:'');el.textContent=msg;r.appendChild(el);setTimeout(()=>el.remove(),3000);}
+    // Generate chart bars
+    const data = [120, 180, 145, 210, 180, 95, 80, 165, 220, 280, 240, 195, 310, 285, 240, 195, 305, 380, 420, 360, 290, 215, 175, 245, 320, 410, 480, 395, 285, 230];
+    const max = Math.max(...data);
+    const chart = document.getElementById('chart');
+    data.forEach((v, i) => {
+      const bar = document.createElement('div');
+      bar.className = 'bar';
+      bar.style.height = (v / max * 100) + '%';
+      bar.title = `Hari ke-${i+1}: ${v} pageview`;
+      chart.appendChild(bar);
+    });
+  </script>
+</body>
+</html>

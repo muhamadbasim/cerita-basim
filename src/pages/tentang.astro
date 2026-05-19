@@ -1,0 +1,32 @@
+---
+import BaseLayout from '@/components/layout/BaseLayout.astro';
+---
+
+<BaseLayout title="Tentang" description="Tentang Basim — solo founder, penulis, dan pembuat Cerita Basim." active="tentang">
+  <section class="container about-grid">
+    <div class="portrait" aria-hidden="true">B</div>
+    <div>
+      <span class="eyebrow">Tentang</span>
+      <h1>Halo, saya <em>Basim</em>.</h1>
+      <p class="lead">Saya membangun produk dan menulis tentang prosesnya. Sebelum jadi solo founder, saya empat tahun di tim engineering perusahaan e-commerce di Jakarta.</p>
+
+      <h2>Apa yang saya kerjakan</h2>
+      <p>Project saya biasanya muncul dari friksi yang saya alami sendiri. <strong>Penjaja</strong> lahir karena adik saya pedagang batik kewalahan kelola order WA. <strong>Lurah</strong> lahir karena saya capek klik-klik manual di Cloudflare dashboard.</p>
+
+      <h2>Bagaimana saya menulis</h2>
+      <p>Saya menulis dalam dua mode: <em>panjang dan pelan</em> (cerita yang butuh bersarap setidaknya satu minggu) dan <em>pendek dan tepat</em> (catatan teknis yang membantu diri saya sendiri 6 bulan kemudian).</p>
+
+      <h2>Hubungi saya</h2>
+      <p>Email: <a href="mailto:hai@cerita.basim.id">hai@cerita.basim.id</a>. Saya membaca setiap email tapi tidak janji jawab cepat.</p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .container { max-width: var(--container); margin: 0 auto; padding: 0 28px; }
+  .about-grid { display: grid; grid-template-columns: 280px 1fr; gap: 56px; padding: 56px 0; align-items: start; }
+  @media (max-width: 720px) { .about-grid { grid-template-columns: 1fr; gap: 24px; } }
+  .portrait { aspect-ratio: 4/5; border-radius: 14px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); display: grid; place-items: center; color: #fff; font-family: var(--font-display); font-weight: 800; font-size: 96px; box-shadow: var(--shadow-md); }
+  h1 em { font-style: italic; color: var(--accent-2); font-weight: 600; }
+  .lead { font-size: 18px; color: var(--ink-2); max-width: 60ch; }
+</style>

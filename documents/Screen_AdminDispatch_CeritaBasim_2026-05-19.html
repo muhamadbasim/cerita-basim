@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Newsletter Dispatch · Admin Cerita Basim</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,800&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="cerita-basim.css" />
+  <style>
+    .dispatch-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin-top: 24px; }
+    @media (max-width: 1000px) { .dispatch-grid { grid-template-columns: 1fr; } }
+    .preview { background: var(--paper); border: 1px solid var(--rule); border-radius: var(--r-3); padding: 0; overflow: hidden; }
+    .preview-head { padding: 14px 18px; background: var(--bg-2); border-bottom: 1px solid var(--rule); font-size: 13px; color: var(--ink-2); }
+    .preview-head strong { color: var(--ink); }
+    .preview-body { padding: 28px; font-family: var(--font-mono); font-size: 13px; line-height: 1.75; color: var(--ink); white-space: pre-wrap; }
+    .preview-body .h-eml { font-family: var(--font-display); font-size: 22px; font-weight: 800; color: var(--ink); margin-bottom: 12px; }
+    .control-card { background: var(--paper); border: 1px solid var(--rule); border-radius: var(--r-3); padding: 24px; }
+    .control-card h3 { margin: 0 0 16px; }
+    .progress-info { display: flex; justify-content: space-between; font-size: 13px; color: var(--ink-2); margin: 8px 0 12px; }
+    .progress-info strong { color: var(--ink); font-family: var(--font-mono); }
+    .log { background: var(--ink); color: var(--bg); border-radius: var(--r-2); padding: 14px 16px; font-family: var(--font-mono); font-size: 12px; line-height: 1.7; max-height: 200px; overflow-y: auto; }
+    .log .ts { color: #b58105; }
+    .log .ok { color: #6db088; }
+    .log .err { color: #e0723b; }
+    .past-row { display: flex; justify-content: space-between; padding: 10px 12px; border-radius: var(--r-2); font-size: 13.5px; transition: background var(--duration-fast); }
+    .past-row:hover { background: var(--bg-2); }
+    .past-row .meta { display: flex; gap: 8px; align-items: center; color: var(--ink-3); font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <span class="brand-mark">cb</span>
+        <span class="brand-name">Cerita <em>Basim</em></span>
+      </div>
+      <nav class="sidebar-nav" aria-label="Admin">
+        <span class="sidebar-nav-section">Beranda</span>
+        <a href="Screen_AdminDashboard_CeritaBasim_2026-05-19.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>Dashboard</a>
+        <span class="sidebar-nav-section">Engagement</span>
+        <a href="Screen_AdminModeration_CeritaBasim_2026-05-19.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Moderasi <span class="badge">3</span></a>
+        <a href="Screen_AdminSubscribers_CeritaBasim_2026-05-19.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>Subscriber</a>
+        <a href="Screen_AdminDispatch_CeritaBasim_2026-05-19.html" class="active"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>Dispatch</a>
+        <span class="sidebar-nav-section">Lain</span>
+        <a href="Screen_Home_CeritaBasim_2026-05-19.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M14 10l7-7M9 21H3v-6M10 14l-7 7"/></svg>Lihat situs</a>
+        <a href="Screen_AdminLogin_CeritaBasim_2026-05-19.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>Keluar</a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="avatar">B</div>
+        <div><div style="font-weight: 600; color: var(--ink); font-size: 13.5px;">Basim</div><div style="font-size: 11.5px;" class="dim">basim@cerita.basim.id</div></div>
+      </div>
+    </aside>
+
+    <main class="app-main">
+      <span class="eyebrow">Admin · Dispatch</span>
+      <h1 style="margin: 4px 0 4px; font-size: 32px;">Kirim newsletter</h1>
+      <p class="muted">Pilih post, preview konten, kirim ke 142 subscriber active. Resend rate limit: 100 email/detik.</p>
+
+      <div class="dispatch-grid">
+        <div class="control-card">
+          <h3>Pilih cerita</h3>
+          <div class="field">
+            <label>Cerita</label>
+            <select class="select" id="postSelect" onchange="updatePreview()">
+              <option value="medium">Kenapa saya pindah dari Medium ke domain sendiri</option>
+              <option value="lurah">Belajar dari product yang gagal: Lurah v1</option>
+              <option value="d1">Notes on Cloudflare D1 setelah 6 bulan produksi</option>
+              <option value="resign">Yang saya pelajari dari resign dua kali dalam setahun</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Subject email</label>
+            <input class="input" id="subject" value="📬 Cerita baru: Kenapa saya pindah dari Medium ke domain sendiri" />
+          </div>
+          <div class="field">
+            <label>Custom intro (opsional)</label>
+            <textarea class="textarea" placeholder="Tambah catatan personal di pembuka email…">Halo,
+
+Cerita baru hari ini agak panjang — kalau kamu lagi sibuk, simpan dulu untuk akhir pekan.
+
+— Basim</textarea>
+          </div>
+          <div style="display: flex; gap: 10px; align-items: center; margin-top: 18px;">
+            <span style="font-size: 13px; color: var(--ink-2); margin-right: auto;">
+              Akan dikirim ke <strong style="color: var(--ink); font-family: var(--font-mono);">142 subscriber</strong>
+            </span>
+            <button class="btn btn-secondary" onclick="sendTest()">Kirim test ke saya</button>
+            <button class="btn btn-primary" id="sendBtn" onclick="startDispatch()">Kirim ke semua</button>
+          </div>
+        </div>
+
+        <div class="preview">
+          <div class="preview-head">
+            <strong>From:</strong> Basim &lt;hai@cerita.basim.id&gt;<br/>
+            <strong>To:</strong> [subscriber list]<br/>
+            <strong>Subject:</strong> <span id="subjPreview">📬 Cerita baru: Kenapa saya pindah dari Medium ke domain sendiri</span>
+          </div>
+          <div class="preview-body" id="previewBody">Halo,
+
+Cerita baru hari ini agak panjang — kalau kamu lagi sibuk, simpan dulu untuk akhir pekan.
+
+— Basim
+
+---
+
+<span class="h-eml">Kenapa saya pindah dari Medium ke domain sendiri</span>
+
+Tiga bulan setelah migrasi, traffic organik naik 3×. Catatan kecil yang berguna kalau kamu mempertimbangkan hal yang sama.
+
+Baca selengkapnya:
+https://cerita.basim.id/cerita/pindah-dari-medium
+
+---
+
+Kamu menerima email ini karena berlangganan di cerita.basim.id.
+Berhenti berlangganan: https://cerita.basim.id/u/[token]
+</div>
+        </div>
+      </div>
+
+      <!-- Live dispatch panel -->
+      <div class="control-card" id="dispatchPanel" style="margin-top: 22px; display: none;">
+        <h3 style="display:flex;align-items:center;gap:10px;"><span id="dispatchTitle">Mengirim newsletter…</span> <span class="spinner" id="dispatchSpinner"></span></h3>
+        <div class="progress-info">
+          <span><strong id="sentCount">0</strong> dari 142 terkirim</span>
+          <span id="etaText">ETA: 2 detik</span>
+        </div>
+        <div class="progress-bar"><div id="progress"></div></div>
+        <div class="log" id="log" style="margin-top: 16px;"></div>
+        <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:14px;">
+          <button class="btn btn-secondary" id="pauseBtn" onclick="pauseDispatch()">Pause</button>
+          <button class="btn btn-ghost" id="closeBtn" onclick="closeDispatch()" style="display:none;">Tutup</button>
+        </div>
+      </div>
+
+      <div class="control-card" style="margin-top: 22px;">
+        <h3>Riwayat dispatch</h3>
+        <div style="display: flex; flex-direction: column; gap: 4px;">
+          <div class="past-row"><span><strong>Notes on Cloudflare D1</strong> · 138 dari 138 sukses</span><span class="meta"><span class="pill pill-ok">Sukses</span><span>2 hari lalu</span></span></div>
+          <div class="past-row"><span><strong>Tahun pertama jadi solo founder</strong> · 124 dari 124 sukses</span><span class="meta"><span class="pill pill-ok">Sukses</span><span>5 hari lalu</span></span></div>
+          <div class="past-row"><span><strong>Membangun komentar threaded</strong> · 119 dari 121 sukses (2 bounce)</span><span class="meta"><span class="pill pill-warn">Sebagian</span><span>2 minggu lalu</span></span></div>
+          <div class="past-row"><span><strong>Astro 5 island architecture</strong> · 102 dari 102 sukses</span><span class="meta"><span class="pill pill-ok">Sukses</span><span>4 minggu lalu</span></span></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="toast-region" id="toasts" aria-live="polite"></div>
+
+  <script>
+    function toggleTheme(){const r=document.documentElement;const c=r.getAttribute('data-theme')||'light';const n=c==='light'?'dark':'light';r.setAttribute('data-theme',n);try{localStorage.setItem('cb-theme',n)}catch(e){}}
+    (function(){try{const s=localStorage.getItem('cb-theme');if(s)document.documentElement.setAttribute('data-theme',s);else if(window.matchMedia('(prefers-color-scheme: dark)').matches)document.documentElement.setAttribute('data-theme','dark')}catch(e){}})();
+    function toast(msg,k){const r=document.getElementById('toasts');const el=document.createElement('div');el.className='toast'+(k?' toast-'+k:'');el.textContent=msg;r.appendChild(el);setTimeout(()=>el.remove(),3000);}
+
+    const posts = {
+      medium: { subject: '📬 Cerita baru: Kenapa saya pindah dari Medium ke domain sendiri', title: 'Kenapa saya pindah dari Medium ke domain sendiri', tagline: 'Tiga bulan setelah migrasi, traffic organik naik 3×.', slug: 'pindah-dari-medium' },
+      lurah:  { subject: '📬 Cerita baru: Belajar dari product yang gagal — Lurah v1', title: 'Belajar dari product yang gagal: Lurah v1', tagline: 'Apa yang berbeda saat ngerjakan tools developer vs aplikasi konsumen.', slug: 'lurah-v1' },
+      d1:     { subject: '📬 Cerita baru: Notes on Cloudflare D1', title: 'Notes on Cloudflare D1 setelah 6 bulan produksi', tagline: 'Performance, gotchas, dan mengapa saya tetap memilihnya.', slug: 'cloudflare-d1' },
+      resign: { subject: '📬 Cerita baru: Yang saya pelajari dari resign dua kali', title: 'Yang saya pelajari dari resign dua kali dalam setahun', tagline: 'Dua keputusan, satu pelajaran.', slug: 'resign-dua-kali' },
+    };
+    function updatePreview(){
+      const v = document.getElementById('postSelect').value;
+      const p = posts[v];
+      document.getElementById('subject').value = p.subject;
+      document.getElementById('subjPreview').textContent = p.subject;
+      document.getElementById('previewBody').textContent =
+`Halo,
+
+Cerita baru hari ini agak panjang — kalau kamu lagi sibuk, simpan dulu untuk akhir pekan.
+
+— Basim
+
+---
+
+${p.title}
+
+${p.tagline}
+
+Baca selengkapnya:
+https://cerita.basim.id/cerita/${p.slug}
+
+---
+
+Kamu menerima email ini karena berlangganan di cerita.basim.id.
+Berhenti berlangganan: https://cerita.basim.id/u/[token]
+`;
+    }
+    document.getElementById('subject').addEventListener('input', e => document.getElementById('subjPreview').textContent = e.target.value);
+
+    function sendTest(){ toast('Test email dikirim ke basim@cerita.basim.id','ok'); }
+
+    let dispatchTimer = null, paused = false;
+    function startDispatch() {
+      if (!confirm('Yakin kirim newsletter ke 142 subscriber? Tidak bisa dibatalkan setelah selesai.')) return;
+      const panel = document.getElementById('dispatchPanel');
+      panel.style.display = 'block';
+      panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      document.getElementById('sendBtn').disabled = true;
+      const total = 142;
+      let sent = 0;
+      const log = document.getElementById('log');
+      const sentEl = document.getElementById('sentCount');
+      const progressEl = document.getElementById('progress');
+      const etaEl = document.getElementById('etaText');
+      function tick() {
+        if (paused) { dispatchTimer = setTimeout(tick, 200); return; }
+        const batch = Math.min(8, total - sent);
+        sent += batch;
+        const pct = (sent / total) * 100;
+        progressEl.style.width = pct + '%';
+        sentEl.textContent = sent;
+        const remaining = Math.ceil((total - sent) / 8 * 0.15);
+        etaEl.textContent = remaining > 0 ? `ETA: ${remaining} detik` : 'Hampir selesai…';
+        const ts = new Date().toLocaleTimeString('id-ID');
+        const entry = document.createElement('div');
+        entry.innerHTML = `<span class="ts">[${ts}]</span> <span class="ok">✓</span> Batch ${Math.ceil(sent/8)} delivered (${batch} email)`;
+        log.appendChild(entry); log.scrollTop = log.scrollHeight;
+        if (sent < total) {
+          dispatchTimer = setTimeout(tick, 150);
+        } else {
+          finishDispatch();
+        }
+      }
+      tick();
+    }
+    function pauseDispatch() {
+      paused = !paused;
+      document.getElementById('pauseBtn').textContent = paused ? 'Lanjutkan' : 'Pause';
+    }
+    function finishDispatch() {
+      document.getElementById('dispatchTitle').textContent = '✓ Newsletter terkirim';
+      document.getElementById('dispatchSpinner').style.display = 'none';
+      document.getElementById('etaText').textContent = '142 dari 142 sukses · 0 gagal';
+      document.getElementById('pauseBtn').style.display = 'none';
+      document.getElementById('closeBtn').style.display = 'inline-flex';
+      document.getElementById('sendBtn').disabled = false;
+      toast('Newsletter terkirim ke 142 subscriber','ok');
+    }
+    function closeDispatch(){
+      document.getElementById('dispatchPanel').style.display = 'none';
+      document.getElementById('dispatchTitle').textContent = 'Mengirim newsletter…';
+      document.getElementById('dispatchSpinner').style.display = '';
+      document.getElementById('pauseBtn').style.display = '';
+      document.getElementById('closeBtn').style.display = 'none';
+      document.getElementById('progress').style.width = '0%';
+      document.getElementById('sentCount').textContent = '0';
+      document.getElementById('log').innerHTML = '';
+      paused = false;
+    }
+  </script>
+</body>
+</html>

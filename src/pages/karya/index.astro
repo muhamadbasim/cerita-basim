@@ -1,0 +1,56 @@
+---
+import BaseLayout from '@/components/layout/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const projects = (await getCollection('projects'))
+  .sort((a, b) => a.data.order - b.data.order);
+---
+
+<BaseLayout title="Karya" description="Project yang sudah dikerjakan Basim — web, mobile, tools, dan eksperimen." active="karya">
+  <section class="container" style="padding: 56px 0 24px;">
+    <span class="eyebrow">Karya · {projects.length} project</span>
+    <h1>Project & <em>eksperimen</em>.</h1>
+    <p class="muted">Hal yang sudah dibangun — sebagian dipakai orang, sebagian hanya untuk belajar.</p>
+
+    <div class="project-grid">
+      {projects.map(project => (
+        <a class="project-card" href={`/karya/${project.slug}`}>
+          <div class={`cover cover-${project.data.coverColor}`}>
+            <div class="cover-art">{project.data.title.slice(0, 2)}</div>
+          </div>
+          <div class="body">
+            <span class="pill">{project.data.category}</span>
+            <h3 class="title">{project.data.title}</h3>
+            <p class="tagline">{project.data.tagline}</p>
+            <div class="meta">
+              <span class="pill">{project.data.year}</span>
+              {project.data.stack.slice(0, 2).map(s => <span class="pill">{s}</span>)}
+            </div>
+          </div>
+        </a>
+      ))}
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .container { max-width: var(--container); margin: 0 auto; padding: 0 28px; }
+  h1 em { font-style: italic; color: var(--accent-2); font-weight: 600; }
+  .muted { color: var(--ink-2); font-size: 17px; max-width: 60ch; }
+  .project-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 22px; margin-top: 32px; }
+  .project-card { display: flex; flex-direction: column; background: var(--paper); border: 1px solid var(--rule); border-radius: 14px; overflow: hidden; text-decoration: none; color: var(--ink); transition: transform 300ms cubic-bezier(0.16,1,0.3,1), box-shadow 300ms; }
+  .project-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+  .cover { aspect-ratio: 16/10; position: relative; }
+  .cover-art { position: absolute; inset: 0; display: grid; place-items: center; font-family: var(--font-display); font-weight: 800; font-size: 56px; color: #fff; }
+  .cover-terra { background: linear-gradient(135deg, var(--accent), var(--accent-deep)); }
+  .cover-forest { background: linear-gradient(135deg, var(--accent-2), var(--accent-2-deep)); }
+  .cover-gold { background: linear-gradient(135deg, var(--gold), #8a5f00); }
+  .cover-ink { background: linear-gradient(135deg, var(--ink-2), var(--ink)); }
+  .cover-mix { background: linear-gradient(135deg, var(--accent), var(--accent-2)); }
+  .cover-sand { background: linear-gradient(135deg, var(--bg-3), var(--rule-2)); }
+  .project-card .body { padding: 18px 20px 22px; }
+  .project-card .title { font-family: var(--font-display); font-weight: 700; font-size: 19px; margin: 8px 0 4px; }
+  .project-card .tagline { color: var(--ink-2); font-size: 14px; }
+  .project-card .meta { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+  .pill { display: inline-flex; font-size: 12px; font-weight: 600; letter-spacing: .03em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px; background: var(--bg-2); color: var(--ink-2); border: 1px solid var(--rule); }
+</style>

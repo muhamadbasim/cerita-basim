@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Subscribe · Cerita Basim</title>
+  <meta name="description" content="Berlangganan cerita Cerita Basim — plain text, tanpa tracking, satu klik unsubscribe." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="cerita-basim.css" />
+  <style>
+    .subscribe-page { padding: 56px 0 96px; max-width: 580px; margin: 0 auto; }
+    .perks { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin: 24px 0 32px; }
+    @media (max-width: 480px) { .perks { grid-template-columns: 1fr; } }
+    .perk { padding: 16px 18px; background: var(--paper); border: 1px solid var(--rule); border-radius: var(--r-3); display: flex; gap: 12px; align-items: start; }
+    .perk .icon { width: 32px; height: 32px; flex-shrink: 0; border-radius: var(--r-2); background: rgba(194,65,12,.1); color: var(--accent); display: grid; place-items: center; }
+    .perk .text { font-size: 14px; color: var(--ink-2); }
+    .perk .text strong { color: var(--ink); display: block; font-family: var(--font-display); font-size: 15px; margin-bottom: 2px; }
+    .turnstile-mock { background: var(--bg-2); border: 1px solid var(--rule); border-radius: var(--r-2); padding: 12px 14px; font-size: 13px; color: var(--ink-2); display: flex; align-items: center; gap: 10px; cursor: pointer; }
+    .turnstile-mock .check { width: 18px; height: 18px; border-radius: 4px; border: 2px solid var(--ink-3); }
+    .turnstile-mock.verified .check { background: var(--ok); border-color: var(--ok); }
+    .turnstile-mock.verified .check::after { content:"✓"; color:#fff; font-size:12px; font-weight:bold; display:grid; place-items:center; height: 100%; line-height:1; }
+    .archive-stat { background: var(--paper); border: 1px solid var(--rule); border-radius: var(--r-3); padding: 24px; margin-top: 36px; display: flex; gap: 24px; align-items: center; }
+    .archive-stat .num { font-family: var(--font-display); font-weight: 800; font-size: 42px; color: var(--accent); line-height: 1; }
+    .archive-stat .text { color: var(--ink-2); font-size: 14.5px; }
+  </style>
+</head>
+<body>
+  <a href="#main" class="skip-to-main">Lewati ke konten</a>
+  <header class="topnav">
+    <div class="topnav-inner">
+      <a class="brand" href="Screen_Home_CeritaBasim_2026-05-19.html"><span class="brand-mark">cb</span><span class="brand-name">Cerita <em>Basim</em></span></a>
+      <nav class="topnav-links" aria-label="Primer">
+        <a href="Screen_Home_CeritaBasim_2026-05-19.html">Beranda</a>
+        <a href="Screen_KaryaIndex_CeritaBasim_2026-05-19.html">Karya</a>
+        <a href="Screen_CeritaIndex_CeritaBasim_2026-05-19.html">Cerita</a>
+        <a href="Screen_Tentang_CeritaBasim_2026-05-19.html">Tentang</a>
+      </nav>
+      <div class="topnav-actions">
+        <a href="Screen_Subscribe_CeritaBasim_2026-05-19.html" class="btn btn-primary btn-sm">Subscribe</a>
+        <button class="theme-toggle" type="button" aria-label="Ganti tema" onclick="toggleTheme()">
+          <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2m10-10h-2M4 12H2m15.5-7.5L16 6m-8 12l-1.5 1.5M19.5 19.5L18 18M6 6L4.5 4.5"/></svg>
+          <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main" class="container subscribe-page">
+    <span class="eyebrow">Newsletter</span>
+    <h1 class="h-display">Cerita yang langsung ke <em>kotak masuk</em>.</h1>
+    <p class="muted" style="font-size: 17px;">Setiap kali ada cerita baru di Cerita Basim, kamu mendapat email plain-text — tidak ada tracking pixel, tidak ada banner, satu klik unsubscribe.</p>
+
+    <div class="perks stagger">
+      <div class="perk">
+        <div class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4 12 14.01l-3-3"/></svg></div>
+        <div class="text"><strong>Plain text</strong>Email mudah dibaca, di klien email apa pun.</div>
+      </div>
+      <div class="perk">
+        <div class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v6m0 6v6m11-7H17m-10 0H1"/></svg></div>
+        <div class="text"><strong>Tanpa frekuensi maksa</strong>~1-2 cerita per bulan. Saya tidak akan kirim sampah.</div>
+      </div>
+      <div class="perk">
+        <div class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></div>
+        <div class="text"><strong>Privacy-first</strong>Email kamu hanya untuk kirim cerita. Tidak dijual, tidak dishare.</div>
+      </div>
+      <div class="perk">
+        <div class="icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg></div>
+        <div class="text"><strong>Mudah berhenti</strong>Setiap email punya link unsubscribe. Satu klik, selesai.</div>
+      </div>
+    </div>
+
+    <form class="card" id="subForm" onsubmit="onSubmit(event)" style="padding: 32px;">
+      <div class="field">
+        <label for="email">Email</label>
+        <input id="email" class="input" type="email" placeholder="kamu@email.com" required autocomplete="email" />
+        <span class="field-help">Kami akan kirim email konfirmasi (double opt-in).</span>
+        <span class="field-error" id="emailErr">Format email tidak valid</span>
+      </div>
+      <label class="checkbox" style="margin: 8px 0 14px;">
+        <input type="checkbox" id="consent" required />
+        <span>Saya setuju Cerita Basim mengirim email cerita baru ke alamat ini. Saya bisa berhenti kapan saja.</span>
+      </label>
+      <div class="turnstile-mock" id="turnstile" onclick="verifyTurnstile()">
+        <span class="check"></span>
+        <span id="turnstileLabel">Cloudflare Turnstile · klik untuk verifikasi</span>
+      </div>
+      <div style="display: flex; gap: 12px; align-items: center; margin-top: 18px;">
+        <button type="submit" class="btn btn-primary" id="submitBtn">Subscribe sekarang</button>
+        <span class="muted" style="font-size: 13px;">Gratis, selamanya.</span>
+      </div>
+    </form>
+
+    <div class="archive-stat">
+      <div class="num">142</div>
+      <div class="text">pembaca sudah berlangganan. Bergabunglah — kamu akan langsung dapat cerita berikutnya.</div>
+    </div>
+
+    <p class="muted" style="text-align: center; margin-top: 36px; font-size: 13.5px;">Lebih suka RSS? <a href="#" onclick="toast('Feed di /rss.xml');return false;">Berlangganan via feed</a>.</p>
+  </main>
+
+  <footer class="footer-cb">
+    <div class="footer-cb-inner">
+      <div><a class="brand" href="Screen_Home_CeritaBasim_2026-05-19.html"><span class="brand-mark">cb</span><span class="brand-name">Cerita <em>Basim</em></span></a><p class="meta">Karya, cerita, dan pembaca — sejak 2026.</p></div>
+      <div><h5>Jelajah</h5><ul><li><a href="Screen_Home_CeritaBasim_2026-05-19.html">Beranda</a></li><li><a href="Screen_KaryaIndex_CeritaBasim_2026-05-19.html">Karya</a></li><li><a href="Screen_CeritaIndex_CeritaBasim_2026-05-19.html">Cerita</a></li></ul></div>
+      <div><h5>Tetap terhubung</h5><ul><li><a href="Screen_Subscribe_CeritaBasim_2026-05-19.html">Newsletter</a></li></ul></div>
+      <div><h5>Lain-lain</h5><ul><li><a href="Screen_AdminLogin_CeritaBasim_2026-05-19.html">Admin</a></li></ul></div>
+    </div>
+  </footer>
+
+  <div class="toast-region" id="toasts" aria-live="polite"></div>
+
+  <script>
+    function toggleTheme(){const r=document.documentElement;const c=r.getAttribute('data-theme')||'light';const n=c==='light'?'dark':'light';r.setAttribute('data-theme',n);try{localStorage.setItem('cb-theme',n)}catch(e){}}
+    (function(){try{const s=localStorage.getItem('cb-theme');if(s)document.documentElement.setAttribute('data-theme',s);else if(window.matchMedia('(prefers-color-scheme: dark)').matches)document.documentElement.setAttribute('data-theme','dark')}catch(e){}})();
+    function toast(msg,k){const r=document.getElementById('toasts');const el=document.createElement('div');el.className='toast'+(k?' toast-'+k:'');el.textContent=msg;r.appendChild(el);setTimeout(()=>el.remove(),3000);}
+
+    let verified = false;
+    function verifyTurnstile(){
+      if (verified) return;
+      const t = document.getElementById('turnstile');
+      const lbl = document.getElementById('turnstileLabel');
+      lbl.textContent = 'Memverifikasi…';
+      setTimeout(() => { t.classList.add('verified'); lbl.textContent = 'Verifikasi sukses'; verified = true; }, 700);
+    }
+    function onSubmit(e){
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      if (!verified) { toast('Klik verifikasi dulu', 'danger'); return; }
+      const btn = document.getElementById('submitBtn');
+      btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Mengirim';
+      setTimeout(() => {
+        // redirect to thanks page
+        window.location.href = 'Screen_SubscribeThanks_CeritaBasim_2026-05-19.html?email=' + encodeURIComponent(email);
+      }, 900);
+    }
+  </script>
+</body>
+</html>

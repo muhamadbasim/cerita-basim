@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Cerita Basim · Project Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #f6f1e7;
+      --bg-2: #efe6d3;
+      --ink: #1b1410;
+      --ink-2: #4a3c33;
+      --rule: #d9cdb7;
+      --accent: #c2410c; /* terracotta */
+      --accent-2: #1b3b2f; /* deep forest */
+      --ok: #2f7d56;
+      --warn: #b58105;
+      --pending: #8a7762;
+      --shadow: 0 1px 0 rgba(27,20,16,.06), 0 16px 40px -24px rgba(27,20,16,.25);
+      --radius: 14px;
+      --font-display: 'Fraunces', Georgia, serif;
+      --font-body: 'DM Sans', system-ui, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; }
+    body {
+      font-family: var(--font-body);
+      color: var(--ink);
+      background:
+        radial-gradient(1200px 600px at 10% -20%, rgba(194,65,12,.10), transparent 60%),
+        radial-gradient(900px 500px at 110% 20%, rgba(27,59,47,.10), transparent 60%),
+        var(--bg);
+      min-height: 100vh;
+      line-height: 1.55;
+    }
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 56px 28px 96px; }
+    header.hero { display: flex; align-items: end; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+    .brand { display: flex; align-items: center; gap: 14px; }
+    .mark {
+      width: 44px; height: 44px; border-radius: 12px;
+      background: linear-gradient(135deg, var(--accent), #7a2607);
+      display: grid; place-items: center; color: #fff;
+      font-family: var(--font-display); font-weight: 800; font-size: 22px;
+      box-shadow: var(--shadow);
+    }
+    .brand h1 { font-family: var(--font-display); font-weight: 800; font-size: 34px; margin: 0; letter-spacing: -0.01em; }
+    .brand p { margin: 2px 0 0; color: var(--ink-2); }
+    .meta { color: var(--ink-2); font-size: 14px; }
+    .meta strong { color: var(--ink); }
+
+    .progress-card {
+      margin-top: 28px; padding: 28px;
+      background: #fffaf0; border: 1px solid var(--rule); border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+    .progress-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 14px; }
+    .progress-row h2 { font-family: var(--font-display); font-weight: 700; font-size: 22px; margin: 0; }
+    .progress-pct { font-family: var(--font-display); font-weight: 700; font-size: 22px; color: var(--accent); }
+    .bar { height: 10px; background: var(--bg-2); border-radius: 999px; overflow: hidden; }
+    .bar > div { height: 100%; background: linear-gradient(90deg, var(--accent), #7a2607); width: 0%; transition: width .6s var(--ease, ease); }
+    .legend { margin-top: 10px; font-size: 13px; color: var(--ink-2); }
+
+    .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; margin-top: 22px; }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    .phase {
+      background: #fffaf0; border: 1px solid var(--rule); border-radius: var(--radius);
+      padding: 22px; position: relative; box-shadow: var(--shadow);
+    }
+    .phase h3 { font-family: var(--font-display); font-weight: 700; font-size: 19px; margin: 0 0 6px; }
+    .phase p { margin: 0; color: var(--ink-2); font-size: 14px; }
+    .pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 12px; font-weight: 600; letter-spacing: .02em;
+      padding: 4px 10px; border-radius: 999px;
+      text-transform: uppercase;
+    }
+    .pill.pending { background: #ece2cd; color: var(--pending); }
+    .pill.in-progress { background: #fde9cf; color: var(--warn); }
+    .pill.done { background: #dcefe1; color: var(--ok); }
+    .pill.failed { background: #fadcd1; color: var(--accent); }
+    .pill .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+    .phase .top { display: flex; justify-content: space-between; align-items: start; gap: 12px; margin-bottom: 10px; }
+    .docs { margin-top: 14px; padding-top: 14px; border-top: 1px dashed var(--rule); }
+    .docs a { color: var(--accent-2); text-decoration: none; border-bottom: 1px solid rgba(27,59,47,.3); padding-bottom: 1px; font-weight: 500; }
+    .docs a:hover { border-bottom-color: var(--accent-2); }
+    .docs ul { margin: 6px 0 0; padding: 0; list-style: none; font-size: 14px; }
+    .docs li { margin: 6px 0; }
+    .docs li::before { content: "›"; color: var(--accent); margin-right: 8px; font-weight: 700; }
+    .empty { font-size: 13px; color: var(--pending); font-style: italic; }
+
+    footer.foot { margin-top: 36px; color: var(--ink-2); font-size: 13px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="hero">
+      <div class="brand">
+        <div class="mark">cb</div>
+        <div>
+          <h1>Cerita Basim</h1>
+          <p>Portofolio karya & cerita — built on Astro × Cloudflare</p>
+        </div>
+      </div>
+      <div class="meta">
+        Last updated: <strong id="ts">19 Mei 2026, 00:00 WIB</strong><br />
+        Domain: <strong>cerita.basim.id</strong>
+      </div>
+    </header>
+
+    <section class="progress-card">
+      <div class="progress-row">
+        <h2>Progress</h2>
+        <div class="progress-pct" id="pct">100%</div>
+      </div>
+      <div class="bar"><div id="barfill" style="width:100%"></div></div>
+      <div class="legend">Semua phase selesai &amp; tervalidasi. Prototype siap di-review.</div>
+    </section>
+
+    <section class="grid">
+      <article class="phase">
+        <div class="top">
+          <h3>Phase 1 · Market Research</h3>
+          <span class="pill done"><span class="dot"></span>Validated</span>
+        </div>
+        <p>Riset kompetitor (Medium, Substack, Ghost, Hashnode, Bear Blog), TAM/SAM/SOM, pain points, brand draft.</p>
+        <div class="docs">
+          <ul>
+            <li><a href="MarketResearch_CeritaBasim_2026-05-19.html">MarketResearch_CeritaBasim_2026-05-19.html</a></li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="phase">
+        <div class="top">
+          <h3>Phase 2 · PRFAQ</h3>
+          <span class="pill done"><span class="dot"></span>Validated</span>
+        </div>
+        <p>Press release & FAQ ala Amazon — working backwards dari pengalaman pembaca dan kreator.</p>
+        <div class="docs">
+          <ul>
+            <li><a href="PRFAQ_CeritaBasim_2026-05-19.html">PRFAQ_CeritaBasim_2026-05-19.html</a></li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="phase">
+        <div class="top">
+          <h3>Phase 3 · PRD & Spec</h3>
+          <span class="pill done"><span class="dot"></span>Validated</span>
+        </div>
+        <p>Requirement detail (EARS) dan arsitektur teknis di Astro + Cloudflare (Pages, D1, KV, Workers).</p>
+        <div class="docs">
+          <ul>
+            <li><a href="PRD_CeritaBasim_2026-05-19.html">PRD_CeritaBasim_2026-05-19.html</a></li>
+            <li><a href="../.kiro/specs/cerita-basim/requirements.md">.kiro/specs/cerita-basim/requirements.md</a></li>
+            <li><a href="../.kiro/specs/cerita-basim/design.md">.kiro/specs/cerita-basim/design.md</a></li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="phase">
+        <div class="top">
+          <h3>Phase 4 · Prototype</h3>
+          <span class="pill done"><span class="dot"></span>Validated</span>
+        </div>
+        <p>14 screen HTML interaktif: home, karya, cerita, tentang, subscribe, 404, admin (login, dashboard, moderation, subscribers, dispatch).</p>
+        <div class="docs">
+          <ul>
+            <li><a href="ScreenIndex_CeritaBasim_2026-05-19.html">ScreenIndex (navigation hub)</a></li>
+            <li><a href="DesignSystem_CeritaBasim_2026-05-19.html">DesignSystem (reference)</a></li>
+            <li><a href="cerita-basim.css">cerita-basim.css (shared stylesheet)</a></li>
+            <li><a href="Screen_Home_CeritaBasim_2026-05-19.html">Screen: Home</a></li>
+            <li><a href="Screen_AdminDashboard_CeritaBasim_2026-05-19.html">Screen: Admin Dashboard</a></li>
+            <li>… dan 12 screen lainnya (lihat ScreenIndex)</li>
+          </ul>
+        </div>
+      </article>
+    </section>
+
+    <footer class="foot">
+      <span>Workflow: Full Approval mode</span>
+      <span>Stack: Astro · Cloudflare Pages · D1 · KV · Workers</span>
+    </footer>
+  </div>
+  <script>
+    document.getElementById('ts').textContent = new Date().toLocaleString('id-ID', { dateStyle: 'long', timeStyle: 'short' });
+  </script>
+</body>
+</html>

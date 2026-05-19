@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tentang · Cerita Basim</title>
+  <meta name="description" content="Tentang Basim — solo founder, penulis, dan pembuat Cerita Basim." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="cerita-basim.css" />
+  <style>
+    .about-grid { display: grid; grid-template-columns: 280px 1fr; gap: 56px; padding: 56px 0; align-items: start; }
+    @media (max-width: 720px) { .about-grid { grid-template-columns: 1fr; gap: 24px; } }
+    .portrait { aspect-ratio: 4/5; border-radius: var(--r-3); background: linear-gradient(135deg, var(--accent), var(--accent-2)); display: grid; place-items: center; color: #fff; font-family: var(--font-display); font-weight: 800; font-size: 96px; box-shadow: var(--shadow-md); }
+    .info-list { display: flex; flex-direction: column; gap: 12px; margin-top: 18px; font-size: 14px; }
+    .info-list .row { display: flex; gap: 14px; padding: 10px 0; border-bottom: 1px dashed var(--rule); }
+    .info-list .label { width: 80px; color: var(--ink-3); flex-shrink: 0; font-weight: 600; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; padding-top: 2px; }
+    .timeline { margin: 36px 0; padding-left: 22px; border-left: 2px solid var(--rule); }
+    .timeline-item { padding: 6px 0 18px; position: relative; }
+    .timeline-item::before { content: ""; position: absolute; left: -28px; top: 12px; width: 12px; height: 12px; border-radius: 50%; background: var(--accent); border: 3px solid var(--paper); box-shadow: 0 0 0 1px var(--rule); }
+    .timeline-item .year { font-family: var(--font-display); font-weight: 700; color: var(--accent); font-size: 14px; letter-spacing: .04em; }
+    .timeline-item .title { font-family: var(--font-display); font-weight: 700; font-size: 17px; margin: 4px 0; }
+    .social-links { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+  </style>
+</head>
+<body>
+  <a href="#main" class="skip-to-main">Lewati ke konten</a>
+  <header class="topnav">
+    <div class="topnav-inner">
+      <a class="brand" href="Screen_Home_CeritaBasim_2026-05-19.html"><span class="brand-mark">cb</span><span class="brand-name">Cerita <em>Basim</em></span></a>
+      <nav class="topnav-links" aria-label="Primer">
+        <a href="Screen_Home_CeritaBasim_2026-05-19.html">Beranda</a>
+        <a href="Screen_KaryaIndex_CeritaBasim_2026-05-19.html">Karya</a>
+        <a href="Screen_CeritaIndex_CeritaBasim_2026-05-19.html">Cerita</a>
+        <a href="Screen_Tentang_CeritaBasim_2026-05-19.html" class="active">Tentang</a>
+      </nav>
+      <div class="topnav-actions">
+        <a href="Screen_Subscribe_CeritaBasim_2026-05-19.html" class="btn btn-primary btn-sm">Subscribe</a>
+        <button class="theme-toggle" type="button" aria-label="Ganti tema" onclick="toggleTheme()">
+          <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2m10-10h-2M4 12H2m15.5-7.5L16 6m-8 12l-1.5 1.5M19.5 19.5L18 18M6 6L4.5 4.5"/></svg>
+          <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main" class="container">
+    <div class="about-grid">
+      <div>
+        <div class="portrait" aria-hidden="true">B</div>
+        <div class="info-list">
+          <div class="row"><span class="label">Lokasi</span><span>Jakarta, Indonesia</span></div>
+          <div class="row"><span class="label">Pekerjaan</span><span>Solo founder &amp; product builder</span></div>
+          <div class="row"><span class="label">Tertarik</span><span>Astro, Cloudflare, edge computing, kerajinan tangan, kopi</span></div>
+          <div class="row"><span class="label">Bahasa</span><span>Indonesia, English</span></div>
+        </div>
+        <div class="social-links">
+          <a class="btn btn-secondary btn-sm" href="#" onclick="toast('Twitter @basim');return false;">Twitter</a>
+          <a class="btn btn-secondary btn-sm" href="#" onclick="toast('GitHub @basim');return false;">GitHub</a>
+          <a class="btn btn-secondary btn-sm" href="#" onclick="toast('LinkedIn /in/basim');return false;">LinkedIn</a>
+          <a class="btn btn-secondary btn-sm" href="#" onclick="toast('hai@cerita.basim.id');return false;">Email</a>
+        </div>
+      </div>
+      <div>
+        <span class="eyebrow">Tentang</span>
+        <h1 class="h-display">Halo, saya <em>Basim</em>.</h1>
+        <p style="font-size: 18px; color: var(--ink-2); max-width: 60ch;">Saya membangun produk dan menulis tentang prosesnya. Sebelum jadi solo founder, saya empat tahun di tim engineering perusahaan e-commerce di Jakarta. Sekarang saya tinggal di domain ini, mengerjakan project yang membuat saya antusias bangun pagi.</p>
+
+        <h2>Apa yang saya kerjakan</h2>
+        <p>Project saya biasanya muncul dari friksi yang saya alami sendiri. <strong>Penjaja</strong> lahir karena adik saya pedagang batik kewalahan kelola order WA. <strong>Lurah</strong> lahir karena saya capek klik-klik manual di Cloudflare dashboard untuk audit konfigurasi. Pola yang saya cari: masalah yang nyata, solusi yang sederhana, eksekusi yang cepat.</p>
+
+        <h2>Bagaimana saya menulis</h2>
+        <p>Saya menulis dalam dua mode: <em>panjang dan pelan</em> (cerita yang butuh bersarap setidaknya satu minggu — biasanya tentang produk atau karier) dan <em>pendek dan tepat</em> (catatan teknis yang membantu diri saya sendiri 6 bulan kemudian). Keduanya hidup di sini.</p>
+
+        <h2>Yang sedang dikerjakan</h2>
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="year">2026 · Sekarang</div>
+            <div class="title">Cerita Basim</div>
+            <p class="muted">Personal site ini. Astro + Cloudflare. Sambil mengerjakan, sambil nulis tentang prosesnya.</p>
+          </div>
+          <div class="timeline-item">
+            <div class="year">2025</div>
+            <div class="title">Penjaja — marketplace pedagang kaki lima</div>
+            <p class="muted">Solo founder, 200 pedagang aktif setelah 6 bulan launch.</p>
+          </div>
+          <div class="timeline-item">
+            <div class="year">2024</div>
+            <div class="title">Lurah — CLI audit Cloudflare</div>
+            <p class="muted">Open source, &gt;1k stars di GitHub. Maintained until 2026.</p>
+          </div>
+          <div class="timeline-item">
+            <div class="year">2020 — 2024</div>
+            <div class="title">Senior Engineer di sebuah e-commerce Jakarta</div>
+            <p class="muted">Backend, infra, dan produk untuk platform &gt;500k MAU.</p>
+          </div>
+        </div>
+
+        <h2>Hubungi saya</h2>
+        <p>Email paling andal: <a href="#" onclick="toast('hai@cerita.basim.id');return false;">hai@cerita.basim.id</a>. Saya membaca setiap email tapi tidak janji jawab cepat. Kalau topiknya menarik, saya pasti jawab.</p>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer-cb">
+    <div class="footer-cb-inner">
+      <div><a class="brand" href="Screen_Home_CeritaBasim_2026-05-19.html"><span class="brand-mark">cb</span><span class="brand-name">Cerita <em>Basim</em></span></a><p class="meta">Karya, cerita, dan pembaca — sejak 2026.</p></div>
+      <div><h5>Jelajah</h5><ul><li><a href="Screen_Home_CeritaBasim_2026-05-19.html">Beranda</a></li><li><a href="Screen_KaryaIndex_CeritaBasim_2026-05-19.html">Karya</a></li><li><a href="Screen_CeritaIndex_CeritaBasim_2026-05-19.html">Cerita</a></li></ul></div>
+      <div><h5>Tetap terhubung</h5><ul><li><a href="Screen_Subscribe_CeritaBasim_2026-05-19.html">Newsletter</a></li></ul></div>
+      <div><h5>Lain-lain</h5><ul><li><a href="Screen_AdminLogin_CeritaBasim_2026-05-19.html">Admin</a></li></ul></div>
+    </div>
+  </footer>
+
+  <div class="toast-region" id="toasts" aria-live="polite"></div>
+
+  <script>
+    function toggleTheme(){const r=document.documentElement;const c=r.getAttribute('data-theme')||'light';const n=c==='light'?'dark':'light';r.setAttribute('data-theme',n);try{localStorage.setItem('cb-theme',n)}catch(e){}}
+    (function(){try{const s=localStorage.getItem('cb-theme');if(s)document.documentElement.setAttribute('data-theme',s);else if(window.matchMedia('(prefers-color-scheme: dark)').matches)document.documentElement.setAttribute('data-theme','dark')}catch(e){}})();
+    function toast(msg,k){const r=document.getElementById('toasts');const el=document.createElement('div');el.className='toast'+(k?' toast-'+k:'');el.textContent=msg;r.appendChild(el);setTimeout(()=>el.remove(),3000);}
+  </script>
+</body>
+</html>

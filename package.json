@@ -1,0 +1,32 @@
+{
+  "name": "cerita-basim",
+  "type": "module",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Portfolio + blog personal di cerita.basim.id — Astro × Cloudflare",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "typecheck": "astro check && tsc --noEmit",
+    "lint": "eslint src --ext .ts,.tsx,.astro",
+    "test": "vitest run",
+    "db:migrate": "wrangler d1 migrations apply cerita-basim-db --remote",
+    "db:migrate:local": "wrangler d1 migrations apply cerita-basim-db --local"
+  },
+  "dependencies": {
+    "astro": "5.7.10",
+    "@astrojs/cloudflare": "12.5.1",
+    "@astrojs/mdx": "4.3.0",
+    "@astrojs/sitemap": "3.3.1",
+    "@astrojs/rss": "4.0.11",
+    "resend": "4.5.1"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "4.20250514.0",
+    "typescript": "5.8.3",
+    "wrangler": "4.14.4",
+    "vitest": "3.1.3"
+  }
+}

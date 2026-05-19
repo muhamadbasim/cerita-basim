@@ -1,0 +1,30 @@
+---
+import BaseLayout from '@/components/layout/BaseLayout.astro';
+---
+
+<BaseLayout title="Halaman tidak ditemukan">
+  <section class="container nf-page">
+    <div class="nf-num" aria-hidden="true">404</div>
+    <span class="eyebrow">Halaman tidak ditemukan</span>
+    <h1>Halaman ini sepertinya <em>belum ada</em>.</h1>
+    <p class="muted">URL-nya mungkin pindah, atau kamu klik dari link yang sudah kedaluwarsa.</p>
+    <div class="actions">
+      <a href="/" class="btn btn-primary">← Kembali ke beranda</a>
+      <a href="/cerita" class="btn btn-secondary">Lihat semua cerita</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .container { max-width: var(--container); margin: 0 auto; padding: 0 28px; }
+  .nf-page { text-align: center; padding: 56px 0; min-height: 60vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .nf-num { font-family: var(--font-display); font-weight: 900; font-size: clamp(120px, 24vw, 220px); line-height: .9; background: linear-gradient(135deg, var(--accent), var(--accent-2)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+  h1 em { font-style: italic; color: var(--accent-2); font-weight: 600; }
+  .muted { color: var(--ink-2); max-width: 50ch; margin: 12px 0 24px; }
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  .btn { display: inline-flex; align-items: center; padding: 12px 20px; min-height: 44px; border-radius: 999px; font-size: 14.5px; font-weight: 600; text-decoration: none; border: 1px solid transparent; transition: transform 200ms; }
+  .btn:hover { transform: translateY(-1px); }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: var(--accent-deep); color: #fff; }
+  .btn-secondary { background: var(--paper); color: var(--ink); border-color: var(--rule); }
+</style>

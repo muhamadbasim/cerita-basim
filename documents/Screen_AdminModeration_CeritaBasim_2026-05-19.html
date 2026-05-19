@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Moderasi · Admin Cerita Basim</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="cerita-basim.css" />
+  <style>
+    .mod-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--rule); margin: 24px 0 20px; }
+    .mod-tab { padding: 12px 16px; font-size: 14px; font-weight: 500; color: var(--ink-2); border-bottom: 2px solid transparent; transition: all var(--duration-fast); cursor: pointer; min-height: 44px; }
+    .mod-tab:hover { color: var(--ink); }
+    .mod-tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+    .mod-tab .count { display: inline-block; margin-left: 6px; background: var(--bg-2); color: var(--ink-2); font-size: 11px; padding: 2px 7px; border-radius: var(--r-pill); font-weight: 600; }
+    .mod-tab.active .count { background: var(--accent); color: #fff; }
+
+    .bulk-bar { display: none; background: var(--paper); border: 1px solid var(--rule); border-radius: var(--r-2); padding: 12px 14px; align-items: center; gap: 12px; font-size: 14px; margin-bottom: 14px; }
+    .bulk-bar.show { display: flex; }
+    .bulk-bar .count-pill { background: var(--accent); color: #fff; padding: 2px 10px; border-radius: var(--r-pill); font-weight: 600; font-size: 12px; }
+
+    .mod-card { background: var(--paper); border: 1px solid var(--rule); border-radius: var(--r-3); padding: 20px 22px; margin-bottom: 14px; transition: all var(--duration-fast); }
+    .mod-card.hidden { opacity: 0; transform: translateX(40px); pointer-events: none; }
+    .mod-card .top { display: flex; gap: 14px; align-items: start; }
+    .mod-card .check { padding-top: 4px; }
+    .mod-card input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent); }
+    .mod-card .avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent-deep)); color: #fff; display: grid; place-items: center; font-family: var(--font-display); font-weight: 700; font-size: 14px; flex-shrink: 0; }
+    .mod-card .info { flex: 1; min-width: 0; }
+    .mod-card .meta { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--ink-2); margin-bottom: 6px; flex-wrap: wrap; }
+    .mod-card .meta .name { color: var(--ink); font-weight: 600; }
+    .mod-card .post-ref { font-size: 12.5px; color: var(--ink-3); margin-top: 8px; }
+    .mod-card .post-ref a { color: var(--accent-2); border-bottom: 1px solid rgba(27,59,47,.3); }
+    .mod-card .actions { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+    .mod-card .body { font-size: 15px; line-height: 1.6; color: var(--ink); margin: 6px 0 0; }
+    .mod-card.spam-flag { border-color: rgba(185,28,28,.3); background: rgba(185,28,28,.03); }
+    .filter-row { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; align-items: center; }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <span class="brand-mark">cb</span>
+        <span class="brand-name">Cerita <em>Basim</em></span>
+      </div>
+      <nav class="sidebar-nav" aria-label="Admin">
+        <span class="sidebar-nav-section">Beranda</span>
+        <a href="Screen_AdminDashboard_CeritaBasim_2026-05-19.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>Dashboard</a>
+        <span class="sidebar-nav-section">Engagement</span>
+        <a href="Screen_AdminModeration_CeritaBasim_2026-05-19.html" class="active"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Moderasi <span class="badge" id="pendingBadge">3</span></a>
+        <a href="Screen_AdminSubscribers_CeritaBasim_2026-05-19.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>Subscriber</a>
+        <a href="Screen_AdminDispatch_CeritaBasim_2026-05-19.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>Dispatch</a>
+        <span class="sidebar-nav-section">Lain</span>
+        <a href="Screen_Home_CeritaBasim_2026-05-19.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M14 10l7-7M9 21H3v-6M10 14l-7 7"/></svg>Lihat situs</a>
+        <a href="Screen_AdminLogin_CeritaBasim_2026-05-19.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>Keluar</a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="avatar">B</div>
+        <div><div style="font-weight: 600; color: var(--ink); font-size: 13.5px;">Basim</div><div style="font-size: 11.5px;" class="dim">basim@cerita.basim.id</div></div>
+      </div>
+    </aside>
+
+    <main class="app-main">
+      <span class="eyebrow">Admin · Moderasi</span>
+      <h1 style="margin: 4px 0 4px; font-size: 32px;">Komentar pending</h1>
+      <p class="muted">Komentar pertama dari setiap email baru perlu disetujui. Setelah satu komentar disetujui, email itu otomatis trusted.</p>
+
+      <div class="mod-tabs" role="tablist">
+        <button class="mod-tab active" data-tab="pending" role="tab" aria-selected="true">Pending <span class="count">3</span></button>
+        <button class="mod-tab" data-tab="approved" role="tab" aria-selected="false">Approved <span class="count">142</span></button>
+        <button class="mod-tab" data-tab="spam" role="tab" aria-selected="false">Spam <span class="count">8</span></button>
+        <button class="mod-tab" data-tab="rejected" role="tab" aria-selected="false">Rejected <span class="count">2</span></button>
+      </div>
+
+      <div class="bulk-bar" id="bulkBar">
+        <input type="checkbox" id="selectAll" />
+        <label for="selectAll" style="font-weight: 500; cursor: pointer;">Pilih semua</label>
+        <span class="count-pill" id="selCount">0</span>
+        <span class="muted" style="font-size:13px;">terpilih</span>
+        <div style="margin-left: auto; display: flex; gap: 8px;">
+          <button class="btn btn-sm btn-secondary" onclick="bulkAction('approve')">Approve semua</button>
+          <button class="btn btn-sm btn-secondary" onclick="bulkAction('reject')">Reject</button>
+          <button class="btn btn-sm btn-ghost" onclick="bulkAction('spam')">Tandai spam</button>
+        </div>
+      </div>
+
+      <div id="pendingList">
+        <div class="mod-card" data-id="1">
+          <div class="top">
+            <div class="check"><input type="checkbox" class="row-check" /></div>
+            <div class="avatar">SR</div>
+            <div class="info">
+              <div class="meta">
+                <span class="name">Salsa Ramadhani</span>
+                <span class="dim">salsa.r***@gmail.com</span>
+                <span class="pill pill-warn">First-time</span>
+                <span class="time dim">2 jam lalu</span>
+              </div>
+              <p class="body">Setuju, terutama soal owned audience. Setelah pindah dari Medium ke domain sendiri, traffic organik saya juga naik 3× dalam 6 bulan. Yang menarik, komentar yang masuk jauh lebih substantif — feels like real readers, bukan random clappers.</p>
+              <div class="post-ref">Di post: <a href="Screen_CeritaDetail_CeritaBasim_2026-05-19.html">Kenapa saya pindah dari Medium ke domain sendiri</a></div>
+              <div class="actions">
+                <button class="btn btn-sm btn-primary" onclick="moderate(this, 'approve')">✓ Approve &amp; trust</button>
+                <button class="btn btn-sm btn-secondary" onclick="moderate(this, 'reject')">Reject</button>
+                <button class="btn btn-sm btn-ghost" onclick="moderate(this, 'spam')">Spam</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mod-card" data-id="2">
+          <div class="top">
+            <div class="check"><input type="checkbox" class="row-check" /></div>
+            <div class="avatar">AR</div>
+            <div class="info">
+              <div class="meta">
+                <span class="name">Andre Rahman</span>
+                <span class="dim">andre@***.dev</span>
+                <span class="pill pill-warn">First-time</span>
+                <span class="time dim">8 jam lalu</span>
+              </div>
+              <p class="body">Pertanyaan teknis: berapa sering kamu hit limit Cloudflare D1 free tier? Saya khawatir di 1000 subscriber+ akan mulai bermasalah. Apakah ada plan migrasi kalau growth makin cepat?</p>
+              <div class="post-ref">Di post: <a href="Screen_CeritaDetail_CeritaBasim_2026-05-19.html">Kenapa saya pindah dari Medium ke domain sendiri</a></div>
+              <div class="actions">
+                <button class="btn btn-sm btn-primary" onclick="moderate(this, 'approve')">✓ Approve &amp; trust</button>
+                <button class="btn btn-sm btn-secondary" onclick="moderate(this, 'reject')">Reject</button>
+                <button class="btn btn-sm btn-ghost" onclick="moderate(this, 'spam')">Spam</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mod-card spam-flag" data-id="3">
+          <div class="top">
+            <div class="check"><input type="checkbox" class="row-check" /></div>
+            <div class="avatar" style="background:linear-gradient(135deg,var(--danger),#7a1414)">??</div>
+            <div class="info">
+              <div class="meta">
+                <span class="name">Cheap_Loans_2026</span>
+                <span class="dim">noreply@***-promo.com</span>
+                <span class="pill pill-danger">Auto-flagged: spam</span>
+                <span class="time dim">12 jam lalu</span>
+              </div>
+              <p class="body" style="color: var(--ink-2);">Get instant approval personal loans up to $50,000! Click here: bit.ly/xxxxx bit.ly/yyyyy bit.ly/zzzzz No credit check required!!! 🔥💰</p>
+              <div class="post-ref">Di post: <a href="Screen_CeritaDetail_CeritaBasim_2026-05-19.html">Notes on Cloudflare D1 setelah 6 bulan produksi</a> · Reason: 3+ shortened URLs, repeated punctuation</div>
+              <div class="actions">
+                <button class="btn btn-sm btn-secondary" onclick="moderate(this, 'approve')">Manual approve</button>
+                <button class="btn btn-sm btn-primary" onclick="moderate(this, 'spam')">Confirm spam</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="empty-state" id="emptyMod" style="display:none;">
+        <div class="icon-bg"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4 12 14.01l-3-3"/></svg></div>
+        <h3 style="margin: 4px 0;">Semua bersih ✨</h3>
+        <p>Tidak ada komentar yang menunggu moderasi.</p>
+      </div>
+    </main>
+  </div>
+
+  <div class="toast-region" id="toasts" aria-live="polite"></div>
+
+  <script>
+    function toggleTheme(){const r=document.documentElement;const c=r.getAttribute('data-theme')||'light';const n=c==='light'?'dark':'light';r.setAttribute('data-theme',n);try{localStorage.setItem('cb-theme',n)}catch(e){}}
+    (function(){try{const s=localStorage.getItem('cb-theme');if(s)document.documentElement.setAttribute('data-theme',s);else if(window.matchMedia('(prefers-color-scheme: dark)').matches)document.documentElement.setAttribute('data-theme','dark')}catch(e){}})();
+    function toast(msg,k){const r=document.getElementById('toasts');const el=document.createElement('div');el.className='toast'+(k?' toast-'+k:'');el.textContent=msg;r.appendChild(el);setTimeout(()=>el.remove(),3000);}
+
+    function checkEmpty() {
+      const list = document.getElementById('pendingList');
+      const visible = [...list.querySelectorAll('.mod-card:not(.hidden)')];
+      document.getElementById('emptyMod').style.display = visible.length === 0 ? 'block' : 'none';
+      document.getElementById('pendingBadge').textContent = visible.length;
+      document.querySelector('.mod-tab.active .count').textContent = visible.length;
+    }
+
+    function moderate(el, action) {
+      const card = el.closest('.mod-card');
+      const msg = action === 'approve' ? 'Komentar disetujui & email ditambahkan ke trusted'
+                : action === 'reject' ? 'Komentar ditolak'
+                : 'Ditandai sebagai spam';
+      const kind = action === 'approve' ? 'ok' : (action === 'spam' ? 'danger' : null);
+      card.classList.add('hidden');
+      setTimeout(() => { card.style.display = 'none'; checkEmpty(); }, 300);
+      toast(msg, kind);
+    }
+
+    // Bulk select
+    const bulkBar = document.getElementById('bulkBar');
+    const selCount = document.getElementById('selCount');
+    function updateBulk() {
+      const selected = [...document.querySelectorAll('.row-check:checked')].length;
+      selCount.textContent = selected;
+      bulkBar.classList.toggle('show', selected > 0);
+    }
+    document.getElementById('pendingList').addEventListener('change', updateBulk);
+    document.getElementById('selectAll').addEventListener('change', e => {
+      document.querySelectorAll('.row-check').forEach(c => c.checked = e.target.checked);
+      updateBulk();
+    });
+
+    function bulkAction(a) {
+      const checked = [...document.querySelectorAll('.row-check:checked')];
+      if (!checked.length) return;
+      const n = checked.length;
+      checked.forEach(c => {
+        const card = c.closest('.mod-card');
+        card.classList.add('hidden');
+        setTimeout(() => { card.style.display = 'none'; checkEmpty(); }, 300);
+      });
+      const msg = a === 'approve' ? `${n} komentar disetujui` : a === 'reject' ? `${n} komentar ditolak` : `${n} komentar ditandai spam`;
+      toast(msg, a === 'approve' ? 'ok' : 'danger');
+      bulkBar.classList.remove('show');
+      document.getElementById('selectAll').checked = false;
+    }
+
+    // Tabs
+    document.querySelectorAll('.mod-tab').forEach(t => {
+      t.addEventListener('click', () => {
+        document.querySelectorAll('.mod-tab').forEach(x => { x.classList.remove('active'); x.setAttribute('aria-selected','false'); });
+        t.classList.add('active'); t.setAttribute('aria-selected','true');
+        if (t.dataset.tab !== 'pending') {
+          toast('Tab "' + t.dataset.tab + '" — demo only di prototype ini');
+        }
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,54 @@
+---
+---
+
+<footer class="footer-cb">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <a class="brand" href="/">
+        <span class="brand-mark">cb</span>
+        <span class="brand-name">Cerita <em>Basim</em></span>
+      </a>
+      <p class="meta">Karya, cerita, dan pembaca — sejak 2026.<br/>Dibangun di atas Astro × Cloudflare.</p>
+    </div>
+    <div>
+      <h5>Jelajah</h5>
+      <ul>
+        <li><a href="/">Beranda</a></li>
+        <li><a href="/karya">Karya</a></li>
+        <li><a href="/cerita">Cerita</a></li>
+        <li><a href="/tentang">Tentang</a></li>
+      </ul>
+    </div>
+    <div>
+      <h5>Tetap terhubung</h5>
+      <ul>
+        <li><a href="/subscribe">Newsletter</a></li>
+        <li><a href="/rss.xml">RSS</a></li>
+        <li><a href="https://github.com/basim" target="_blank" rel="noopener">GitHub</a></li>
+        <li><a href="mailto:hai@cerita.basim.id">Email</a></li>
+      </ul>
+    </div>
+    <div>
+      <h5>Lain-lain</h5>
+      <ul>
+        <li><a href="/admin">Admin</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer-cb { border-top: 1px solid var(--rule); padding: 56px 0 40px; margin-top: 80px; background: var(--paper); }
+  .footer-inner { max-width: var(--container); margin: 0 auto; padding: 0 28px; display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 36px; }
+  @media (max-width: 720px) { .footer-inner { grid-template-columns: 1fr; gap: 24px; } }
+  .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--ink); }
+  .brand-mark { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 10px; background: linear-gradient(135deg, var(--accent), var(--accent-deep)); color: #fff; font-family: var(--font-display); font-weight: 800; font-size: 17px; }
+  .brand-name { font-family: var(--font-display); font-weight: 700; font-size: 19px; }
+  .brand-name em { font-style: italic; color: var(--accent-2); font-weight: 500; }
+  .meta { color: var(--ink-3); font-size: 13px; margin-top: 16px; }
+  h5 { font-family: var(--font-display); font-weight: 700; font-size: 14px; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-2); margin: 0 0 12px; }
+  ul { list-style: none; padding: 0; margin: 0; }
+  li { margin: 6px 0; }
+  a { color: var(--ink-2); font-size: 14.5px; text-decoration: none; }
+  a:hover { color: var(--accent); }
+</style>

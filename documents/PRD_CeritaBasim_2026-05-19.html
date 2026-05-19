@@ -1,0 +1,739 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PRD · Cerita Basim</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,800&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #f6f1e7; --bg-2: #efe6d3; --paper: #fffaf0;
+      --ink: #1b1410; --ink-2: #4a3c33; --rule: #d9cdb7;
+      --accent: #c2410c; --accent-2: #1b3b2f; --gold: #b58105; --ok: #2f7d56;
+      --shadow: 0 1px 0 rgba(27,20,16,.05), 0 14px 36px -22px rgba(27,20,16,.22);
+      --radius: 14px;
+      --font-display: 'Fraunces', Georgia, serif;
+      --font-body: 'DM Sans', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; }
+    body {
+      font-family: var(--font-body); color: var(--ink);
+      background:
+        radial-gradient(900px 500px at 0% -10%, rgba(194,65,12,.08), transparent 60%),
+        radial-gradient(800px 500px at 110% 30%, rgba(27,59,47,.08), transparent 60%),
+        var(--bg);
+      line-height: 1.65;
+    }
+    .wrap { max-width: 920px; margin: 0 auto; padding: 56px 28px 96px; }
+
+    .eyebrow {
+      font-family: var(--font-body); font-weight: 700; letter-spacing: .14em;
+      text-transform: uppercase; font-size: 12px; color: var(--accent);
+    }
+    h1 { font-family: var(--font-display); font-weight: 800; font-size: 52px; letter-spacing: -0.02em; line-height: 1.05; margin: 8px 0 8px; }
+    h1 em { font-style: italic; color: var(--accent-2); font-weight: 600; }
+    .subtitle { color: var(--ink-2); font-size: 18px; max-width: 65ch; margin: 0; }
+    .meta-top { color: var(--ink-2); font-size: 14px; margin-top: 16px; }
+    .meta-top strong { color: var(--ink); }
+
+    h2 { font-family: var(--font-display); font-weight: 700; font-size: 28px; letter-spacing: -0.01em; margin: 40px 0 8px; padding-top: 8px; }
+    h3 { font-family: var(--font-display); font-weight: 700; font-size: 21px; margin: 22px 0 6px; }
+    h4 { font-family: var(--font-display); font-weight: 700; font-size: 17px; margin: 14px 0 6px; }
+
+    a { color: var(--accent-2); text-decoration: none; border-bottom: 1px solid rgba(27,59,47,.35); }
+    a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+    .divider { height: 1px; background: var(--rule); margin: 28px 0; }
+
+    .card {
+      background: var(--paper); border: 1px solid var(--rule); border-radius: var(--radius);
+      padding: 22px; box-shadow: var(--shadow); margin: 14px 0;
+    }
+    code, .kbd {
+      font-family: var(--font-mono); font-size: .9em; background: var(--bg-2);
+      padding: 1px 6px; border-radius: 6px; border: 1px solid var(--rule); color: var(--ink);
+    }
+    pre {
+      background: #1b1410; color: #f6f1e7; padding: 16px 18px; border-radius: 10px;
+      font-family: var(--font-mono); font-size: 13px; line-height: 1.55;
+      overflow: auto; margin: 12px 0;
+    }
+    pre .c { color: #b58105; }
+    pre .k { color: #f6c177; }
+    pre .s { color: #ea9d50; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 14.5px; margin: 10px 0; }
+    table thead th {
+      text-align: left; font-family: var(--font-display); font-weight: 700;
+      font-size: 13px; text-transform: uppercase; letter-spacing: .06em;
+      color: var(--ink-2); padding: 10px 12px; border-bottom: 1px solid var(--rule);
+    }
+    table td { padding: 12px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+
+    ul.tight { margin: 6px 0 12px 20px; padding: 0; }
+    ul.tight li { margin: 4px 0; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 720px) { .grid-2 { grid-template-columns: 1fr; } h1 { font-size: 40px; } }
+
+    .ears {
+      background: var(--paper); border-left: 3px solid var(--accent);
+      padding: 14px 18px; border-radius: 8px; margin: 10px 0;
+      font-family: var(--font-body); font-size: 15px;
+    }
+    .ears .kw { color: var(--accent); font-weight: 700; }
+    .ears .id { font-family: var(--font-mono); font-size: 12px; color: var(--ink-2); display: block; margin-bottom: 4px; }
+
+    .req-block { margin: 18px 0; padding: 18px; background: var(--paper); border: 1px solid var(--rule); border-radius: var(--radius); }
+    .req-block h3 { margin-top: 0; }
+    .story { font-style: italic; color: var(--ink-2); border-left: 2px solid var(--rule); padding-left: 12px; margin: 8px 0 14px; }
+
+    .arch {
+      background: var(--paper); border: 1px solid var(--rule); border-radius: var(--radius);
+      padding: 18px; margin: 12px 0;
+      font-family: var(--font-mono); font-size: 13px; line-height: 1.7; white-space: pre; overflow: auto;
+      color: var(--ink);
+    }
+
+    .pill {
+      display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .04em;
+      text-transform: uppercase; padding: 3px 8px; border-radius: 6px;
+      background: var(--bg-2); color: var(--ink-2);
+    }
+    .pill.must { background: #fadcd1; color: var(--accent); }
+    .pill.should { background: #fde9cf; color: var(--gold); }
+    .pill.could { background: #dcefe1; color: var(--ok); }
+
+    nav.toc {
+      background: var(--paper); border: 1px solid var(--rule); border-radius: var(--radius);
+      padding: 18px 22px; box-shadow: var(--shadow); margin: 18px 0 28px;
+    }
+    nav.toc ol { columns: 2; column-gap: 30px; margin: 0; padding-left: 18px; font-size: 14.5px; }
+    @media (max-width: 720px) { nav.toc ol { columns: 1; } }
+    nav.toc a { color: var(--ink-2); border-bottom: 0; }
+    nav.toc a:hover { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <div class="eyebrow">Phase 3 · Product Requirements Document</div>
+    <h1>PRD<br/><em>Cerita Basim — v1.0.</em></h1>
+    <p class="subtitle">
+      Spesifikasi lengkap untuk membangun Cerita Basim — portfolio + blog personal di
+      cerita.basim.id, di atas Astro 5 dan Cloudflare. Disertai requirements EARS, technical
+      design, dan acceptance criteria.
+    </p>
+    <div class="meta-top">
+      Versi: <strong>1.0</strong> · Tanggal: <strong>19 Mei 2026</strong> ·
+      Owner: <strong>Basim</strong> · Status: <strong>Draft for review</strong>
+    </div>
+
+    <nav class="toc">
+      <strong>Daftar isi</strong>
+      <ol>
+        <li><a href="#overview">Overview &amp; Goals</a></li>
+        <li><a href="#scope">Scope (in/out)</a></li>
+        <li><a href="#personas">Personas</a></li>
+        <li><a href="#stories">User Stories</a></li>
+        <li><a href="#requirements">Requirements (EARS)</a></li>
+        <li><a href="#nfr">Non-functional Requirements</a></li>
+        <li><a href="#architecture">Technical Architecture</a></li>
+        <li><a href="#data">Data Model</a></li>
+        <li><a href="#api">API Surface</a></li>
+        <li><a href="#screens">Screen Inventory</a></li>
+        <li><a href="#metrics">Success Metrics</a></li>
+        <li><a href="#risks">Risks &amp; Mitigations</a></li>
+        <li><a href="#milestones">Milestones</a></li>
+      </ol>
+    </nav>
+
+    <!-- ============ OVERVIEW ============ -->
+    <h2 id="overview">1 · Overview &amp; Goals</h2>
+    <div class="card">
+      <p><strong>Produk.</strong> Cerita Basim adalah situs personal di <code>cerita.basim.id</code> yang menggabungkan portfolio project dan blog editorial dalam satu domain. Pembaca dapat membaca cerita, mengeksplorasi project, memberi komentar dan reaksi, serta berlangganan newsletter — semua tanpa membuat akun, paywall, atau iklan.</p>
+      <p><strong>Goals:</strong></p>
+      <ul class="tight">
+        <li>G1. <strong>Owned audience</strong> — Basim memiliki konten, URL, dan email list.</li>
+        <li>G2. <strong>Performansi premium</strong> — Lighthouse 95+ di setiap halaman, FCP &lt;1s di Indonesia.</li>
+        <li>G3. <strong>Engagement berkualitas</strong> — komentar yang dimoderasi, reaksi ringan, newsletter plain-text.</li>
+        <li>G4. <strong>Operasi $0/bulan</strong> — sepenuhnya di dalam free tier Cloudflare + Resend untuk 1.500 subscriber pertama.</li>
+        <li>G5. <strong>Workflow menulis sederhana</strong> — markdown di Git, deploy otomatis via push.</li>
+      </ul>
+      <p><strong>Non-goals (v1.0):</strong> monetisasi, multi-author, paid membership, mobile app, search beyond client-side filter, comments dengan rich-text editor.</p>
+    </div>
+
+    <!-- ============ SCOPE ============ -->
+    <h2 id="scope">2 · Scope</h2>
+    <div class="grid-2">
+      <div class="card">
+        <h3 style="color: var(--ok);">In scope (v1.0)</h3>
+        <ul class="tight">
+          <li>Home page (hero, featured project, latest posts)</li>
+          <li>Project index + detail (case study)</li>
+          <li>Blog index + filter + tag/category</li>
+          <li>Blog post detail (TOC, reading progress, related posts)</li>
+          <li>About page</li>
+          <li>Komentar threaded (1 level reply) dengan moderasi</li>
+          <li>Reaksi emoji (5 jenis, anonymous)</li>
+          <li>Newsletter subscribe + double opt-in</li>
+          <li>Newsletter dispatch (manual trigger per post)</li>
+          <li>Admin dashboard ringan (login, moderasi komentar, analytics, subscriber list)</li>
+          <li>RSS feed</li>
+          <li>Sitemap + structured data (Article schema)</li>
+          <li>Dark mode toggle (system + manual)</li>
+          <li>Cloudflare Turnstile untuk anti-spam</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3 style="color: var(--accent);">Out of scope (v1.0)</h3>
+        <ul class="tight">
+          <li>Payment / membership tier</li>
+          <li>Multi-author / role permission</li>
+          <li>WYSIWYG editor (markdown only)</li>
+          <li>Server-side rendering untuk konten primer (selalu static)</li>
+          <li>Internationalization (i18n) — single language (ID + occasional EN inline)</li>
+          <li>Mobile native app</li>
+          <li>Komentar dengan rich text / image upload</li>
+          <li>Full-text search (gunakan client-side filter v1)</li>
+          <li>OAuth login (komentar tetap dengan email + nama)</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- ============ PERSONAS ============ -->
+    <h2 id="personas">3 · Personas</h2>
+    <div class="grid-2">
+      <div class="card">
+        <h3>Salsa — Pembaca Curious</h3>
+        <p style="color:var(--ink-2);"><em>Profesional UX di Bandung, 28 tahun. Membaca blog teknis &amp; cerita karier saat istirahat siang.</em></p>
+        <p><strong>Goals:</strong> Baca cerita berkualitas, simpan untuk nanti, komentar saat punya pendapat berbeda.</p>
+        <p><strong>Pain:</strong> Medium paywall, popup iklan di personal blog WordPress, komentar Disqus berisik.</p>
+        <p><strong>Sukses:</strong> Buka post → baca tuntas → subscribe newsletter dalam 3 klik.</p>
+      </div>
+      <div class="card">
+        <h3>Rio — Recruiter / Klien</h3>
+        <p style="color:var(--ink-2);"><em>Hiring manager / klien freelance, mengevaluasi Basim untuk peluang kerja.</em></p>
+        <p><strong>Goals:</strong> Lihat case study project nyata, nilai cara berpikir lewat tulisan, hubungi Basim.</p>
+        <p><strong>Pain:</strong> Portfolio fragmented (Behance, GitHub, Linktree), tulisan di Medium tidak terhubung dengan project.</p>
+        <p><strong>Sukses:</strong> Landing di home → klik project → baca case study → buka kontak dalam 60 detik.</p>
+      </div>
+      <div class="card">
+        <h3>Basim — Creator / Admin</h3>
+        <p style="color:var(--ink-2);"><em>Pemilik situs. Menulis sambil mengerjakan project lain. Tidak punya waktu untuk maintenance harian.</em></p>
+        <p><strong>Goals:</strong> Tulis &amp; publish dalam &lt;5 menit, moderasi komentar 1× per hari, kirim newsletter saat ada post baru.</p>
+        <p><strong>Pain:</strong> CMS rumit, deploy yang lambat, vendor lock-in.</p>
+        <p><strong>Sukses:</strong> <code>git push</code> → 90 detik kemudian post live + newsletter siap dispatch.</p>
+      </div>
+      <div class="card">
+        <h3>Andre — Sesama Creator</h3>
+        <p style="color:var(--ink-2);"><em>Profesional lain yang baca Cerita Basim. Mungkin akan fork template kalau open-source.</em></p>
+        <p><strong>Goals:</strong> Belajar teknik &amp; cerita, mungkin replikasi setup di domain sendiri.</p>
+        <p><strong>Pain:</strong> Tidak ada template "portfolio + blog" yang clean, semuanya dev-blog generik.</p>
+        <p><strong>Sukses:</strong> Lihat repo GitHub, fork, deploy ke domain miliknya dalam &lt;1 jam.</p>
+      </div>
+    </div>
+
+    <!-- ============ USER STORIES ============ -->
+    <h2 id="stories">4 · User Stories</h2>
+
+    <div class="req-block">
+      <h3>US-1 · Membaca cerita</h3>
+      <p class="story">Sebagai <strong>Salsa</strong>, saya ingin membaca cerita panjang tanpa interupsi popup atau paywall, supaya saya bisa fokus pada isi dan menyelesaikannya dalam satu sesi.</p>
+      <p><strong>Acceptance criteria:</strong></p>
+      <ul class="tight">
+        <li>Halaman post dimuat &lt;1s di koneksi 4G Indonesia.</li>
+        <li>Tidak ada modal/popup yang muncul kecuali user secara eksplisit klik "subscribe".</li>
+        <li>Indikator progress baca tampil di top bar.</li>
+        <li>Daftar isi (TOC) generated otomatis dari heading h2/h3 dan sticky di desktop.</li>
+        <li>Reading time estimate ditampilkan di header post.</li>
+      </ul>
+    </div>
+
+    <div class="req-block">
+      <h3>US-2 · Menjelajahi project</h3>
+      <p class="story">Sebagai <strong>Rio</strong>, saya ingin melihat semua project Basim di satu halaman dan filter berdasarkan kategori, supaya saya bisa cepat menilai kemampuan teknis sesuai kebutuhan saya.</p>
+      <ul class="tight">
+        <li>Halaman <code>/karya</code> menampilkan semua project sebagai grid kartu.</li>
+        <li>Filter pill: All, Web, Mobile, Tools, Eksperimen.</li>
+        <li>Setiap kartu menampilkan: hero image, judul, tagline, kategori, tahun.</li>
+        <li>Klik kartu → halaman detail case study dengan: ringkasan, problem, proses, hasil, link demo/repo.</li>
+      </ul>
+    </div>
+
+    <div class="req-block">
+      <h3>US-3 · Memberi komentar</h3>
+      <p class="story">Sebagai <strong>Salsa</strong>, saya ingin meninggalkan komentar tanpa harus membuat akun, supaya tidak ada friction.</p>
+      <ul class="tight">
+        <li>Form komentar minta: nama (required), email (required, tidak ditampilkan publik), isi komentar (required, markdown ringan, max 2.000 karakter).</li>
+        <li>Cloudflare Turnstile dipasang sebelum submit.</li>
+        <li>Komentar pertama dari email baru → masuk antrian moderasi (status: <code>pending</code>).</li>
+        <li>Komentar berikutnya dari email yang sudah disetujui → tampil otomatis (status: <code>approved</code>).</li>
+        <li>Reply 1 level threading, max 1 nested reply.</li>
+        <li>Markdown ringan: bold, italic, link, code inline. Tidak ada image, tidak ada heading.</li>
+      </ul>
+    </div>
+
+    <div class="req-block">
+      <h3>US-4 · Berlangganan newsletter</h3>
+      <p class="story">Sebagai <strong>Salsa</strong>, saya ingin tahu kalau ada cerita baru tanpa harus cek website, supaya tidak ketinggalan.</p>
+      <ul class="tight">
+        <li>Halaman <code>/subscribe</code> dan inline form di footer setiap post.</li>
+        <li>Hanya minta alamat email + checkbox consent.</li>
+        <li>Double opt-in: email konfirmasi dikirim, klik link → subscriber active.</li>
+        <li>Setiap email ada link unsubscribe dengan token unik.</li>
+        <li>Konfirmasi visual setelah submit: "Cek email kamu untuk konfirmasi".</li>
+      </ul>
+    </div>
+
+    <div class="req-block">
+      <h3>US-5 · Memberi reaksi</h3>
+      <p class="story">Sebagai <strong>Salsa</strong>, saya ingin memberi tanggapan ringan tanpa harus menulis komentar.</p>
+      <ul class="tight">
+        <li>Bar reaksi di bawah post: 5 emoji (❤️ love, 💡 insightful, 🔥 fire, 🤔 thinking, 👏 applause).</li>
+        <li>Counter di bawah setiap emoji.</li>
+        <li>Anonim — disimpan via fingerprint (IP hash + UA hash, bukan cookie). Satu fingerprint bisa kasih max 1 reaksi per emoji per post.</li>
+        <li>Animasi bounce saat klik.</li>
+      </ul>
+    </div>
+
+    <div class="req-block">
+      <h3>US-6 · Publish post baru (admin)</h3>
+      <p class="story">Sebagai <strong>Basim</strong>, saya ingin publish cerita baru dalam &lt;5 menit dari draft sampai live.</p>
+      <ul class="tight">
+        <li>Tulis markdown (.mdx) di folder <code>src/content/posts/</code>.</li>
+        <li>Frontmatter wajib: <code>title</code>, <code>description</code>, <code>publishedAt</code>, <code>tags[]</code>, <code>cover</code>.</li>
+        <li><code>git push</code> → Cloudflare Pages build &amp; deploy otomatis dalam &lt;90 detik.</li>
+        <li>Setelah deploy, admin dashboard menampilkan tombol "Send newsletter for this post" dengan preview rendering.</li>
+        <li>Klik kirim → batch email dikirim via Resend, progress bar menampilkan jumlah sent/queued.</li>
+      </ul>
+    </div>
+
+    <div class="req-block">
+      <h3>US-7 · Moderasi komentar (admin)</h3>
+      <p class="story">Sebagai <strong>Basim</strong>, saya ingin meninjau komentar pending di satu tempat tanpa membuka tiap post.</p>
+      <ul class="tight">
+        <li>Halaman <code>/admin/moderation</code> menampilkan daftar komentar pending, terbaru di atas.</li>
+        <li>Untuk setiap komentar: konten, nama, email (masked), post terkait, timestamp, tombol approve/reject/spam.</li>
+        <li>Bulk action: select multiple → approve/reject sekaligus.</li>
+        <li>Saat approve email pertama dari user baru, sistem otomatis whitelist email tersebut untuk komentar berikutnya.</li>
+        <li>Email notification ke Basim saat ada komentar pending baru (digest 1× per hari).</li>
+      </ul>
+    </div>
+
+    <!-- ============ REQUIREMENTS EARS ============ -->
+    <h2 id="requirements">5 · Requirements (EARS Format)</h2>
+    <p style="color:var(--ink-2);">Format EARS: <em>When/While/Where</em> &lt;trigger&gt;, <em>the</em> &lt;system&gt; <em>shall</em> &lt;action&gt;.</p>
+
+    <h3>5.1 Konten &amp; Reading</h3>
+    <div class="ears">
+      <span class="id">REQ-001 · MUST</span>
+      <span class="kw">When</span> pembaca membuka URL <code>/cerita/{slug}</code> yang valid, <span class="kw">the</span> sistem <span class="kw">shall</span> menampilkan halaman post statis dalam &lt;1 detik (FCP) di koneksi 4G dari Indonesia.
+    </div>
+    <div class="ears">
+      <span class="id">REQ-002 · MUST</span>
+      <span class="kw">When</span> pembaca membuka URL post yang tidak ada, <span class="kw">the</span> sistem <span class="kw">shall</span> menampilkan halaman 404 kustom dengan rekomendasi 3 post terkait.
+    </div>
+    <div class="ears">
+      <span class="id">REQ-003 · MUST</span>
+      <span class="kw">While</span> pembaca scroll halaman post, <span class="kw">the</span> sistem <span class="kw">shall</span> menampilkan progress bar di bagian atas viewport yang merefleksikan persentase scroll dari konten artikel.
+    </div>
+    <div class="ears">
+      <span class="id">REQ-004 · MUST</span>
+      <span class="kw">When</span> halaman post di-render, <span class="kw">the</span> sistem <span class="kw">shall</span> menghasilkan daftar isi (TOC) otomatis dari heading h2 dan h3, dengan anchor link yang berfungsi.
+    </div>
+    <div class="ears">
+      <span class="id">REQ-005 · SHOULD</span>
+      <span class="kw">When</span> pembaca menyelesaikan satu post (scroll &gt;90%), <span class="kw">the</span> sistem <span class="kw">shall</span> menampilkan 3 rekomendasi post terkait berdasarkan kesamaan tag.
+    </div>
+
+    <h3>5.2 Komentar</h3>
+    <div class="ears">
+      <span class="id">REQ-010 · MUST</span>
+      <span class="kw">When</span> pembaca submit komentar pertama dengan email yang belum pernah dipakai, <span class="kw">the</span> sistem <span class="kw">shall</span> menyimpan komentar dengan status <code>pending</code> dan tidak menampilkannya secara publik.
+    </div>
+    <div class="ears">
+      <span class="id">REQ-011 · MUST</span>
+      <span class="kw">When</span> admin menyetujui komentar pertama dari sebuah email, <span class="kw">the</span> sistem <span class="kw">shall</span> menambahkan email tersebut ke daftar trusted, sehingga komentar berikutnya dari email itu auto-approve.
+    </div>
+    <div class="ears">
+      <span class="id">REQ-012 · MUST</span>
+      <span class="kw">When</span> pembaca submit komentar, <span class="kw">the</span> sistem <span class="kw">shall</span> memverifikasi token Cloudflare Turnstile sebelum memproses request. Token tidak valid = HTTP 403.
+    </div>
+    <div class="ears">
+      <span class="id">REQ-013 · MUST</span>
+      <span class="kw">When</span> komentar disimpan, <span class="kw">the</span> sistem <span class="kw">shall</span> menyaring konten untuk pola spam umum (URL berulang, kata-kata blacklist) dan tag otomatis sebagai <code>spam</code> bila ditemukan.
+    </div>
+    <div class="ears">
+      <span class="id">REQ-014 · SHOULD</span>
+      <span class="kw">When</span> komentar reply diapprove, <span class="kw">the</span> sistem <span class="kw">shall</span> mengirim email notifikasi ke parent commenter (jika opt-in).
+    </div>
+
+    <h3>5.3 Reaksi</h3>
+    <div class="ears">
+      <span class="id">REQ-020 · MUST</span>
+      <span class="kw">When</span> pembaca klik tombol reaksi, <span class="kw">the</span> sistem <span class="kw">shall</span> mencatat reaksi dengan kunci unik <code>(post_id, emoji, fingerprint_hash)</code>; klik kedua dari fingerprint sama untuk emoji sama akan menghapus reaksi (toggle).
+    </div>
+    <div class="ears">
+      <span class="id">REQ-021 · MUST</span>
+      <span class="kw">When</span> count reaksi diminta, <span class="kw">the</span> sistem <span class="kw">shall</span> mengembalikan response dalam &lt;200ms (read dari KV cache).
+    </div>
+
+    <h3>5.4 Newsletter</h3>
+    <div class="ears">
+      <span class="id">REQ-030 · MUST</span>
+      <span class="kw">When</span> user submit form subscribe, <span class="kw">the</span> sistem <span class="kw">shall</span> menyimpan email dengan status <code>unconfirmed</code> dan mengirim email konfirmasi dalam &lt;30 detik.
+    </div>
+    <div class="ears">
+      <span class="id">REQ-031 · MUST</span>
+      <span class="kw">When</span> user klik link konfirmasi yang valid (token belum kedaluwarsa, &lt;7 hari), <span class="kw">the</span> sistem <span class="kw">shall</span> mengubah status email ke <code>active</code> dan menampilkan halaman terima kasih.
+    </div>
+    <div class="ears">
+      <span class="id">REQ-032 · MUST</span>
+      <span class="kw">When</span> user klik link unsubscribe yang valid, <span class="kw">the</span> sistem <span class="kw">shall</span> mengubah status ke <code>unsubscribed</code> dalam satu klik (no confirmation page required) dan tidak akan mengirim email lagi.
+    </div>
+    <div class="ears">
+      <span class="id">REQ-033 · MUST</span>
+      <span class="kw">When</span> admin men-trigger dispatch newsletter untuk sebuah post, <span class="kw">the</span> sistem <span class="kw">shall</span> mengirim email ke semua subscriber <code>active</code> dalam batch 100 email per detik (rate limit Resend) dan menampilkan progress real-time.
+    </div>
+    <div class="ears">
+      <span class="id">REQ-034 · SHOULD</span>
+      <span class="kw">When</span> dispatch gagal di tengah jalan, <span class="kw">the</span> sistem <span class="kw">shall</span> menyimpan state batch terakhir yang berhasil sehingga retry tidak mengirim duplikat.
+    </div>
+
+    <h3>5.5 Admin</h3>
+    <div class="ears">
+      <span class="id">REQ-040 · MUST</span>
+      <span class="kw">When</span> Basim mengakses <code>/admin/*</code>, <span class="kw">the</span> sistem <span class="kw">shall</span> memverifikasi session via Cloudflare Access (email magic link ke alamat di allowlist). Tidak ada session = redirect ke login.
+    </div>
+    <div class="ears">
+      <span class="id">REQ-041 · MUST</span>
+      <span class="kw">When</span> Basim membuka <code>/admin/moderation</code>, <span class="kw">the</span> sistem <span class="kw">shall</span> menampilkan komentar status <code>pending</code> diurutkan dari terbaru, dengan tombol approve/reject/spam dan dukungan bulk action.
+    </div>
+    <div class="ears">
+      <span class="id">REQ-042 · MUST</span>
+      <span class="kw">When</span> ada komentar pending baru, <span class="kw">the</span> sistem <span class="kw">shall</span> mengirim digest email ke Basim 1× per hari (atau immediate jika &gt;5 pending).
+    </div>
+
+    <h3>5.6 Performance &amp; Operations</h3>
+    <div class="ears">
+      <span class="id">REQ-050 · MUST</span>
+      <span class="kw">Where</span> halaman static (home, /karya, /cerita, post detail), <span class="kw">the</span> sistem <span class="kw">shall</span> mencapai Lighthouse score ≥95 di Performance, Accessibility, Best Practices, dan SEO pada test desktop dan mobile.
+    </div>
+    <div class="ears">
+      <span class="id">REQ-051 · MUST</span>
+      <span class="kw">When</span> commit di-push ke branch <code>main</code>, <span class="kw">the</span> sistem <span class="kw">shall</span> auto-build dan deploy ke production dalam &lt;90 detik.
+    </div>
+    <div class="ears">
+      <span class="id">REQ-052 · MUST</span>
+      <span class="kw">While</span> beroperasi normal dengan traffic &lt;10.000 pageview/bulan dan 1.500 subscriber, <span class="kw">the</span> sistem <span class="kw">shall</span> tetap dalam Cloudflare free tier (D1, KV, Workers, Pages) dan Resend free tier.
+    </div>
+
+    <!-- ============ NFR ============ -->
+    <h2 id="nfr">6 · Non-Functional Requirements</h2>
+    <table>
+      <thead>
+        <tr><th>Kategori</th><th>Target</th><th>Verifikasi</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Performance — FCP</td><td>&lt;1s di 4G Indonesia (p75)</td><td>WebPageTest dari Jakarta node</td></tr>
+        <tr><td>Performance — LCP</td><td>&lt;1.5s</td><td>Cloudflare Web Analytics RUM</td></tr>
+        <tr><td>Performance — CLS</td><td>&lt;0.1</td><td>Lighthouse CI di tiap deploy</td></tr>
+        <tr><td>Availability</td><td>≥99.9% (Cloudflare SLA)</td><td>Cloudflare uptime dashboard</td></tr>
+        <tr><td>Accessibility</td><td>WCAG 2.1 AA (kontras, keyboard nav, ARIA, focus state)</td><td>axe-core di CI + manual NVDA spot check</td></tr>
+        <tr><td>Security</td><td>Turnstile di semua form, CSP strict, no third-party tracker, rate-limit komentar 5/menit/IP</td><td>Cloudflare WAF + observability dashboard</td></tr>
+        <tr><td>Privacy</td><td>Tidak ada cookie tracking; analytics tanpa cookie; email subscriber hashed di backup</td><td>Manual audit + cookie banner not required</td></tr>
+        <tr><td>Bahasa</td><td>UI Bahasa Indonesia, content Bahasa Indonesia (fallback English jika konteks teknis)</td><td>Manual review</td></tr>
+        <tr><td>Browser support</td><td>2 versi terakhir Chrome/Edge/Safari/Firefox di desktop dan mobile</td><td>BrowserStack atau CanIUse target</td></tr>
+        <tr><td>Build time</td><td>&lt;90 detik full build di Cloudflare Pages</td><td>Build log Pages</td></tr>
+      </tbody>
+    </table>
+
+    <!-- ============ ARCH ============ -->
+    <h2 id="architecture">7 · Technical Architecture</h2>
+    <p>Arsitektur static-first: konten primer di-render saat build, interaksi dinamis (komentar, reaksi, subscribe) lewat Cloudflare Workers. Semua di dalam free tier.</p>
+
+    <div class="card">
+      <h3>Stack pilihan</h3>
+      <table>
+        <thead><tr><th>Layer</th><th>Pilihan</th><th>Justifikasi</th></tr></thead>
+        <tbody>
+          <tr><td>Framework</td><td><strong>Astro 5</strong></td><td>Zero-JS by default, content collection untuk markdown, islands untuk komponen interaktif. Sudah ditentukan user.</td></tr>
+          <tr><td>Hosting</td><td><strong>Cloudflare Pages</strong></td><td>Unlimited deploy + bandwidth, edge cache global, custom domain gratis.</td></tr>
+          <tr><td>Konten primer</td><td><strong>Markdown di Git</strong></td><td>Owned, version-controlled, deploy lewat push. Tidak butuh CMS.</td></tr>
+          <tr><td>Database</td><td><strong>Cloudflare D1 (SQLite)</strong></td><td>5GB free, sudah cukup untuk komentar+subscriber 5+ tahun. Lihat trade-off di FAQ internal PRFAQ.</td></tr>
+          <tr><td>Cache &amp; counter</td><td><strong>Cloudflare KV</strong></td><td>100k reads/day free; cocok untuk reaksi counter dan rate-limit.</td></tr>
+          <tr><td>Backend logic</td><td><strong>Cloudflare Workers</strong> (via Astro adapter)</td><td>Lightweight handler untuk endpoint POST komentar/subscribe/dispatch.</td></tr>
+          <tr><td>Email transactional</td><td><strong>Resend</strong></td><td>3.000 email/bulan free, API simple, deliverability bagus, TS SDK.</td></tr>
+          <tr><td>Auth admin</td><td><strong>Cloudflare Access</strong> (Zero Trust)</td><td>Magic link email ke allowlist, gratis untuk &lt;50 user. Tidak perlu kelola password.</td></tr>
+          <tr><td>Anti-spam</td><td><strong>Cloudflare Turnstile</strong></td><td>Privacy-friendly CAPTCHA, gratis, no Google.</td></tr>
+          <tr><td>Analytics</td><td><strong>Cloudflare Web Analytics</strong></td><td>Cookieless, privacy-first, gratis.</td></tr>
+          <tr><td>Asset / image</td><td><strong>Cloudflare R2</strong> + Astro Image</td><td>R2 free 10GB storage; otomatis dioptimasi via Astro Image untuk WebP/AVIF.</td></tr>
+          <tr><td>Storage backup</td><td><strong>Cloudflare R2</strong> (D1 dump weekly)</td><td>Disaster recovery untuk komentar &amp; subscriber list.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h3>Catatan: AWS-native baseline vs Cloudflare</h3>
+      <p>Steering file menyarankan stack AWS-native. Untuk produk ini, Cloudflare dipilih dengan justifikasi:</p>
+      <ol>
+        <li>Domain user (<code>basim.id</code>) sudah hosted di Cloudflare; pindah DNS = friction tidak perlu.</li>
+        <li>User secara eksplisit memilih Astro + adapter Cloudflare di awal scoping.</li>
+        <li>Free tier Cloudflare (Pages, D1, KV, Workers) memberi headroom 10× lebih besar dibanding AWS Free Tier untuk personal blog use case ini.</li>
+        <li>Stack tetap migratable ke AWS (Lambda + DynamoDB + SES + Amplify) bila skala melonjak — Astro adapter agnostic.</li>
+      </ol>
+      <p>Trade-off ini didokumentasikan di <em>design.md</em> spec.</p>
+    </div>
+
+    <h3>Diagram arsitektur (text)</h3>
+<pre>┌──────────────┐        ┌─────────────────────────────┐        ┌──────────────┐
+│  Pembaca     │        │  Cloudflare Pages (CDN)     │        │  Resend API  │
+│  (browser)   │ ─HTTP─▶│  Static Astro build         │        │  (email)     │
+└──────────────┘        │  /, /karya, /cerita/...     │        └──────▲───────┘
+       │                └────────────┬────────────────┘               │
+       │                             │                                │
+       │  POST /api/*                │ rendered HTML                  │
+       ▼                             ▼                                │
+┌────────────────────────────────────────────────────┐                │
+│   Cloudflare Workers (Astro server endpoints)      │ ───────────────┘
+│   ─ POST /api/comments  (Turnstile + spam filter)  │
+│   ─ POST /api/reactions (KV counter)               │
+│   ─ POST /api/subscribe (double opt-in)            │
+│   ─ POST /api/admin/dispatch  (Cloudflare Access)  │
+└──────┬─────────────────────────────────────┬───────┘
+       │                                     │
+       ▼                                     ▼
+┌────────────────┐                   ┌──────────────┐
+│  Cloudflare D1 │                   │  Cloudflare  │
+│  (SQLite)      │                   │  KV          │
+│  comments,     │                   │  reactions,  │
+│  subscribers,  │                   │  rate_limit  │
+│  trusted_emails│                   │              │
+└────────────────┘                   └──────────────┘
+       │
+       ▼
+┌────────────────┐   weekly dump
+│ Cloudflare R2  │ ◀───────────────  (Workers Cron)
+│ backups        │
+└────────────────┘</pre>
+
+    <!-- ============ DATA ============ -->
+    <h2 id="data">8 · Data Model</h2>
+    <p>SQLite schema di Cloudflare D1. Migrasi via <code>wrangler d1 migrations</code>.</p>
+
+<pre><span class="c">-- comments table</span>
+<span class="k">CREATE TABLE</span> comments (
+  id           <span class="k">INTEGER PRIMARY KEY AUTOINCREMENT</span>,
+  post_slug    <span class="k">TEXT NOT NULL</span>,
+  parent_id    <span class="k">INTEGER REFERENCES</span> comments(id) <span class="k">ON DELETE CASCADE</span>,
+  display_name <span class="k">TEXT NOT NULL</span>,
+  email_hash   <span class="k">TEXT NOT NULL</span>,        <span class="c">-- sha256(email + salt)</span>
+  email_enc    <span class="k">TEXT NOT NULL</span>,        <span class="c">-- AES-encrypted, hanya admin bisa decrypt</span>
+  body_md      <span class="k">TEXT NOT NULL</span>,
+  status       <span class="k">TEXT NOT NULL</span>,        <span class="c">-- pending|approved|rejected|spam</span>
+  ip_hash      <span class="k">TEXT</span>,
+  ua_hash      <span class="k">TEXT</span>,
+  created_at   <span class="k">INTEGER NOT NULL</span>,     <span class="c">-- unix epoch ms</span>
+  approved_at  <span class="k">INTEGER</span>
+);
+<span class="k">CREATE INDEX</span> idx_comments_post   <span class="k">ON</span> comments(post_slug, status, created_at);
+<span class="k">CREATE INDEX</span> idx_comments_status <span class="k">ON</span> comments(status, created_at);
+
+<span class="c">-- trusted emails (auto-approve setelah komentar pertama disetujui)</span>
+<span class="k">CREATE TABLE</span> trusted_emails (
+  email_hash   <span class="k">TEXT PRIMARY KEY</span>,
+  trusted_at   <span class="k">INTEGER NOT NULL</span>,
+  comment_id   <span class="k">INTEGER REFERENCES</span> comments(id)
+);
+
+<span class="c">-- newsletter subscribers</span>
+<span class="k">CREATE TABLE</span> subscribers (
+  id           <span class="k">INTEGER PRIMARY KEY AUTOINCREMENT</span>,
+  email        <span class="k">TEXT UNIQUE NOT NULL</span>,
+  status       <span class="k">TEXT NOT NULL</span>,        <span class="c">-- unconfirmed|active|unsubscribed|bounced</span>
+  confirm_tok  <span class="k">TEXT</span>,                 <span class="c">-- nullable setelah confirm</span>
+  unsub_tok    <span class="k">TEXT NOT NULL</span>,        <span class="c">-- token unsub permanen</span>
+  source       <span class="k">TEXT</span>,                 <span class="c">-- 'inline_post' | 'subscribe_page' | 'footer'</span>
+  created_at   <span class="k">INTEGER NOT NULL</span>,
+  confirmed_at <span class="k">INTEGER</span>,
+  unsubed_at   <span class="k">INTEGER</span>
+);
+<span class="k">CREATE INDEX</span> idx_subs_status <span class="k">ON</span> subscribers(status);
+
+<span class="c">-- newsletter dispatches</span>
+<span class="k">CREATE TABLE</span> dispatches (
+  id           <span class="k">INTEGER PRIMARY KEY AUTOINCREMENT</span>,
+  post_slug    <span class="k">TEXT NOT NULL</span>,
+  triggered_at <span class="k">INTEGER NOT NULL</span>,
+  status       <span class="k">TEXT NOT NULL</span>,        <span class="c">-- pending|sending|sent|failed</span>
+  total        <span class="k">INTEGER</span>,
+  sent         <span class="k">INTEGER DEFAULT</span> 0,
+  failed       <span class="k">INTEGER DEFAULT</span> 0,
+  cursor_id    <span class="k">INTEGER</span>                 <span class="c">-- last subscriber id processed</span>
+);
+
+<span class="c">-- KV keys (Cloudflare KV, no schema)</span>
+<span class="c">-- reactions:&lt;post_slug&gt;:&lt;emoji&gt;        -> count (number)</span>
+<span class="c">-- reactions:&lt;post_slug&gt;:&lt;fp&gt;:&lt;emoji&gt;   -> 1   (presence marker, TTL 1 year)</span>
+<span class="c">-- ratelimit:comment:&lt;ip_hash&gt;          -> count (TTL 60s)</span>
+<span class="c">-- ratelimit:subscribe:&lt;ip_hash&gt;        -> count (TTL 600s)</span></pre>
+
+    <!-- ============ API ============ -->
+    <h2 id="api">9 · API Surface</h2>
+    <table>
+      <thead>
+        <tr><th>Endpoint</th><th>Method</th><th>Body / Params</th><th>Response</th><th>Notes</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>/api/comments</code></td><td>GET</td>
+          <td>?post=&lt;slug&gt;</td>
+          <td>200: <code>{ comments: [...], count }</code></td>
+          <td>Hanya status=approved. Cached 30s di KV.</td>
+        </tr>
+        <tr>
+          <td><code>/api/comments</code></td><td>POST</td>
+          <td><code>{ post, name, email, body, parent_id?, turnstile_token }</code></td>
+          <td>201: <code>{ status: 'pending'|'approved' }</code></td>
+          <td>Verify Turnstile, rate-limit 5/min/IP, spam filter, store.</td>
+        </tr>
+        <tr>
+          <td><code>/api/reactions/{slug}</code></td><td>GET</td>
+          <td>—</td>
+          <td>200: <code>{ love: n, insightful: n, fire: n, thinking: n, applause: n }</code></td>
+          <td>Read 5 KV keys, latency &lt;200ms.</td>
+        </tr>
+        <tr>
+          <td><code>/api/reactions/{slug}</code></td><td>POST</td>
+          <td><code>{ emoji }</code></td>
+          <td>200: <code>{ count, toggled: 'added'|'removed' }</code></td>
+          <td>Fingerprint dari IP+UA hash. Toggle.</td>
+        </tr>
+        <tr>
+          <td><code>/api/subscribe</code></td><td>POST</td>
+          <td><code>{ email, source, turnstile_token }</code></td>
+          <td>202: <code>{ status: 'unconfirmed' }</code></td>
+          <td>Rate-limit 3/10min/IP, kirim email konfirmasi.</td>
+        </tr>
+        <tr>
+          <td><code>/api/subscribe/confirm</code></td><td>GET</td>
+          <td>?token=...</td>
+          <td>302: → /subscribe/thanks</td>
+          <td>Set status=active, hapus confirm_tok.</td>
+        </tr>
+        <tr>
+          <td><code>/api/subscribe/unsubscribe</code></td><td>GET</td>
+          <td>?token=...</td>
+          <td>302: → /unsubscribed</td>
+          <td>One-click. Set status=unsubscribed.</td>
+        </tr>
+        <tr>
+          <td><code>/api/admin/comments</code></td><td>GET</td>
+          <td>?status=pending</td>
+          <td>200: list</td>
+          <td>Cloudflare Access required.</td>
+        </tr>
+        <tr>
+          <td><code>/api/admin/comments/{id}</code></td><td>PATCH</td>
+          <td><code>{ status: 'approved'|'rejected'|'spam' }</code></td>
+          <td>200: comment</td>
+          <td>Auto-trust email saat approve pertama.</td>
+        </tr>
+        <tr>
+          <td><code>/api/admin/dispatch</code></td><td>POST</td>
+          <td><code>{ post_slug }</code></td>
+          <td>202: <code>{ dispatch_id }</code></td>
+          <td>Trigger Workers Queue (atau sync batch loop).</td>
+        </tr>
+        <tr>
+          <td><code>/api/admin/dispatch/{id}</code></td><td>GET</td>
+          <td>—</td>
+          <td>200: <code>{ status, sent, total, failed }</code></td>
+          <td>Polling untuk progress bar.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- ============ SCREENS ============ -->
+    <h2 id="screens">10 · Screen Inventory</h2>
+    <p>Screen yang akan dibangun di Phase 4 (Prototype). Kanonis untuk file naming dan navigation.</p>
+    <table>
+      <thead><tr><th>#</th><th>Screen</th><th>URL</th><th>Persona</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>Home</td><td>/</td><td>Salsa, Rio</td><td>Hero, featured project, latest 3 posts, subscribe CTA.</td></tr>
+        <tr><td>2</td><td>Karya Index</td><td>/karya</td><td>Rio</td><td>Grid project + filter pill.</td></tr>
+        <tr><td>3</td><td>Karya Detail</td><td>/karya/{slug}</td><td>Rio</td><td>Case study: problem, proses, hasil.</td></tr>
+        <tr><td>4</td><td>Cerita Index</td><td>/cerita</td><td>Salsa</td><td>List artikel, filter tag, sort terbaru.</td></tr>
+        <tr><td>5</td><td>Cerita Detail</td><td>/cerita/{slug}</td><td>Salsa</td><td>Post + TOC + reading progress + komentar + reaksi.</td></tr>
+        <tr><td>6</td><td>About</td><td>/tentang</td><td>Rio, Andre</td><td>Bio, lokasi, kontak, sosial, CV.</td></tr>
+        <tr><td>7</td><td>Subscribe</td><td>/subscribe</td><td>Salsa</td><td>Standalone landing untuk newsletter.</td></tr>
+        <tr><td>8</td><td>Subscribe — Thanks</td><td>/subscribe/thanks</td><td>Salsa</td><td>Konfirmasi visual setelah double opt-in.</td></tr>
+        <tr><td>9</td><td>Admin — Login</td><td>/admin</td><td>Basim</td><td>Cloudflare Access magic link.</td></tr>
+        <tr><td>10</td><td>Admin — Dashboard</td><td>/admin/dashboard</td><td>Basim</td><td>Stats: subscriber, komentar pending, page views.</td></tr>
+        <tr><td>11</td><td>Admin — Moderation</td><td>/admin/moderation</td><td>Basim</td><td>Daftar pending komentar + bulk actions.</td></tr>
+        <tr><td>12</td><td>Admin — Subscriber</td><td>/admin/subscribers</td><td>Basim</td><td>Daftar subscriber, status, search, export CSV.</td></tr>
+        <tr><td>13</td><td>Admin — Newsletter Dispatch</td><td>/admin/dispatch</td><td>Basim</td><td>Pilih post, preview, send, progress bar.</td></tr>
+        <tr><td>14</td><td>404</td><td>*</td><td>—</td><td>Custom 404 + 3 rekomendasi post.</td></tr>
+      </tbody>
+    </table>
+
+    <!-- ============ METRICS ============ -->
+    <h2 id="metrics">11 · Success Metrics</h2>
+    <table>
+      <thead><tr><th>Metric</th><th>Baseline (T0)</th><th>Target T+12 bulan</th><th>Source</th></tr></thead>
+      <tbody>
+        <tr><td>Cerita published</td><td>0</td><td>≥12</td><td>Git history</td></tr>
+        <tr><td>Project case study</td><td>0</td><td>≥6</td><td>Git history</td></tr>
+        <tr><td>Email subscriber active</td><td>0</td><td>≥100</td><td>D1 query</td></tr>
+        <tr><td>Pageview / bulan</td><td>0</td><td>≥5.000</td><td>Cloudflare Analytics</td></tr>
+        <tr><td>Lighthouse Performance (mobile)</td><td>—</td><td>≥95 sustained</td><td>CI checks</td></tr>
+        <tr><td>Komentar berkualitas / bulan</td><td>0</td><td>≥10 (approved)</td><td>D1 query</td></tr>
+        <tr><td>Operational cost / bulan</td><td>$0</td><td>$0</td><td>Cloudflare + Resend bill</td></tr>
+        <tr><td>Build time (avg)</td><td>—</td><td>&lt;90s</td><td>Pages build log</td></tr>
+      </tbody>
+    </table>
+
+    <!-- ============ RISKS ============ -->
+    <h2 id="risks">12 · Risks &amp; Mitigations</h2>
+    <table>
+      <thead><tr><th>Risiko</th><th>Likelihood</th><th>Impact</th><th>Mitigation</th></tr></thead>
+      <tbody>
+        <tr><td>Discoverability rendah (no algorithmic distribution)</td><td>High</td><td>Medium</td><td>SEO + structured data, syndicate selektif ke dev.to/Hashnode, share di sosial.</td></tr>
+        <tr><td>Spam komentar massive</td><td>Medium</td><td>Medium</td><td>Turnstile + rate limit + spam filter + first-comment moderation.</td></tr>
+        <tr><td>Burn out maintaining</td><td>Medium</td><td>High</td><td>Stack stabil, fitur minim, metric dievaluasi 6/12 bulan, stop-loss didefinisikan di PRFAQ.</td></tr>
+        <tr><td>D1 outage atau perubahan pricing</td><td>Low</td><td>Medium</td><td>Konten primer di Git (graceful degrade), backup R2 weekly, migration path ke SQLite/Turso siap.</td></tr>
+        <tr><td>Email deliverability buruk (ke Inbox spam)</td><td>Medium</td><td>Medium</td><td>Resend dengan SPF + DKIM + DMARC, plain text email, no tracking pixel, daftar warm-up perlahan.</td></tr>
+        <tr><td>Subscriber list bocor</td><td>Low</td><td>High</td><td>Email enkripsi at-rest, akses admin di-gate Cloudflare Access, audit trail.</td></tr>
+        <tr><td>Build break setelah dependency update</td><td>Medium</td><td>Low</td><td>Pin major versions, Renovate weekly PR, preview deploy test sebelum merge.</td></tr>
+      </tbody>
+    </table>
+
+    <!-- ============ MILESTONES ============ -->
+    <h2 id="milestones">13 · Milestones (proposed)</h2>
+    <table>
+      <thead><tr><th>Milestone</th><th>Target</th><th>Output</th></tr></thead>
+      <tbody>
+        <tr><td>M1 — Skeleton</td><td>Minggu 1–2</td><td>Astro project bootstrapped, deploy ke Pages, Home + Cerita Index + 1 dummy post live.</td></tr>
+        <tr><td>M2 — Core Reading</td><td>Minggu 3–4</td><td>Cerita detail (TOC, progress, related), Karya index + detail, About.</td></tr>
+        <tr><td>M3 — Engagement</td><td>Minggu 5–6</td><td>Komentar (form + moderation backend), reaksi, Turnstile.</td></tr>
+        <tr><td>M4 — Newsletter</td><td>Minggu 7–8</td><td>Subscribe form, double opt-in, Resend integration, dispatch.</td></tr>
+        <tr><td>M5 — Admin &amp; Polish</td><td>Minggu 9–10</td><td>Admin dashboard, dark mode, RSS, sitemap, Lighthouse 95+ pass.</td></tr>
+        <tr><td>M6 — Launch</td><td>Minggu 11</td><td>Soft launch ke teman dekat (10 orang), 3 post seeded, monitoring.</td></tr>
+        <tr><td>M7 — Public</td><td>Minggu 12</td><td>Public launch via media sosial + Hashnode/dev.to syndication.</td></tr>
+      </tbody>
+    </table>
+
+    <div class="divider"></div>
+
+    <p style="color:var(--ink-2); font-size:14px;">
+      Spec teknis (requirements EARS dan design) juga di-mirror ke
+      <code>.kiro/specs/cerita-basim/requirements.md</code> dan
+      <code>.kiro/specs/cerita-basim/design.md</code> untuk dipakai Kiro saat implementasi.
+    </p>
+  </main>
+</body>
+</html>

@@ -1,0 +1,33 @@
+Cerita Basim — Screen Manifest (Phase 4)
+
+Shared CSS: cerita-basim.css
+Design System: DesignSystem_CeritaBasim_2026-05-19.html
+Screen Index: ScreenIndex_CeritaBasim_2026-05-19.html
+
+PUBLIC SCREENS (top-nav layout):
+1.  Screen_Home_CeritaBasim_2026-05-19.html              → /
+2.  Screen_KaryaIndex_CeritaBasim_2026-05-19.html        → /karya
+3.  Screen_KaryaDetail_CeritaBasim_2026-05-19.html       → /karya/{slug}
+4.  Screen_CeritaIndex_CeritaBasim_2026-05-19.html       → /cerita
+5.  Screen_CeritaDetail_CeritaBasim_2026-05-19.html      → /cerita/{slug}
+6.  Screen_Tentang_CeritaBasim_2026-05-19.html           → /tentang
+7.  Screen_Subscribe_CeritaBasim_2026-05-19.html         → /subscribe
+8.  Screen_SubscribeThanks_CeritaBasim_2026-05-19.html   → /subscribe/thanks
+9.  Screen_404_CeritaBasim_2026-05-19.html               → 404
+
+ADMIN SCREENS (sidebar layout):
+10. Screen_AdminLogin_CeritaBasim_2026-05-19.html        → /admin
+11. Screen_AdminDashboard_CeritaBasim_2026-05-19.html    → /admin/dashboard
+12. Screen_AdminModeration_CeritaBasim_2026-05-19.html   → /admin/moderation
+13. Screen_AdminSubscribers_CeritaBasim_2026-05-19.html  → /admin/subscribers
+14. Screen_AdminDispatch_CeritaBasim_2026-05-19.html     → /admin/dispatch
+
+LAYOUT NOTES:
+- Public pages share <header class="topnav"> + <footer class="footer-cb">
+- Admin pages share <aside class="sidebar"> with logo, nav, footer
+- Both link to cerita-basim.css
+
+BRAND (no logo gate; personal project, not a known company)
+- Wordmark: SVG "cb" monogram inline + "Cerita Basim" wordmark in Fraunces
+- Palette: sand #f6f1e7 / ink #1b1410 / terracotta #c2410c / forest #1b3b2f / saffron #b58105
+- Type: Fraunces (display) + DM Sans (body) + JetBrains Mono (code)

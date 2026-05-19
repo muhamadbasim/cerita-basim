@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Screen Index · Cerita Basim Prototype</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="cerita-basim.css" />
+  <style>
+    .index-page { padding: 56px 0 96px; }
+    .screen-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 18px; margin-top: 24px; }
+    .screen-link {
+      display: flex; flex-direction: column; gap: 8px;
+      padding: 22px 24px;
+      background: var(--paper); border: 1px solid var(--rule); border-radius: var(--r-3);
+      text-decoration: none; color: var(--ink);
+      transition: transform var(--duration-normal) var(--ease-out), box-shadow var(--duration-normal), border-color var(--duration-fast);
+    }
+    .screen-link:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); border-color: var(--rule-2); color: var(--ink); }
+    .screen-link .num { font-family: var(--font-display); font-weight: 800; font-size: 14px; color: var(--accent); }
+    .screen-link .title { font-family: var(--font-display); font-weight: 700; font-size: 18px; }
+    .screen-link .url { font-family: var(--font-mono); font-size: 12px; color: var(--ink-3); }
+    .screen-link .desc { font-size: 13.5px; color: var(--ink-2); }
+    .section-label { font-family: var(--font-display); font-weight: 700; font-size: 14px; text-transform: uppercase; letter-spacing: .1em; color: var(--ink-3); margin: 36px 0 8px; padding-top: 18px; border-top: 1px solid var(--rule); }
+    .meta-card { background: var(--paper); border: 1px solid var(--rule); border-radius: var(--r-3); padding: 22px; margin-top: 36px; }
+    .meta-card h3 { margin: 0 0 10px; }
+    .meta-card ul { margin: 0; padding-left: 18px; font-size: 14px; color: var(--ink-2); }
+    .meta-card li { margin: 4px 0; }
+  </style>
+</head>
+<body>
+  <a href="#main" class="skip-to-main">Lewati ke konten</a>
+  <header class="topnav">
+    <div class="topnav-inner">
+      <a class="brand" href="ScreenIndex_CeritaBasim_2026-05-19.html">
+        <span class="brand-mark">cb</span>
+        <span class="brand-name">Cerita <em>Basim</em></span>
+      </a>
+      <nav class="topnav-links" aria-label="Primer">
+        <a href="ScreenIndex_CeritaBasim_2026-05-19.html" class="active">Index</a>
+        <a href="DesignSystem_CeritaBasim_2026-05-19.html">Design</a>
+        <a href="Screen_Home_CeritaBasim_2026-05-19.html">Home</a>
+      </nav>
+      <div class="topnav-actions">
+        <button class="theme-toggle" type="button" aria-label="Ganti tema" onclick="toggleTheme()">
+          <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2m10-10h-2M4 12H2m15.5-7.5L16 6m-8 12l-1.5 1.5M19.5 19.5L18 18M6 6L4.5 4.5"/></svg>
+          <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main" class="container index-page">
+    <span class="eyebrow">Prototype · Phase 4</span>
+    <h1 class="h-display">Screen Index<br/><em>Cerita Basim — 14 screens.</em></h1>
+    <p class="muted" style="max-width: 60ch; font-size: 17px;">Navigasi ke semua screen prototype. Setiap screen fully interactive — komentar, reaksi, filter, modal, dispatch simulasi, dark mode toggle.</p>
+
+    <div class="section-label">Public Screens (9)</div>
+    <div class="screen-grid stagger">
+      <a class="screen-link" href="Screen_Home_CeritaBasim_2026-05-19.html">
+        <span class="num">01</span>
+        <span class="title">Home</span>
+        <span class="url">/</span>
+        <span class="desc">Hero, featured project, latest posts, subscribe CTA.</span>
+      </a>
+      <a class="screen-link" href="Screen_KaryaIndex_CeritaBasim_2026-05-19.html">
+        <span class="num">02</span>
+        <span class="title">Karya Index</span>
+        <span class="url">/karya</span>
+        <span class="desc">Grid project + filter pill (Web, Mobile, Tools, Eksperimen).</span>
+      </a>
+      <a class="screen-link" href="Screen_KaryaDetail_CeritaBasim_2026-05-19.html">
+        <span class="num">03</span>
+        <span class="title">Karya Detail</span>
+        <span class="url">/karya/{slug}</span>
+        <span class="desc">Case study: problem, proses, hasil, next/prev nav.</span>
+      </a>
+      <a class="screen-link" href="Screen_CeritaIndex_CeritaBasim_2026-05-19.html">
+        <span class="num">04</span>
+        <span class="title">Cerita Index</span>
+        <span class="url">/cerita</span>
+        <span class="desc">List artikel, search, filter tag, sort terbaru.</span>
+      </a>
+      <a class="screen-link" href="Screen_CeritaDetail_CeritaBasim_2026-05-19.html">
+        <span class="num">05</span>
+        <span class="title">Cerita Detail</span>
+        <span class="url">/cerita/{slug}</span>
+        <span class="desc">Post + TOC + reading progress + komentar + reaksi + related.</span>
+      </a>
+      <a class="screen-link" href="Screen_Tentang_CeritaBasim_2026-05-19.html">
+        <span class="num">06</span>
+        <span class="title">Tentang</span>
+        <span class="url">/tentang</span>
+        <span class="desc">Bio, timeline, kontak, sosial.</span>
+      </a>
+      <a class="screen-link" href="Screen_Subscribe_CeritaBasim_2026-05-19.html">
+        <span class="num">07</span>
+        <span class="title">Subscribe</span>
+        <span class="url">/subscribe</span>
+        <span class="desc">Newsletter landing + Turnstile + double opt-in flow.</span>
+      </a>
+      <a class="screen-link" href="Screen_SubscribeThanks_CeritaBasim_2026-05-19.html">
+        <span class="num">08</span>
+        <span class="title">Subscribe Thanks</span>
+        <span class="url">/subscribe/thanks</span>
+        <span class="desc">Konfirmasi visual setelah submit, next steps.</span>
+      </a>
+      <a class="screen-link" href="Screen_404_CeritaBasim_2026-05-19.html">
+        <span class="num">09</span>
+        <span class="title">404</span>
+        <span class="url">*</span>
+        <span class="desc">Custom 404 + 3 rekomendasi post.</span>
+      </a>
+    </div>
+
+    <div class="section-label">Admin Screens (5)</div>
+    <div class="screen-grid stagger">
+      <a class="screen-link" href="Screen_AdminLogin_CeritaBasim_2026-05-19.html">
+        <span class="num">10</span>
+        <span class="title">Admin Login</span>
+        <span class="url">/admin</span>
+        <span class="desc">Cloudflare Access magic link flow.</span>
+      </a>
+      <a class="screen-link" href="Screen_AdminDashboard_CeritaBasim_2026-05-19.html">
+        <span class="num">11</span>
+        <span class="title">Admin Dashboard</span>
+        <span class="url">/admin/dashboard</span>
+        <span class="desc">Stats, chart pageview, top posts, aktivitas terbaru.</span>
+      </a>
+      <a class="screen-link" href="Screen_AdminModeration_CeritaBasim_2026-05-19.html">
+        <span class="num">12</span>
+        <span class="title">Admin Moderation</span>
+        <span class="url">/admin/moderation</span>
+        <span class="desc">Pending komentar, approve/reject/spam, bulk action.</span>
+      </a>
+      <a class="screen-link" href="Screen_AdminSubscribers_CeritaBasim_2026-05-19.html">
+        <span class="num">13</span>
+        <span class="title">Admin Subscribers</span>
+        <span class="url">/admin/subscribers</span>
+        <span class="desc">Daftar subscriber, filter, search, export CSV, modal add.</span>
+      </a>
+      <a class="screen-link" href="Screen_AdminDispatch_CeritaBasim_2026-05-19.html">
+        <span class="num">14</span>
+        <span class="title">Admin Dispatch</span>
+        <span class="url">/admin/dispatch</span>
+        <span class="desc">Pilih post, preview email, kirim, progress bar real-time.</span>
+      </a>
+    </div>
+
+    <div class="section-label">Reference</div>
+    <div class="screen-grid">
+      <a class="screen-link" href="DesignSystem_CeritaBasim_2026-05-19.html">
+        <span class="num">—</span>
+        <span class="title">Design System</span>
+        <span class="url">reference</span>
+        <span class="desc">Token, komponen, tipografi, warna, motion.</span>
+      </a>
+      <a class="screen-link" href="ProjectDashboard_CeritaBasim_2026-05-19.html">
+        <span class="num">—</span>
+        <span class="title">Project Dashboard</span>
+        <span class="url">tracking</span>
+        <span class="desc">Progress workflow, link ke semua dokumen.</span>
+      </a>
+    </div>
+
+    <div class="meta-card">
+      <h3>Catatan prototype</h3>
+      <ul>
+        <li>Semua screen link ke <code>cerita-basim.css</code> (shared stylesheet, .css extension).</li>
+        <li>Dark mode toggle berfungsi di semua screen (localStorage persisted).</li>
+        <li>Komentar form: Turnstile mock, submit simulasi, pending toast.</li>
+        <li>Reaksi: toggle, counter update, bounce animation.</li>
+        <li>Filter (Karya + Cerita): client-side, instant, empty state.</li>
+        <li>Subscribe: double opt-in flow (form → thanks page).</li>
+        <li>Admin Dispatch: real-time progress bar simulasi dengan log.</li>
+        <li>Modal (Subscribers): open/close via X, backdrop, Escape key.</li>
+        <li>Responsive: desktop, tablet, mobile breakpoints.</li>
+        <li>Accessibility: skip-to-main, focus-visible, ARIA labels, min 44px touch targets.</li>
+      </ul>
+    </div>
+  </main>
+
+  <script>
+    function toggleTheme(){const r=document.documentElement;const c=r.getAttribute('data-theme')||'light';const n=c==='light'?'dark':'light';r.setAttribute('data-theme',n);try{localStorage.setItem('cb-theme',n)}catch(e){}}
+    (function(){try{const s=localStorage.getItem('cb-theme');if(s)document.documentElement.setAttribute('data-theme',s);else if(window.matchMedia('(prefers-color-scheme: dark)').matches)document.documentElement.setAttribute('data-theme','dark')}catch(e){}})();
+  </script>
+</body>
+</html>

@@ -1,0 +1,68 @@
+---
+import Header from './Header.astro';
+import Footer from './Footer.astro';
+import '@/styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+  active?: 'beranda' | 'karya' | 'cerita' | 'tentang';
+  ogImage?: string;
+}
+
+const { title, description = 'Portofolio karya & cerita panjang dari Basim.', active, ogImage } = Astro.props;
+const canonicalUrl = new URL(Astro.url.pathname, Astro.site);
+const ogImageUrl = ogImage ? new URL(ogImage, Astro.site).href : undefined;
+---
+
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="canonical" href={canonicalUrl} />
+
+  <title>{title} · Cerita Basim</title>
+  <meta name="description" content={description} />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:url" content={canonicalUrl} />
+  {ogImageUrl && <meta property="og:image" content={ogImageUrl} />}
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={title} />
+  <meta name="twitter:description" content={description} />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,800&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <!-- Theme init (prevent flash) -->
+  <script is:inline>
+    (function(){
+      try {
+        const saved = localStorage.getItem('cb-theme');
+        if (saved) document.documentElement.setAttribute('data-theme', saved);
+        else if (window.matchMedia('(prefers-color-scheme: dark)').matches) document.documentElement.setAttribute('data-theme', 'dark');
+      } catch(e) {}
+    })();
+  </script>
+</head>
+<body>
+  <a href="#main" class="sr-only" style="position:absolute;left:-9999px;background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:6px;z-index:10000;font-size:14px;" onfocus="this.style.left='16px';this.style.top='16px'" onblur="this.style.left='-9999px'">Lewati ke konten</a>
+
+  <Header active={active} />
+
+  <main id="main">
+    <slot />
+  </main>
+
+  <Footer />
+</body>
+</html>
