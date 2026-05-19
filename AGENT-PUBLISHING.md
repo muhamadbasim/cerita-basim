@@ -1,253 +1,159 @@
 # Agent Publishing Guide — Cerita Basim
 
-Panduan untuk OpenClaw, Hermes, atau AI agent lain agar bisa otomatis publish konten ke cerita.basim.id.
+Panduan untuk OpenClaw, Hermes, atau AI agent lain agar bisa publish konten ke `cerita.basim.id`.
+
+> **Status (2026-05-19):** flow lama (`git push` ke `main`) **deprecated** untuk konten dari agent. Semua submission dari AI agent **harus lewat Agent Publish API** ke staging queue, lalu di-approve manual oleh Basim.
 
 ---
 
-## Cara Kerja
+## Cara Kerja Sekarang
 
-Cerita Basim menggunakan **markdown-in-Git** sebagai CMS. Untuk publish konten baru:
+1. Agent panggil **skill `cerita-publish`** untuk submit draft via HTTP.
+2. Draft masuk **antrian review** (`status='draft'`, source = agent_id) di D1 — belum publik.
+3. Basim review di `/admin/review`, lalu approve / edit / reject.
+4. Setelah approve, post live di `https://cerita.basim.id/cerita/d/{slug}`.
 
-1. Tulis file `.mdx` di folder yang tepat
-2. `git add` + `git commit` + `git push` ke `main`
-3. GitHub Actions otomatis build + deploy ke Cloudflare Pages (~90 detik)
-4. Konten live di cerita.basim.id
-
-**Tidak ada CMS dashboard, tidak ada API publish, tidak ada database untuk konten.** Semua konten adalah file markdown di Git.
+**Tidak boleh `git push` konten dari agent.** Folder `src/content/posts/` hanya untuk konten yang ditulis manual oleh Basim. Konten dari agent ditangani oleh tabel `posts` di D1.
 
 ---
 
-## Publish Cerita (Blog Post)
+## Cara Submit (Wajib pakai skill)
 
-### Lokasi file
-```
-src/content/posts/<slug>.mdx
-```
+Skill `cerita-publish` sudah ter-install di workspace OpenClaw. Verifikasi:
 
-### Template frontmatter
-```yaml
----
-title: "Judul Cerita"
-description: "Deskripsi singkat 1-2 kalimat untuk SEO dan preview."
-publishedAt: 2026-05-20
-updatedAt: 2026-05-20          # opsional, isi kalau update
-tags: ["produk", "teknis"]     # pilih dari: produk, teknis, karier, catatan
-cover: "/images/posts/slug.jpg" # opsional
-draft: false                    # true = tidak dipublish
-featured: false                 # true = tampil di homepage
----
-```
-
-### Aturan konten
-- Tulis dalam Bahasa Indonesia (boleh mix English untuk istilah teknis)
-- Gunakan heading h2 (`##`) dan h3 (`###`) — akan otomatis jadi TOC
-- Markdown standar: bold, italic, links, code blocks, blockquotes, lists, images
-- Panjang ideal: 800-2000 kata (4-10 menit baca)
-- Slug = nama file tanpa `.mdx` (contoh: `belajar-astro.mdx` → `/cerita/belajar-astro`)
-
-### Contoh lengkap
-```markdown
----
-title: "Belajar Astro 5 dalam satu akhir pekan"
-description: "Catatan dari eksperimen membangun blog dengan Astro — dari nol sampai deploy."
-publishedAt: 2026-05-20
-tags: ["teknis"]
-featured: false
-draft: false
----
-
-Paragraf pembuka yang menarik perhatian...
-
-## Heading pertama
-
-Konten...
-
-### Sub-heading
-
-Konten lebih detail...
-
-## Kesimpulan
-
-Penutup...
-```
-
----
-
-## Publish Karya (Project Case Study)
-
-### Lokasi file
-```
-src/content/projects/<slug>.mdx
-```
-
-### Template frontmatter
-```yaml
----
-title: "Nama Project"
-tagline: "Satu kalimat yang menjelaskan project."
-category: "web"                # pilih: web, mobile, tools, experiment
-year: 2026
-coverColor: "terra"            # pilih: terra, forest, gold, ink, mix, sand
-stack: ["Astro", "Cloudflare", "D1"]
-role: "Solo Founder"
-duration: "3 bulan"            # opsional
-status: "live"                 # pilih: live, discontinued, beta, archived
-demoUrl: "https://example.com" # opsional
-repoUrl: "https://github.com/..." # opsional
-featured: false                # true = tampil di homepage
-order: 5                       # urutan di grid (lower = first)
----
-```
-
-### Struktur konten project
-```markdown
-## Masalah
-
-Jelaskan problem yang diselesaikan...
-
-## Proses
-
-Bagaimana approach-nya...
-
-## Hasil
-
-Metrik atau outcome...
-
-## Yang saya pelajari
-
-Refleksi...
-```
-
----
-
-## Command untuk Agent
-
-### Publish post baru (dari workspace)
 ```bash
-cd /home/ubuntu/.openclaw/workspace/cerita-basim
+openclaw skills list | grep cerita-publish
+# → ✓ ready  📦 cerita-publish
+```
 
-# 1. Tulis file
-cat > src/content/posts/judul-post.mdx << 'EOF'
----
-title: "Judul Post"
-description: "Deskripsi singkat."
-publishedAt: 2026-05-20
-tags: ["catatan"]
-draft: false
-featured: false
----
+### Step 1: pastikan env vars terset
 
-Isi konten di sini...
+```bash
+# Local dev:
+export CERITA_BASE_URL="http://localhost:4321"
+# Production:
+# export CERITA_BASE_URL="https://cerita.basim.id"
+
+export CERITA_AGENT_ID="openclaw"
+export CERITA_AGENT_TOKEN="<plaintext token dari /api/admin/agents>"
+```
+
+Token dapat dibuat sekali oleh admin lewat `POST /api/admin/agents` dan plaintext-nya hanya muncul satu kali — simpan di `openclaw secrets configure` atau shell profile.
+
+### Step 2: tulis konten ke file `.md`
+
+Contoh: `/tmp/post-draft.md` (di workspace OpenClaw, simpan di lokasi yang aman misal `~/.openclaw/workspace/drafts/`):
+
+```bash
+mkdir -p ~/.openclaw/workspace/drafts
+cat > ~/.openclaw/workspace/drafts/judul-post.md << 'EOF'
+## Pendahuluan
+
+Konten markdown di sini... minimal 100 karakter.
+
+## Sub-bagian
+
+Lanjutan konten.
 EOF
-
-# 2. Commit & push (auto-deploy via GitHub Actions)
-git add -A
-git commit -m "post: judul post"
-git push
 ```
 
-### Publish project baru
-```bash
-cd /home/ubuntu/.openclaw/workspace/cerita-basim
-
-cat > src/content/projects/nama-project.mdx << 'EOF'
----
-title: "Nama Project"
-tagline: "Deskripsi singkat."
-category: "web"
-year: 2026
-coverColor: "forest"
-stack: ["TypeScript", "Cloudflare"]
-role: "Solo"
-status: "live"
-featured: false
-order: 10
----
-
-## Masalah
-...
-
-## Hasil
-...
-EOF
-
-git add -A
-git commit -m "project: nama project"
-git push
-```
-
-### Update post yang sudah ada
-```bash
-cd /home/ubuntu/.openclaw/workspace/cerita-basim
-
-# Edit file langsung
-# Tambah/update frontmatter `updatedAt: 2026-05-20`
-
-git add -A
-git commit -m "update: judul post — tambah section baru"
-git push
-```
-
-### Hapus post (unpublish)
-```bash
-# Opsi 1: Set draft: true (tetap di repo tapi tidak dipublish)
-# Opsi 2: Hapus file
-rm src/content/posts/slug-post.mdx
-git add -A
-git commit -m "unpublish: judul post"
-git push
-```
-
----
-
-## Validasi Sebelum Publish
-
-Agent harus cek sebelum push:
-
-1. **Frontmatter lengkap** — semua required field terisi (title, description, publishedAt, tags)
-2. **Slug unik** — tidak ada file lain dengan nama yang sama
-3. **Tags valid** — gunakan tag yang sudah ada: `produk`, `teknis`, `karier`, `catatan`
-4. **Category valid** (untuk project) — `web`, `mobile`, `tools`, `experiment`
-5. **Build test** (opsional tapi recommended):
-   ```bash
-   PUBLIC_TURNSTILE_SITE_KEY=0x4AAAAAADSLzp6yl8WQnFBT bun run build
-   ```
-   Kalau build gagal, jangan push.
-
----
-
-## Kirim Newsletter Setelah Publish
-
-Setelah post live, agent bisa trigger newsletter dispatch via admin API:
+### Step 3: panggil skill submit
 
 ```bash
-# Kirim newsletter ke semua subscriber active
-curl -X POST https://cerita.basim.id/api/admin/dispatch \
-  -H "Content-Type: application/json" \
-  -H "X-Admin-Token: 7fdd86418757b34ff51cb23976be135a3c77a9a55cf4d02f" \
-  -d '{"post_slug": "judul-post"}'
+~/.openclaw/workspace/skills/cerita-publish/cerita.sh submit \
+  --title "Judul Cerita" \
+  --description "Deskripsi singkat 1-2 kalimat." \
+  --body-file ~/.openclaw/workspace/drafts/judul-post.md \
+  --tags "teknis,catatan"
 ```
 
-**Catatan:** Hanya kirim newsletter untuk post yang benar-benar baru dan berkualitas. Jangan spam subscriber.
+Response sukses:
+
+```json
+{
+  "success": true,
+  "draft_id": 12,
+  "slug": "judul-cerita",
+  "review_url": "/admin/review/judul-cerita",
+  "status": "draft"
+}
+```
+
+Kalau ada `warnings[]` di response, baca dan perbaiki di submit berikutnya (idempotency-key sama akan dapat response cached, jadi ganti judul/body atau key untuk re-submit).
 
 ---
 
-## Automation Ideas untuk Agent
+## Field Constraints
 
-### 1. Scheduled posting
-Agent bisa tulis post dengan `draft: true`, lalu di waktu yang ditentukan flip ke `draft: false` dan push.
+| Field         | Aturan                                                        |
+|---------------|---------------------------------------------------------------|
+| `--title`     | non-empty, ≤200 karakter                                      |
+| `--description` | non-empty, ≤500 karakter                                    |
+| `--body-file` | konten ≥100 karakter, ≤50.000 karakter                        |
+| `--tags`      | comma-separated dari whitelist: `produk`, `teknis`, `karier`, `catatan`, `eksperimen` |
+| `--cover`     | URL gambar (optional). Hanya domain whitelist yang ke-render: `cerita.basim.id`, `*.r2.cloudflarestorage.com`, `imagedelivery.net` |
 
-### 2. Cross-post dari sumber lain
-Agent bisa ambil konten dari Notion/Obsidian/Google Docs, convert ke MDX, dan push.
+Slug di-generate otomatis dari `--title` (kebab-case, lowercase, max 80 char). Bisa override dengan `--slug`.
 
-### 3. Auto-generate project case study
-Setelah selesai build project baru, agent otomatis generate case study dari commit history + README.
+---
 
-### 4. Weekly digest
-Agent bisa generate "Catatan Mingguan" otomatis dari aktivitas minggu itu.
+## Rate Limits
 
-### 5. SEO optimization
-Agent bisa review post yang sudah ada, suggest improvement untuk description/tags, dan update.
+- **10 draft per jam per agent** — 429 `rate_limited` kalau lewat
+- **50 max pending drafts per agent** — 429 `pending_limit_reached` kalau Basim belum review yang lama
+
+---
+
+## Quality Gate (Non-blocking)
+
+Draft tetap tersimpan walau ada warning, tapi muncul flag di review queue. Hindari trigger:
+
+- `tag_not_whitelisted` — pakai tag dari whitelist saja
+- `excessive_urls` — body >10 URL
+- `blacklist_words` — `casino`, `viagra`, `crypto-pump`, `click here`
+- `repetitive_content` — line yang sama diulang >3 kali
+
+---
+
+## Aturan untuk Agent
+
+1. **Selalu pakai skill `cerita-publish`.** Jangan `git push` konten dari agent.
+2. **Selalu pakai `--idempotency-key`** atau biarkan auto-hash dari title+body — supaya retry tidak duplicate.
+3. **Konten harus original & relevan.** Jangan post hasil scrape/spam.
+4. **Bahasa Indonesia** untuk body utama (boleh selipkan istilah English untuk teknis).
+5. **Heading mulai dari `##`** (h2). H1 di-strip oleh sanitizer.
+6. **Markdown only** — semua raw HTML (script, iframe, div, dll.) di-strip otomatis.
+7. **Setelah submit, kasih tau Basim** dengan ringkasan: judul, slug, dan link review (`{CERITA_BASE_URL}/admin/review/{slug}`).
+8. **Jangan auto-approve.** Approve hanya boleh dilakukan Basim manual di admin panel.
+
+---
+
+## Subcommand Lain (Admin Only)
+
+Hanya jalan kalau `CERITA_ADMIN_TOKEN` ter-set:
+
+```bash
+cerita.sh queue                              # list pending drafts
+cerita.sh preview <slug>                     # render HTML preview
+cerita.sh approve <slug>                     # publish — set status='published'
+cerita.sh reject  <slug> "alasan"            # hard delete
+cerita.sh edit    <slug> --title "..." --body-file ...
+cerita.sh agents                             # list agent registry + stats
+```
+
+Agent **tidak boleh** punya `CERITA_ADMIN_TOKEN`. Subcommand admin hanya untuk Basim.
+
+---
+
+## Troubleshooting
+
+| Error              | Penyebab                                  | Fix |
+|--------------------|-------------------------------------------|-----|
+| `401 unauthorized` | Token salah atau di-revoke                | Minta token baru ke Basim |
+| `400 validation_failed` | Field tidak memenuhi aturan          | Cek `fields` di response |
+| `429 rate_limited` | Sudah submit 10 draft/jam                 | Tunggu sampai TTL counter habis (~1 jam) |
+| `429 pending_limit_reached` | 50 draft pending belum di-review | Tunggu Basim review |
+| `agent_id_mismatch` | `CERITA_AGENT_ID` ≠ token's owner        | Sinkronkan env var |
 
 ---
 
@@ -255,71 +161,26 @@ Agent bisa review post yang sudah ada, suggest improvement untuk description/tag
 
 | Apa | Path |
 |-----|------|
-| Posts | `src/content/posts/*.mdx` |
-| Projects | `src/content/projects/*.mdx` |
-| Content schema | `src/content/config.ts` |
-| Build command | `PUBLIC_TURNSTILE_SITE_KEY=0x4AAAAAADSLzp6yl8WQnFBT bun run build` |
-| Deploy (manual) | `wrangler pages deploy dist --project-name=cerita-basim` |
-| Deploy (auto) | `git push` ke `main` → GitHub Actions |
-| Admin API | `https://cerita.basim.id/api/admin/*` (header: `X-Admin-Token`) |
-| Admin token | `7fdd86418757b34ff51cb23976be135a3c77a9a55cf4d02f` |
-| Live site | `https://cerita.basim.id` |
-| Repo | `https://github.com/muhamadbasim/cerita-basim` |
-| Workspace | `/home/ubuntu/.openclaw/workspace/cerita-basim/` |
+| Skill manifest | `~/.openclaw/workspace/skills/cerita-publish/SKILL.md` |
+| Wrapper script | `~/.openclaw/workspace/skills/cerita-publish/cerita.sh` |
+| API source | `~/cerita-basim/src/pages/api/agent/drafts.ts` (POST) |
+| Live admin review | `{CERITA_BASE_URL}/admin/review` |
+| Spec lengkap | `~/.kiro/specs/agent-publish/{requirements,design,tasks}.md` |
+| Full API docs | `~/cerita-basim/AGENT-PUBLISHING.md` |
 
 ---
 
-## Contoh Workflow Agent End-to-End
+## DEPRECATED — Flow Lama (jangan dipakai)
 
-```bash
-# 1. Agent tulis konten
-cd /home/ubuntu/.openclaw/workspace/cerita-basim
+Sebelumnya, panduan ini bilang:
 
-cat > src/content/posts/tips-cloudflare-d1.mdx << 'EOF'
----
-title: "5 Tips Cloudflare D1 untuk Side Project"
-description: "Pelajaran dari 6 bulan pakai D1 di production — apa yang works dan apa yang perlu dihindari."
-publishedAt: 2026-05-20
-tags: ["teknis"]
-draft: false
-featured: false
----
+> Tulis file `.mdx` di `src/content/posts/`, `git add`/`commit`/`push`, lalu auto-deploy via GitHub Actions.
 
-D1 adalah database SQLite dari Cloudflare...
+**Flow itu masih jalan untuk konten manual Basim**, tapi **tidak boleh dipakai oleh agent** karena:
 
-## 1. Gunakan index dengan benar
-...
+- Tidak ada review queue → konten AI bisa langsung live tanpa dikontrol
+- Tidak ada audit log per agent → susah trace siapa post apa
+- Tidak ada rate limit / quality gate
+- Tidak ada per-agent revoke kalau token bocor
 
-## 2. Batch writes kalau bisa
-...
-EOF
-
-# 2. Verify build
-PUBLIC_TURNSTILE_SITE_KEY=0x4AAAAAADSLzp6yl8WQnFBT bun run build
-# Exit 0 = OK
-
-# 3. Push (auto-deploy)
-git add -A
-git commit -m "post: 5 tips cloudflare d1 untuk side project"
-git push
-
-# 4. Wait ~90 seconds for deploy
-
-# 5. Verify live
-curl -s https://cerita.basim.id/cerita/tips-cloudflare-d1 | grep -o "<title>.*</title>"
-
-# 6. (Optional) Send newsletter
-curl -X POST https://cerita.basim.id/api/admin/dispatch \
-  -H "Content-Type: application/json" \
-  -H "X-Admin-Token: 7fdd86418757b34ff51cb23976be135a3c77a9a55cf4d02f" \
-  -d '{"post_slug": "tips-cloudflare-d1"}'
-```
-
----
-
-## Catatan Penting
-
-- **Jangan publish konten AI-generated tanpa review.** Kualitas > kuantitas.
-- **Jangan kirim newsletter lebih dari 2× per minggu.** Subscriber akan unsubscribe.
-- **Selalu test build sebelum push** kalau konten punya syntax yang tidak biasa.
-- **Commit message convention:** `post: judul` untuk post baru, `project: nama` untuk project, `update: judul` untuk edit.
+Sejak `feat: agent publish staging workflow` (2026-05-19), semua konten agent **wajib** lewat staging API.

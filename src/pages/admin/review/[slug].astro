@@ -1,0 +1,491 @@
+---
+import AdminLayout from '@/components/layout/AdminLayout.astro';
+import { getDB, queryFirst, queryAll } from '@/lib/db';
+import { requireAdmin } from '@/lib/access';
+import { renderAgentMarkdown } from '@/lib/markdown-safe';
+
+export const prerender = false;
+
+const env = Astro.locals.runtime.env;
+const authError = await requireAdmin(Astro.request, env.ADMIN_EMAIL, env.ADMIN_TOKEN);
+if (authError) return authError;
+
+const slug = Astro.params.slug;
+if (!slug) return new Response('Not found', { status: 404 });
+
+const db = getDB(Astro.locals);
+
+// Fetch draft detail
+const draft = await queryFirst<{
+  id: number;
+  slug: string;
+  title: string;
+  description: string;
+  body_md: string;
+  tags: string;
+  cover: string | null;
+  status: string;
+  source: string;
+  published_at: number | null;
+  created_at: number;
+}>(db, `SELECT id, slug, title, description, body_md, tags, cover, status, source, published_at, created_at FROM posts WHERE slug = ?`, [slug]);
+
+if (!draft) return new Response('Not found', { status: 404 });
+
+// If already published, redirect to live page
+if (draft.status === 'published') {
+  return Astro.redirect(`/cerita/d/${slug}`);
+}
+
+// Render markdown preview
+const { html: renderedHtml, linkWarnings } = await renderAgentMarkdown(draft.body_md);
+
+// Parse tags
+let parsedTags: string[] = [];
+try { parsedTags = JSON.parse(draft.tags || '[]'); } catch { parsedTags = []; }
+
+// Quality warnings (same heuristics as queue page)
+const TAG_WHITELIST = ['produk', 'teknis', 'karier', 'catatan', 'eksperimen'];
+const URL_REGEX = /https?:\/\/[^\s)]+/g;
+const BLACKLIST_WORDS = ['casino', 'viagra', 'crypto-pump', 'click here'];
+
+const warnings: string[] = [];
+if (parsedTags.some(t => !TAG_WHITELIST.includes(t))) warnings.push('Tag tidak dalam whitelist');
+const urlCount = (draft.body_md.match(URL_REGEX) || []).length;
+if (urlCount > 10) warnings.push(`Body mengandung ${urlCount} URL (maks rekomendasi: 10)`);
+const lower = draft.body_md.toLowerCase();
+const foundBlacklist = BLACKLIST_WORDS.filter(w => lower.includes(w));
+if (foundBlacklist.length > 0) warnings.push(`Kata terlarang: ${foundBlacklist.join(', ')}`);
+const lines = draft.body_md.split('\n').filter(l => l.trim().length > 0);
+const freq = new Map<string, number>();
+for (const line of lines) { freq.set(line, (freq.get(line) || 0) + 1); }
+if ([...freq.values()].some(c => c > 3)) warnings.push('Konten repetitif terdeteksi');
+if (linkWarnings.length > 0) warnings.push(`${linkWarnings.length} gambar dari domain tidak diizinkan`);
+
+// Get pending count for sidebar badge
+const pendingResult = await queryFirst<{ cnt: number }>(db, `SELECT COUNT(*) as cnt FROM posts WHERE status = 'draft' AND source != 'manual'`);
+const pendingCount = pendingResult?.cnt ?? 0;
+
+// Format date
+function formatDate(ms: number): string {
+  return new Date(ms).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+}
+---
+
+<AdminLayout title={`Review: ${draft.title}`} active="review" reviewCount={pendingCount}>
+  <span class="eyebrow">Admin · Review</span>
+  <a href="/admin/review" class="back-link">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="back-icon"><polyline points="15 18 9 12 15 6"/></svg>
+    Kembali ke Queue
+  </a>
+
+  <!-- Draft Banner -->
+  <div class="draft-banner">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="banner-icon"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+    <span>DRAFT — belum publik</span>
+  </div>
+
+  <!-- Metadata -->
+  <div class="meta-section">
+    <h1 class="draft-title">{draft.title}</h1>
+    <p class="draft-desc">{draft.description}</p>
+    <div class="meta-row">
+      <div class="meta-item">
+        <span class="meta-label">Agent</span>
+        <span class="meta-value"><code>{draft.source}</code></span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Submitted</span>
+        <span class="meta-value">{formatDate(draft.created_at)}</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Body</span>
+        <span class="meta-value">{draft.body_md.length.toLocaleString()} char</span>
+      </div>
+      {parsedTags.length > 0 && (
+        <div class="meta-item">
+          <span class="meta-label">Tags</span>
+          <span class="meta-value tags-list">
+            {parsedTags.map(t => <span class="tag">{t}</span>)}
+          </span>
+        </div>
+      )}
+    </div>
+
+    {warnings.length > 0 && (
+      <div class="warnings-section">
+        <h4>⚠ Quality Warnings ({warnings.length})</h4>
+        <ul>
+          {warnings.map(w => <li>{w}</li>)}
+        </ul>
+      </div>
+    )}
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="actions-bar" id="actions-bar">
+    <button class="btn btn-approve" id="btn-approve">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon"><polyline points="20 6 9 17 4 12"/></svg>
+      Approve
+    </button>
+    <button class="btn btn-edit" id="btn-edit">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      Edit
+    </button>
+    <button class="btn btn-reject" id="btn-reject">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      Reject
+    </button>
+  </div>
+
+  <!-- Preview Section -->
+  <div class="preview-section" id="preview-section">
+    <h2 class="section-title">Preview</h2>
+    <article class="prose" set:html={renderedHtml} />
+  </div>
+
+  <!-- Edit Form (hidden by default) -->
+  <div class="edit-section" id="edit-section" hidden>
+    <h2 class="section-title">Edit Draft</h2>
+    <form id="edit-form" class="edit-form">
+      <div class="form-group">
+        <label for="edit-title">Title</label>
+        <input type="text" id="edit-title" name="title" value={draft.title} maxlength="200" required />
+      </div>
+      <div class="form-group">
+        <label for="edit-description">Description</label>
+        <textarea id="edit-description" name="description" rows="2" maxlength="500" required>{draft.description}</textarea>
+      </div>
+      <div class="form-group">
+        <label for="edit-body">Body (Markdown)</label>
+        <textarea id="edit-body" name="body_md" rows="16" required>{draft.body_md}</textarea>
+      </div>
+      <div class="form-group">
+        <label for="edit-tags">Tags <span class="hint">(comma-separated: produk, teknis, karier, catatan, eksperimen)</span></label>
+        <input type="text" id="edit-tags" name="tags" value={parsedTags.join(', ')} />
+      </div>
+      <div class="edit-actions">
+        <button type="button" class="btn btn-ghost" id="btn-cancel-edit">Batal</button>
+        <button type="submit" class="btn btn-save" id="btn-save" data-action="save">Save</button>
+        <button type="button" class="btn btn-approve" id="btn-save-publish" data-action="save-publish">Save & Publish</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Reject Modal -->
+  <div class="modal-backdrop" id="reject-modal" hidden>
+    <div class="modal modal-sm" role="dialog" aria-labelledby="reject-modal-title" aria-modal="true">
+      <div class="modal-header">
+        <h3 id="reject-modal-title">Reject Draft</h3>
+        <button class="modal-close" id="reject-modal-close" aria-label="Tutup">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p>Yakin ingin reject draft <strong>{draft.title}</strong>?</p>
+        <p class="muted-text">Draft akan dihapus permanen dan tidak bisa dikembalikan.</p>
+        <div class="form-group">
+          <label for="reject-reason">Alasan <span class="hint">(opsional, untuk feedback ke agent)</span></label>
+          <textarea id="reject-reason" rows="3" placeholder="e.g. Konten tidak sesuai voice, perlu revisi..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" id="reject-cancel-btn">Batal</button>
+        <button class="btn btn-reject-confirm" id="reject-confirm-btn">Reject Draft</button>
+      </div>
+    </div>
+  </div>
+</AdminLayout>
+
+<script is:inline define:vars={{ slug }}>
+(function() {
+  const actionsBar = document.getElementById('actions-bar');
+  const previewSection = document.getElementById('preview-section');
+  const editSection = document.getElementById('edit-section');
+  const rejectModal = document.getElementById('reject-modal');
+
+  function getAdminToken() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('admin_token') || '';
+  }
+
+  function showToast(message, type) {
+    const region = document.getElementById('toasts');
+    if (!region) return;
+    const toast = document.createElement('div');
+    toast.className = 'toast toast-' + (type || 'info');
+    toast.textContent = message;
+    region.appendChild(toast);
+    setTimeout(() => { toast.classList.add('fade-out'); }, 3000);
+    setTimeout(() => { toast.remove(); }, 3500);
+  }
+
+  async function patchDraft(body) {
+    const adminToken = getAdminToken();
+    const url = '/api/admin/review/' + encodeURIComponent(slug) + (adminToken ? '?admin_token=' + adminToken : '');
+    const res = await fetch(url, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Admin-Token': adminToken,
+      },
+      body: JSON.stringify(body),
+    });
+    return { res, data: await res.json() };
+  }
+
+  // Approve
+  document.getElementById('btn-approve').addEventListener('click', async () => {
+    const btn = document.getElementById('btn-approve');
+    btn.disabled = true;
+    btn.textContent = 'Approving...';
+    try {
+      const { res, data } = await patchDraft({ action: 'approve' });
+      if (res.ok && data.url) {
+        showToast('Draft approved! Redirecting...', 'success');
+        setTimeout(() => { window.location.href = data.url; }, 800);
+      } else {
+        showToast(data.error || 'Gagal approve', 'error');
+        btn.disabled = false;
+        btn.textContent = 'Approve';
+      }
+    } catch (err) {
+      showToast('Network error: ' + err.message, 'error');
+      btn.disabled = false;
+      btn.textContent = 'Approve';
+    }
+  });
+
+  // Edit mode toggle
+  document.getElementById('btn-edit').addEventListener('click', () => {
+    previewSection.hidden = true;
+    editSection.hidden = false;
+    actionsBar.hidden = true;
+  });
+
+  document.getElementById('btn-cancel-edit').addEventListener('click', () => {
+    previewSection.hidden = false;
+    editSection.hidden = true;
+    actionsBar.hidden = false;
+  });
+
+  // Save (edit only)
+  document.getElementById('edit-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    await handleSave(false);
+  });
+
+  // Save & Publish
+  document.getElementById('btn-save-publish').addEventListener('click', async () => {
+    await handleSave(true);
+  });
+
+  async function handleSave(andPublish) {
+    const title = document.getElementById('edit-title').value.trim();
+    const description = document.getElementById('edit-description').value.trim();
+    const body_md = document.getElementById('edit-body').value;
+    const tagsRaw = document.getElementById('edit-tags').value.trim();
+    const tags = tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(Boolean) : [];
+
+    if (!title || !description || !body_md) {
+      showToast('Title, description, dan body wajib diisi', 'error');
+      return;
+    }
+
+    const saveBtn = andPublish ? document.getElementById('btn-save-publish') : document.getElementById('btn-save');
+    saveBtn.disabled = true;
+    saveBtn.textContent = andPublish ? 'Publishing...' : 'Saving...';
+
+    try {
+      // First, save the edits
+      const { res, data } = await patchDraft({
+        action: 'edit',
+        updates: { title, description, body_md, tags },
+      });
+
+      if (!res.ok) {
+        showToast(data.error || 'Gagal menyimpan', 'error');
+        saveBtn.disabled = false;
+        saveBtn.textContent = andPublish ? 'Save & Publish' : 'Save';
+        return;
+      }
+
+      if (andPublish) {
+        // Then approve
+        const { res: approveRes, data: approveData } = await patchDraft({ action: 'approve' });
+        if (approveRes.ok && approveData.url) {
+          showToast('Saved & published! Redirecting...', 'success');
+          setTimeout(() => { window.location.href = approveData.url; }, 800);
+        } else {
+          showToast(approveData.error || 'Saved but failed to publish', 'error');
+          saveBtn.disabled = false;
+          saveBtn.textContent = 'Save & Publish';
+        }
+      } else {
+        showToast('Draft berhasil disimpan', 'success');
+        setTimeout(() => { window.location.reload(); }, 1000);
+      }
+    } catch (err) {
+      showToast('Network error: ' + err.message, 'error');
+      saveBtn.disabled = false;
+      saveBtn.textContent = andPublish ? 'Save & Publish' : 'Save';
+    }
+  }
+
+  // Reject modal
+  document.getElementById('btn-reject').addEventListener('click', () => {
+    rejectModal.hidden = false;
+    document.body.style.overflow = 'hidden';
+  });
+
+  function closeRejectModal() {
+    rejectModal.hidden = true;
+    document.body.style.overflow = '';
+  }
+
+  document.getElementById('reject-modal-close').addEventListener('click', closeRejectModal);
+  document.getElementById('reject-cancel-btn').addEventListener('click', closeRejectModal);
+  rejectModal.addEventListener('click', (e) => {
+    if (e.target === rejectModal) closeRejectModal();
+  });
+
+  document.getElementById('reject-confirm-btn').addEventListener('click', async () => {
+    const reason = document.getElementById('reject-reason').value.trim();
+    const btn = document.getElementById('reject-confirm-btn');
+    btn.disabled = true;
+    btn.textContent = 'Rejecting...';
+
+    try {
+      const { res, data } = await patchDraft({ action: 'reject', reason: reason || undefined });
+      if (res.ok) {
+        showToast('Draft rejected. Redirecting...', 'success');
+        closeRejectModal();
+        setTimeout(() => { window.location.href = '/admin/review'; }, 800);
+      } else {
+        showToast(data.error || 'Gagal reject', 'error');
+        btn.disabled = false;
+        btn.textContent = 'Reject Draft';
+      }
+    } catch (err) {
+      showToast('Network error: ' + err.message, 'error');
+      btn.disabled = false;
+      btn.textContent = 'Reject Draft';
+    }
+  });
+
+  // Keyboard: Escape closes modal
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !rejectModal.hidden) {
+      closeRejectModal();
+    }
+  });
+})();
+</script>
+
+<style>
+  h1 { margin: 4px 0 4px; font-size: 32px; }
+  .eyebrow { font-weight: 700; letter-spacing: .14em; text-transform: uppercase; font-size: 12px; color: var(--accent); }
+
+  .back-link { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; color: var(--ink-2); text-decoration: none; margin: 12px 0 16px; transition: color 200ms; }
+  .back-link:hover { color: var(--ink); }
+  .back-icon { width: 16px; height: 16px; }
+
+  /* Draft Banner */
+  .draft-banner { display: flex; align-items: center; gap: 10px; background: rgba(181,129,5,.1); border: 1px solid rgba(181,129,5,.3); border-radius: 10px; padding: 12px 18px; margin-bottom: 24px; font-size: 14px; font-weight: 700; color: var(--warn, #b58105); letter-spacing: .04em; }
+  .banner-icon { width: 20px; height: 20px; flex-shrink: 0; }
+
+  /* Metadata */
+  .meta-section { margin-bottom: 24px; }
+  .draft-title { font-size: 28px; margin: 0 0 8px; line-height: 1.3; }
+  .draft-desc { color: var(--ink-2); font-size: 15px; margin: 0 0 16px; }
+  .meta-row { display: flex; flex-wrap: wrap; gap: 20px; padding: 16px 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+  .meta-item { display: flex; flex-direction: column; gap: 4px; }
+  .meta-label { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+  .meta-value { font-size: 14px; color: var(--ink); }
+  .meta-value code { font-family: var(--font-mono, 'JetBrains Mono', monospace); font-size: 13px; background: var(--bg-2); padding: 2px 8px; border-radius: 4px; }
+  .tags-list { display: flex; gap: 6px; flex-wrap: wrap; }
+  .tag { display: inline-flex; font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 999px; background: var(--bg-2); color: var(--ink-2); }
+
+  /* Warnings */
+  .warnings-section { margin-top: 16px; background: rgba(185,28,28,.06); border: 1px solid rgba(185,28,28,.15); border-radius: 10px; padding: 14px 18px; }
+  .warnings-section h4 { margin: 0 0 8px; font-size: 14px; color: var(--danger); }
+  .warnings-section ul { margin: 0; padding-left: 20px; font-size: 13px; color: var(--ink-2); }
+  .warnings-section li { margin-bottom: 4px; }
+
+  /* Actions Bar */
+  .actions-bar { display: flex; gap: 12px; margin-bottom: 28px; flex-wrap: wrap; }
+
+  /* Buttons */
+  .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; border-radius: 10px; font-size: 14px; font-weight: 600; border: 1px solid transparent; cursor: pointer; transition: transform 200ms, background 200ms, opacity 200ms; min-height: 44px; text-decoration: none; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-icon { width: 16px; height: 16px; }
+  .btn-approve { background: var(--ok, #2f7d56); color: #fff; }
+  .btn-approve:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
+  .btn-edit { background: var(--accent, #3b82f6); color: #fff; }
+  .btn-edit:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
+  .btn-reject { background: transparent; color: var(--danger, #b91c1c); border: 1px solid var(--danger, #b91c1c); }
+  .btn-reject:hover:not(:disabled) { background: var(--danger, #b91c1c); color: #fff; }
+  .btn-ghost { background: transparent; color: var(--ink-2); border-color: var(--rule); }
+  .btn-ghost:hover { background: var(--bg-2); }
+  .btn-save { background: var(--ink); color: var(--bg); }
+  .btn-save:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
+  .btn-reject-confirm { background: var(--danger, #b91c1c); color: #fff; }
+  .btn-reject-confirm:hover:not(:disabled) { opacity: 0.9; }
+
+  /* Preview */
+  .section-title { font-size: 18px; margin: 0 0 16px; padding-bottom: 12px; border-bottom: 1px solid var(--rule); }
+  .preview-section { background: var(--paper); border: 1px solid var(--rule); border-radius: 14px; padding: 28px 32px; }
+  .prose { font-size: 16px; line-height: 1.75; color: var(--ink); }
+  .prose :global(h2) { font-size: 24px; margin: 32px 0 12px; font-weight: 700; }
+  .prose :global(h3) { font-size: 20px; margin: 24px 0 10px; font-weight: 600; }
+  .prose :global(h4) { font-size: 17px; margin: 20px 0 8px; font-weight: 600; }
+  .prose :global(p) { margin: 0 0 16px; }
+  .prose :global(a) { color: var(--accent); text-decoration: underline; }
+  .prose :global(code) { font-family: var(--font-mono, 'JetBrains Mono', monospace); font-size: 0.9em; background: var(--bg-2); padding: 2px 6px; border-radius: 4px; }
+  .prose :global(pre) { background: var(--bg-2); border: 1px solid var(--rule); border-radius: 8px; padding: 16px; overflow-x: auto; margin: 16px 0; }
+  .prose :global(pre code) { background: none; padding: 0; }
+  .prose :global(blockquote) { border-left: 3px solid var(--accent); padding-left: 16px; margin: 16px 0; color: var(--ink-2); font-style: italic; }
+  .prose :global(ul), .prose :global(ol) { margin: 0 0 16px; padding-left: 24px; }
+  .prose :global(li) { margin-bottom: 6px; }
+  .prose :global(img) { max-width: 100%; border-radius: 8px; margin: 16px 0; }
+  .prose :global(hr) { border: none; border-top: 1px solid var(--rule); margin: 24px 0; }
+
+  /* Edit Form */
+  .edit-section { background: var(--paper); border: 1px solid var(--rule); border-radius: 14px; padding: 28px 32px; }
+  .edit-form { display: flex; flex-direction: column; gap: 18px; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-group label { font-size: 13px; font-weight: 600; color: var(--ink); }
+  .form-group .hint { font-weight: 400; color: var(--ink-3); font-size: 12px; }
+  .form-group input, .form-group textarea { padding: 10px 14px; border: 1px solid var(--rule); border-radius: 8px; background: var(--bg); font-size: 14px; font-family: inherit; transition: border-color 200ms; resize: vertical; }
+  .form-group input:focus, .form-group textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(194,65,12,.1); }
+  .form-group textarea[name="body_md"] { font-family: var(--font-mono, 'JetBrains Mono', monospace); font-size: 13px; line-height: 1.6; }
+  .edit-actions { display: flex; gap: 12px; padding-top: 8px; flex-wrap: wrap; }
+
+  /* Modal */
+  .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.5); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 24px; }
+  .modal { background: var(--paper); border-radius: 16px; width: 100%; max-width: 480px; box-shadow: 0 24px 48px -12px rgba(0,0,0,.25); animation: modal-in 200ms ease-out; }
+  .modal.modal-sm { max-width: 420px; }
+  @keyframes modal-in { from { opacity: 0; transform: scale(0.95) translateY(8px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+  .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px 0; }
+  .modal-header h3 { font-size: 18px; margin: 0; }
+  .modal-close { font-size: 24px; width: 36px; height: 36px; display: grid; place-items: center; border-radius: 8px; color: var(--ink-3); background: none; border: none; cursor: pointer; }
+  .modal-close:hover { background: var(--bg-2); color: var(--ink); }
+  .modal-body { padding: 20px 24px; }
+  .modal-body p { margin: 0 0 12px; font-size: 14.5px; color: var(--ink-2); }
+  .modal-body .muted-text { font-size: 13px; color: var(--ink-3); }
+  .modal-footer { padding: 16px 24px 20px; display: flex; justify-content: flex-end; gap: 10px; }
+
+  /* Toast */
+  :global(.toast) { padding: 12px 20px; border-radius: 10px; font-size: 14px; font-weight: 500; color: #fff; animation: toast-in 200ms ease-out; }
+  :global(.toast-success) { background: var(--ok); }
+  :global(.toast-error) { background: var(--danger); }
+  :global(.toast-info) { background: var(--ink); }
+  :global(.toast.fade-out) { opacity: 0; transition: opacity 300ms; }
+  @keyframes toast-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  @media (max-width: 600px) {
+    .preview-section, .edit-section { padding: 20px 16px; }
+    .draft-title { font-size: 22px; }
+    .meta-row { gap: 12px; }
+    .actions-bar { flex-direction: column; }
+    .actions-bar .btn { width: 100%; justify-content: center; }
+  }
+</style>

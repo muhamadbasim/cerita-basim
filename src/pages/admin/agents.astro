@@ -1,0 +1,504 @@
+---
+import AdminLayout from '@/components/layout/AdminLayout.astro';
+import { getDB, queryAll } from '@/lib/db';
+import { requireAdmin } from '@/lib/access';
+
+export const prerender = false;
+
+const env = Astro.locals.runtime.env;
+const authError = await requireAdmin(Astro.request, env.ADMIN_EMAIL, env.ADMIN_TOKEN);
+if (authError) return authError;
+
+const db = getDB(Astro.locals);
+
+// Fetch agents with stats (same query as GET /api/admin/agents)
+const agents = await queryAll<{
+  agent_id: string;
+  display_name: string;
+  created_at: number;
+  last_used_at: number | null;
+  revoked_at: number | null;
+  total_submitted: number;
+  total_approved: number;
+  total_rejected: number;
+  total_edited_before_approve: number;
+}>(db, `
+  SELECT
+    a.agent_id,
+    a.display_name,
+    a.created_at,
+    a.last_used_at,
+    a.revoked_at,
+    COALESCE(s.total_submitted, 0) AS total_submitted,
+    COALESCE(s.total_approved, 0) AS total_approved,
+    COALESCE(s.total_rejected, 0) AS total_rejected,
+    COALESCE(s.total_edited_before_approve, 0) AS total_edited_before_approve
+  FROM agents a
+  LEFT JOIN agent_stats s ON a.agent_id = s.agent_id
+  ORDER BY a.created_at DESC
+`);
+
+// Compute trust ratio for each agent
+const agentsWithTrust = agents.map(agent => ({
+  ...agent,
+  trust_ratio: agent.total_submitted > 0
+    ? agent.total_approved / agent.total_submitted
+    : 0,
+  status: agent.revoked_at ? 'revoked' : 'active',
+}));
+---
+
+<AdminLayout title="Agents" active="agents">
+  <span class="eyebrow">Admin · Agent Management</span>
+  <h1>Token Management</h1>
+  <p class="muted">Kelola agent token untuk AI assistant yang mengirim draft konten.</p>
+
+  <!-- Create Agent Form -->
+  <section class="create-section">
+    <h2>Buat Agent Baru</h2>
+    <form id="create-agent-form" class="create-form">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="agent_id">Agent ID</label>
+          <input type="text" id="agent_id" name="agent_id" placeholder="e.g. openclaw" required />
+          <span class="hint">Identifier unik, lowercase, tanpa spasi</span>
+        </div>
+        <div class="form-group">
+          <label for="display_name">Display Name</label>
+          <input type="text" id="display_name" name="display_name" placeholder="e.g. OpenClaw AI" required />
+          <span class="hint">Nama tampilan di review queue</span>
+        </div>
+        <div class="form-group">
+          <label for="notes">Notes <span class="optional">(opsional)</span></label>
+          <input type="text" id="notes" name="notes" placeholder="e.g. Agent untuk konten teknis" />
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary" id="create-btn">
+        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Buat Agent
+      </button>
+    </form>
+  </section>
+
+  <!-- Agents Table -->
+  <section class="table-section">
+    <h2>Registered Agents <span class="count-badge">{agentsWithTrust.length}</span></h2>
+    {agentsWithTrust.length === 0 ? (
+      <div class="empty-state">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="empty-icon">
+          <path d="M12 2a4 4 0 0 1 4 4v2a4 4 0 0 1-8 0V6a4 4 0 0 1 4-4z"/>
+          <path d="M16 14H8a4 4 0 0 0-4 4v2h16v-2a4 4 0 0 0-4-4z"/>
+        </svg>
+        <p>Belum ada agent terdaftar.</p>
+        <p class="hint">Buat agent baru di form di atas untuk mulai.</p>
+      </div>
+    ) : (
+      <div class="table-wrapper">
+        <table class="agents-table">
+          <thead>
+            <tr>
+              <th>Agent ID</th>
+              <th>Display Name</th>
+              <th>Created</th>
+              <th>Last Used</th>
+              <th>Status</th>
+              <th>Trust</th>
+              <th>Stats</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            {agentsWithTrust.map(agent => (
+              <tr class:list={[{ revoked: agent.status === 'revoked' }]} data-agent-id={agent.agent_id}>
+                <td class="cell-id">
+                  <code>{agent.agent_id}</code>
+                </td>
+                <td>{agent.display_name}</td>
+                <td class="cell-date">{new Date(agent.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
+                <td class="cell-date">
+                  {agent.last_used_at
+                    ? new Date(agent.last_used_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })
+                    : <span class="muted-text">—</span>
+                  }
+                </td>
+                <td>
+                  {agent.status === 'active'
+                    ? <span class="status-badge active">Active</span>
+                    : <span class="status-badge revoked">Revoked</span>
+                  }
+                </td>
+                <td>
+                  {agent.total_submitted > 0 ? (
+                    <span class:list={['trust-ratio', { trusted: agent.trust_ratio >= 0.8 && agent.total_approved >= 3 }]}>
+                      {(agent.trust_ratio * 100).toFixed(0)}%
+                    </span>
+                  ) : (
+                    <span class="muted-text">—</span>
+                  )}
+                </td>
+                <td class="cell-stats">
+                  <span title="Submitted">{agent.total_submitted} sub</span>
+                  <span title="Approved" class="stat-ok">{agent.total_approved} ok</span>
+                  <span title="Rejected" class="stat-rej">{agent.total_rejected} rej</span>
+                </td>
+                <td>
+                  {agent.status === 'active' && (
+                    <button
+                      class="btn btn-danger-sm revoke-btn"
+                      data-agent-id={agent.agent_id}
+                      data-agent-name={agent.display_name}
+                    >
+                      Revoke
+                    </button>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    )}
+  </section>
+
+  <!-- Token Modal (shown once after create) -->
+  <div class="modal-backdrop" id="token-modal" hidden>
+    <div class="modal" role="dialog" aria-labelledby="modal-title" aria-modal="true">
+      <div class="modal-header">
+        <h3 id="modal-title">Agent Token Created</h3>
+        <button class="modal-close" id="modal-close-btn" aria-label="Tutup">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="warning-banner">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="warning-icon">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+          <strong>Token hanya muncul sekali!</strong>
+          <p>Simpan token ini sekarang. Setelah modal ditutup, token tidak bisa ditampilkan lagi.</p>
+        </div>
+        <div class="token-display">
+          <label>Agent ID</label>
+          <code id="modal-agent-id"></code>
+          <label>Token</label>
+          <div class="token-value-row">
+            <code id="modal-token-value" class="token-value"></code>
+            <button class="btn btn-copy" id="copy-token-btn" title="Copy token">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="copy-icon">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+              </svg>
+              <span id="copy-text">Copy</span>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" id="modal-done-btn">Sudah disimpan</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Revoke Confirmation Modal -->
+  <div class="modal-backdrop" id="revoke-modal" hidden>
+    <div class="modal modal-sm" role="dialog" aria-labelledby="revoke-modal-title" aria-modal="true">
+      <div class="modal-header">
+        <h3 id="revoke-modal-title">Revoke Agent Token</h3>
+        <button class="modal-close" id="revoke-modal-close" aria-label="Tutup">×</button>
+      </div>
+      <div class="modal-body">
+        <p>Yakin ingin revoke token untuk <strong id="revoke-agent-name"></strong>?</p>
+        <p class="muted-text">Agent tidak akan bisa submit draft lagi setelah di-revoke.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" id="revoke-cancel-btn">Batal</button>
+        <button class="btn btn-danger" id="revoke-confirm-btn">Revoke</button>
+      </div>
+    </div>
+  </div>
+</AdminLayout>
+
+<script is:inline>
+(function() {
+  const form = document.getElementById('create-agent-form');
+  const createBtn = document.getElementById('create-btn');
+  const tokenModal = document.getElementById('token-modal');
+  const revokeModal = document.getElementById('revoke-modal');
+
+  // Get admin token from URL or cookie for API calls
+  function getAdminToken() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('admin_token') || '';
+  }
+
+  // Create Agent
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const agentId = document.getElementById('agent_id').value.trim();
+    const displayName = document.getElementById('display_name').value.trim();
+    const notes = document.getElementById('notes').value.trim();
+
+    if (!agentId || !displayName) return;
+
+    createBtn.disabled = true;
+    createBtn.textContent = 'Creating...';
+
+    try {
+      const adminToken = getAdminToken();
+      const res = await fetch('/api/admin/agents' + (adminToken ? '?admin_token=' + adminToken : ''), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Admin-Token': adminToken,
+        },
+        body: JSON.stringify({ agent_id: agentId, display_name: displayName, notes: notes || undefined }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        const msg = data.fields
+          ? Object.values(data.fields).join(', ')
+          : data.error || 'Gagal membuat agent';
+        showToast(msg, 'error');
+        return;
+      }
+
+      // Show token modal
+      document.getElementById('modal-agent-id').textContent = data.agent_id;
+      document.getElementById('modal-token-value').textContent = data.token;
+      tokenModal.hidden = false;
+      document.body.style.overflow = 'hidden';
+
+      // Reset form
+      form.reset();
+    } catch (err) {
+      showToast('Network error: ' + err.message, 'error');
+    } finally {
+      createBtn.disabled = false;
+      createBtn.innerHTML = '<svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Buat Agent';
+    }
+  });
+
+  // Copy token
+  document.getElementById('copy-token-btn').addEventListener('click', async () => {
+    const token = document.getElementById('modal-token-value').textContent;
+    try {
+      await navigator.clipboard.writeText(token);
+      document.getElementById('copy-text').textContent = 'Copied!';
+      setTimeout(() => { document.getElementById('copy-text').textContent = 'Copy'; }, 2000);
+    } catch {
+      // Fallback: select text
+      const range = document.createRange();
+      range.selectNodeContents(document.getElementById('modal-token-value'));
+      window.getSelection().removeAllRanges();
+      window.getSelection().addRange(range);
+      showToast('Tekan Ctrl+C untuk copy', 'info');
+    }
+  });
+
+  // Close token modal
+  function closeTokenModal() {
+    tokenModal.hidden = true;
+    document.body.style.overflow = '';
+    // Reload to show new agent in table
+    window.location.reload();
+  }
+  document.getElementById('modal-close-btn').addEventListener('click', closeTokenModal);
+  document.getElementById('modal-done-btn').addEventListener('click', closeTokenModal);
+  tokenModal.addEventListener('click', (e) => {
+    if (e.target === tokenModal) closeTokenModal();
+  });
+
+  // Revoke flow
+  let revokeTargetId = '';
+
+  document.querySelectorAll('.revoke-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      revokeTargetId = btn.dataset.agentId;
+      document.getElementById('revoke-agent-name').textContent = btn.dataset.agentName + ' (' + revokeTargetId + ')';
+      revokeModal.hidden = false;
+      document.body.style.overflow = 'hidden';
+    });
+  });
+
+  function closeRevokeModal() {
+    revokeModal.hidden = true;
+    document.body.style.overflow = '';
+    revokeTargetId = '';
+  }
+  document.getElementById('revoke-modal-close').addEventListener('click', closeRevokeModal);
+  document.getElementById('revoke-cancel-btn').addEventListener('click', closeRevokeModal);
+  revokeModal.addEventListener('click', (e) => {
+    if (e.target === revokeModal) closeRevokeModal();
+  });
+
+  document.getElementById('revoke-confirm-btn').addEventListener('click', async () => {
+    if (!revokeTargetId) return;
+    const confirmBtn = document.getElementById('revoke-confirm-btn');
+    confirmBtn.disabled = true;
+    confirmBtn.textContent = 'Revoking...';
+
+    try {
+      const adminToken = getAdminToken();
+      const res = await fetch('/api/admin/agents/' + encodeURIComponent(revokeTargetId) + (adminToken ? '?admin_token=' + adminToken : ''), {
+        method: 'DELETE',
+        headers: { 'X-Admin-Token': adminToken },
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        showToast(data.error || 'Gagal revoke agent', 'error');
+        return;
+      }
+
+      showToast('Agent ' + revokeTargetId + ' berhasil di-revoke', 'success');
+      closeRevokeModal();
+      // Update UI: mark row as revoked
+      const row = document.querySelector('tr[data-agent-id="' + revokeTargetId + '"]');
+      if (row) {
+        row.classList.add('revoked');
+        const statusCell = row.querySelector('.status-badge');
+        if (statusCell) {
+          statusCell.className = 'status-badge revoked';
+          statusCell.textContent = 'Revoked';
+        }
+        const actionCell = row.querySelector('.revoke-btn');
+        if (actionCell) actionCell.remove();
+      }
+    } catch (err) {
+      showToast('Network error: ' + err.message, 'error');
+    } finally {
+      confirmBtn.disabled = false;
+      confirmBtn.textContent = 'Revoke';
+    }
+  });
+
+  // Keyboard: Escape closes modals
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      if (!tokenModal.hidden) closeTokenModal();
+      if (!revokeModal.hidden) closeRevokeModal();
+    }
+  });
+
+  // Toast helper
+  function showToast(message, type) {
+    const region = document.getElementById('toasts');
+    if (!region) return;
+    const toast = document.createElement('div');
+    toast.className = 'toast toast-' + (type || 'info');
+    toast.textContent = message;
+    region.appendChild(toast);
+    setTimeout(() => { toast.classList.add('fade-out'); }, 3000);
+    setTimeout(() => { toast.remove(); }, 3500);
+  }
+})();
+</script>
+
+<style>
+  h1 { margin: 4px 0 4px; font-size: 32px; }
+  .muted { color: var(--ink-2); margin-bottom: 28px; }
+  .eyebrow { font-weight: 700; letter-spacing: .14em; text-transform: uppercase; font-size: 12px; color: var(--accent); }
+
+  /* Create Section */
+  .create-section { margin-bottom: 40px; }
+  .create-section h2 { font-size: 20px; margin: 0 0 16px; }
+  .create-form { background: var(--paper); border: 1px solid var(--rule); border-radius: 14px; padding: 24px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+  @media (max-width: 900px) { .form-row { grid-template-columns: 1fr; } }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-group label { font-size: 13px; font-weight: 600; color: var(--ink); }
+  .form-group .optional { font-weight: 400; color: var(--ink-3); }
+  .form-group input { padding: 10px 14px; border: 1px solid var(--rule); border-radius: 8px; background: var(--bg); font-size: 14px; transition: border-color 200ms; }
+  .form-group input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(194,65,12,.1); }
+  .form-group .hint { font-size: 11.5px; color: var(--ink-3); }
+
+  /* Table Section */
+  .table-section h2 { font-size: 20px; margin: 0 0 16px; display: flex; align-items: center; gap: 10px; }
+  .count-badge { background: var(--bg-2); color: var(--ink-2); font-size: 13px; font-weight: 600; padding: 2px 10px; border-radius: 999px; }
+  .table-wrapper { overflow-x: auto; border: 1px solid var(--rule); border-radius: 14px; background: var(--paper); }
+  .agents-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .agents-table th { text-align: left; padding: 14px 16px; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); border-bottom: 1px solid var(--rule); background: var(--bg-2); }
+  .agents-table th:first-child { border-radius: 14px 0 0 0; }
+  .agents-table th:last-child { border-radius: 0 14px 0 0; }
+  .agents-table td { padding: 14px 16px; border-bottom: 1px solid var(--rule); vertical-align: middle; }
+  .agents-table tr:last-child td { border-bottom: none; }
+  .agents-table tr.revoked { opacity: 0.55; }
+  .agents-table tr:hover:not(.revoked) { background: var(--bg-2); }
+  .cell-id code { font-family: var(--font-mono, 'JetBrains Mono', monospace); font-size: 13px; background: var(--bg-2); padding: 2px 8px; border-radius: 4px; }
+  .cell-date { font-size: 13px; color: var(--ink-2); white-space: nowrap; }
+  .cell-stats { font-size: 12px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .cell-stats span { white-space: nowrap; }
+  .stat-ok { color: var(--ok); }
+  .stat-rej { color: var(--danger); }
+
+  /* Status Badge */
+  .status-badge { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+  .status-badge.active { background: rgba(47,125,86,.12); color: var(--ok); }
+  .status-badge.revoked { background: rgba(185,28,28,.1); color: var(--danger); }
+
+  /* Trust Ratio */
+  .trust-ratio { font-weight: 600; font-size: 13px; }
+  .trust-ratio.trusted { color: var(--ok); }
+  .trust-ratio.trusted::after { content: ' ✓'; font-size: 11px; }
+
+  /* Buttons */
+  .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; border-radius: 10px; font-size: 14px; font-weight: 600; border: 1px solid transparent; cursor: pointer; transition: transform 200ms, background 200ms, opacity 200ms; min-height: 44px; text-decoration: none; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-primary { background: var(--ink); color: var(--bg); }
+  .btn-primary:hover:not(:disabled) { transform: translateY(-1px); opacity: 0.9; }
+  .btn-ghost { background: transparent; color: var(--ink-2); border-color: var(--rule); }
+  .btn-ghost:hover { background: var(--bg-2); }
+  .btn-danger { background: var(--danger); color: #fff; }
+  .btn-danger:hover:not(:disabled) { opacity: 0.9; }
+  .btn-danger-sm { padding: 6px 12px; font-size: 12px; border-radius: 8px; background: transparent; color: var(--danger); border: 1px solid var(--danger); min-height: 32px; }
+  .btn-danger-sm:hover { background: var(--danger); color: #fff; }
+  .btn-icon { width: 16px; height: 16px; }
+  .btn-copy { padding: 6px 12px; font-size: 12px; border-radius: 6px; background: var(--bg-2); border: 1px solid var(--rule); min-height: 32px; }
+  .btn-copy:hover { background: var(--ink); color: var(--bg); }
+  .copy-icon { width: 14px; height: 14px; }
+
+  /* Empty State */
+  .empty-state { text-align: center; padding: 48px 24px; background: var(--paper); border: 1px solid var(--rule); border-radius: 14px; }
+  .empty-icon { width: 48px; height: 48px; color: var(--ink-3); margin-bottom: 12px; }
+  .empty-state p { margin: 4px 0; color: var(--ink-2); }
+  .empty-state .hint { font-size: 13px; color: var(--ink-3); }
+
+  /* Modal */
+  .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.5); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 24px; }
+  .modal { background: var(--paper); border-radius: 16px; width: 100%; max-width: 540px; box-shadow: 0 24px 48px -12px rgba(0,0,0,.25); animation: modal-in 200ms ease-out; }
+  .modal.modal-sm { max-width: 420px; }
+  @keyframes modal-in { from { opacity: 0; transform: scale(0.95) translateY(8px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+  .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px 0; }
+  .modal-header h3 { font-size: 18px; margin: 0; }
+  .modal-close { font-size: 24px; width: 36px; height: 36px; display: grid; place-items: center; border-radius: 8px; color: var(--ink-3); }
+  .modal-close:hover { background: var(--bg-2); color: var(--ink); }
+  .modal-body { padding: 20px 24px; }
+  .modal-body p { margin: 0 0 8px; font-size: 14.5px; color: var(--ink-2); }
+  .modal-footer { padding: 16px 24px 20px; display: flex; justify-content: flex-end; gap: 10px; }
+
+  /* Warning Banner */
+  .warning-banner { background: rgba(181,129,5,.1); border: 1px solid rgba(181,129,5,.3); border-radius: 10px; padding: 14px 16px; margin-bottom: 20px; display: flex; flex-wrap: wrap; align-items: flex-start; gap: 10px; }
+  .warning-icon { width: 20px; height: 20px; color: var(--warn); flex-shrink: 0; margin-top: 1px; }
+  .warning-banner strong { color: var(--warn); font-size: 14px; width: 100%; margin-left: 30px; margin-top: -26px; }
+  .warning-banner p { font-size: 13px; color: var(--ink-2); margin: 0; margin-left: 30px; }
+
+  /* Token Display */
+  .token-display { display: flex; flex-direction: column; gap: 8px; }
+  .token-display label { font-size: 12px; font-weight: 600; color: var(--ink-3); text-transform: uppercase; letter-spacing: .08em; }
+  .token-display code { font-family: var(--font-mono, 'JetBrains Mono', monospace); font-size: 13px; background: var(--bg-2); padding: 8px 12px; border-radius: 8px; display: block; word-break: break-all; }
+  .token-value-row { display: flex; gap: 10px; align-items: flex-start; }
+  .token-value { flex: 1; font-size: 12px !important; line-height: 1.5; }
+
+  /* Muted text */
+  .muted-text { color: var(--ink-3); }
+
+  /* Toast */
+  :global(.toast) { padding: 12px 20px; border-radius: 10px; font-size: 14px; font-weight: 500; color: #fff; animation: toast-in 200ms ease-out; }
+  :global(.toast-success) { background: var(--ok); }
+  :global(.toast-error) { background: var(--danger); }
+  :global(.toast-info) { background: var(--ink); }
+  :global(.toast.fade-out) { opacity: 0; transition: opacity 300ms; }
+  @keyframes toast-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+</style>
