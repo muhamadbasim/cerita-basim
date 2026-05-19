@@ -1,0 +1,161 @@
+---
+import AdminLayout from '@/components/layout/AdminLayout.astro';
+import { getDB, queryAll } from '@/lib/db';
+import { requireAdmin } from '@/lib/access';
+import { decryptEmail } from '@/lib/crypto';
+
+export const prerender = false;
+
+const env = Astro.locals.runtime.env;
+const authError = await requireAdmin(Astro.request, env.ADMIN_EMAIL, env.ADMIN_TOKEN);
+if (authError) return authError;
+
+const db = getDB(Astro.locals);
+
+const subs = await queryAll<{
+  id: number;
+  email: string;
+  status: string;
+  source: string | null;
+  created_at: number;
+  confirmed_at: number | null;
+}>(db, `SELECT id, email, status, source, created_at, confirmed_at FROM subscribers ORDER BY id DESC LIMIT 200`);
+
+function maskEmail(email: string): string {
+  const [local, domain] = email.split('@');
+  if (!domain) return email;
+  const maskedLocal = local.length <= 3 ? local : local.slice(0, 3) + '***';
+  return `${maskedLocal}@${domain}`;
+}
+
+function fmt(ms: number): string {
+  return new Date(ms).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+
+const counts = {
+  total: subs.length,
+  active: subs.filter(s => s.status === 'active').length,
+  unconfirmed: subs.filter(s => s.status === 'unconfirmed').length,
+  unsubscribed: subs.filter(s => s.status === 'unsubscribed').length,
+};
+---
+
+<AdminLayout title="Subscriber" active="subscribers">
+  <span class="eyebrow">Admin · Subscriber</span>
+  <h1>Daftar subscriber</h1>
+  <p class="muted">Total {counts.total} · {counts.active} active · {counts.unconfirmed} unconfirmed · {counts.unsubscribed} unsubscribed.</p>
+
+  <div class="filter-row">
+    <input class="input" id="search" type="search" placeholder="Cari email…" />
+    <button class="filter-pill" data-status="all" aria-pressed="true">Semua</button>
+    <button class="filter-pill" data-status="active" aria-pressed="false">Active</button>
+    <button class="filter-pill" data-status="unconfirmed" aria-pressed="false">Unconfirmed</button>
+    <button class="filter-pill" data-status="unsubscribed" aria-pressed="false">Unsubscribed</button>
+    <button class="btn btn-secondary btn-sm" id="exportBtn" style="margin-left: auto;">Export CSV</button>
+  </div>
+
+  {subs.length === 0 ? (
+    <div class="empty-state">
+      <h3>Belum ada subscriber</h3>
+      <p class="muted">Akan muncul di sini setelah ada yang subscribe.</p>
+    </div>
+  ) : (
+    <table class="data-table" id="tbl">
+      <thead>
+        <tr>
+          <th>Email</th>
+          <th>Status</th>
+          <th>Source</th>
+          <th>Joined</th>
+          <th>Confirmed</th>
+        </tr>
+      </thead>
+      <tbody>
+        {subs.map(s => (
+          <tr data-status={s.status} data-email={s.email.toLowerCase()}>
+            <td><span class="mono">{maskEmail(s.email)}</span></td>
+            <td>
+              {s.status === 'active' && <span class="pill pill-ok">Active</span>}
+              {s.status === 'unconfirmed' && <span class="pill pill-warn">Unconfirmed</span>}
+              {s.status === 'unsubscribed' && <span class="pill">Unsubscribed</span>}
+              {s.status === 'bounced' && <span class="pill pill-danger">Bounced</span>}
+            </td>
+            <td><span class="dim">{s.source ?? '—'}</span></td>
+            <td><span class="dim">{fmt(s.created_at)}</span></td>
+            <td><span class="dim">{s.confirmed_at ? fmt(s.confirmed_at) : '—'}</span></td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  )}
+</AdminLayout>
+
+<script>
+  const search = document.getElementById('search') as HTMLInputElement;
+  const tbl = document.getElementById('tbl');
+  const filterRow = document.querySelector('.filter-row');
+  let activeStatus = 'all';
+
+  function applyFilter() {
+    if (!tbl) return;
+    const q = search?.value.trim().toLowerCase() || '';
+    tbl.querySelectorAll('tbody tr').forEach(row => {
+      const r = row as HTMLElement;
+      const status = r.dataset.status;
+      const email = r.dataset.email || '';
+      const ok = (activeStatus === 'all' || status === activeStatus) && (!q || email.includes(q));
+      r.style.display = ok ? '' : 'none';
+    });
+  }
+
+  filterRow?.querySelectorAll('.filter-pill').forEach(p => {
+    p.addEventListener('click', () => {
+      filterRow.querySelectorAll('.filter-pill').forEach(x => x.setAttribute('aria-pressed', 'false'));
+      p.setAttribute('aria-pressed', 'true');
+      activeStatus = (p as HTMLElement).dataset.status || 'all';
+      applyFilter();
+    });
+  });
+
+  search?.addEventListener('input', applyFilter);
+
+  document.getElementById('exportBtn')?.addEventListener('click', () => {
+    const rows = [['Email', 'Status', 'Source', 'Joined', 'Confirmed']];
+    tbl?.querySelectorAll('tbody tr').forEach(r => {
+      const cells = Array.from((r as HTMLElement).querySelectorAll('td')).map(td => `"${td.textContent?.trim() || ''}"`);
+      rows.push(cells);
+    });
+    const csv = rows.map(r => r.join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `subscribers-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+</script>
+
+<style>
+  h1 { margin: 4px 0 4px; font-size: 32px; }
+  .eyebrow { font-weight: 700; letter-spacing: .14em; text-transform: uppercase; font-size: 12px; color: var(--accent); }
+  .muted { color: var(--ink-2); margin-bottom: 24px; }
+  .filter-row { display: flex; gap: 10px; align-items: center; margin: 24px 0 14px; flex-wrap: wrap; }
+  .input { padding: 11px 14px; min-height: 44px; background: var(--paper); border: 1px solid var(--rule); border-radius: 10px; font-size: 15px; max-width: 320px; flex: 1; }
+  .filter-pill { padding: 8px 16px; border-radius: 999px; font-size: 13.5px; font-weight: 500; background: var(--paper); color: var(--ink-2); border: 1px solid var(--rule); cursor: pointer; min-height: 36px; }
+  .filter-pill[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .btn { display: inline-flex; align-items: center; padding: 8px 14px; border-radius: 10px; font-size: 13px; font-weight: 600; border: 1px solid var(--rule); background: var(--paper); cursor: pointer; min-height: 36px; }
+  .btn:hover { background: var(--bg-2); }
+  .data-table { width: 100%; border-collapse: collapse; font-size: 14px; background: var(--paper); border: 1px solid var(--rule); border-radius: 14px; overflow: hidden; }
+  .data-table th { text-align: left; padding: 14px 16px; font-family: var(--font-display); font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-2); background: var(--bg-2); border-bottom: 1px solid var(--rule); }
+  .data-table td { padding: 14px 16px; border-bottom: 1px solid var(--rule); }
+  .data-table tbody tr:last-child td { border-bottom: 0; }
+  .data-table tbody tr:hover { background: var(--bg-2); }
+  .pill { display: inline-flex; font-size: 12px; font-weight: 600; letter-spacing: .03em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px; background: var(--bg-2); color: var(--ink-2); }
+  .pill-ok { background: #dcefe1; color: var(--ok); }
+  .pill-warn { background: #fde9cf; color: var(--gold); }
+  .pill-danger { background: #fadcd1; color: var(--danger); }
+  .mono { font-family: var(--font-mono); font-size: 13px; }
+  .dim { color: var(--ink-3); font-size: 13px; }
+  .empty-state { text-align: center; padding: 56px 24px; }
+</style>

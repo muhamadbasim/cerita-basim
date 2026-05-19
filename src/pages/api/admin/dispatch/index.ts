@@ -10,7 +10,7 @@ export const prerender = false;
 export async function POST({ request, locals }: APIContext) {
   const env = locals.runtime.env;
 
-  const authError = await requireAdmin(request, env.ADMIN_EMAIL);
+  const authError = await requireAdmin(request, env.ADMIN_EMAIL, env.ADMIN_TOKEN);
   if (authError) return authError;
 
   let body: { post_slug: string; intro?: string };

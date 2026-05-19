@@ -10,7 +10,7 @@ export async function PATCH({ params, request, locals }: APIContext) {
   const env = locals.runtime.env;
 
   // Auth check
-  const authError = await requireAdmin(request, env.ADMIN_EMAIL);
+  const authError = await requireAdmin(request, env.ADMIN_EMAIL, env.ADMIN_TOKEN);
   if (authError) return authError;
 
   const id = params.id;

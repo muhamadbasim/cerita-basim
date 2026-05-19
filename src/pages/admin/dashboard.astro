@@ -1,0 +1,83 @@
+---
+import AdminLayout from '@/components/layout/AdminLayout.astro';
+import { getDB, queryFirst } from '@/lib/db';
+import { requireAdmin } from '@/lib/access';
+
+export const prerender = false;
+
+const env = Astro.locals.runtime.env;
+const authError = await requireAdmin(Astro.request, env.ADMIN_EMAIL, env.ADMIN_TOKEN);
+if (authError) return authError;
+
+const db = getDB(Astro.locals);
+
+const [activeSubs, pending, totalComments, dispatches] = await Promise.all([
+  queryFirst<{ cnt: number }>(db, `SELECT COUNT(*) as cnt FROM subscribers WHERE status = 'active'`),
+  queryFirst<{ cnt: number }>(db, `SELECT COUNT(*) as cnt FROM comments WHERE status = 'pending'`),
+  queryFirst<{ cnt: number }>(db, `SELECT COUNT(*) as cnt FROM comments WHERE status = 'approved'`),
+  queryFirst<{ cnt: number }>(db, `SELECT COUNT(*) as cnt FROM dispatches WHERE status = 'sent'`),
+]);
+---
+
+<AdminLayout title="Dashboard" active="dashboard" pendingCount={pending?.cnt ?? 0}>
+  <span class="eyebrow">Admin · Dashboard</span>
+  <h1>Selamat datang, <em>Basim</em>.</h1>
+  <p class="muted">Ringkasan engagement Cerita Basim.</p>
+
+  <div class="stat-grid">
+    <div class="stat-card">
+      <span class="label">Subscriber Active</span>
+      <span class="value">{activeSubs?.cnt ?? 0}</span>
+      <span class="delta">aktif sekarang</span>
+    </div>
+    <div class="stat-card">
+      <span class="label">Komentar pending</span>
+      <span class="value" style="color: var(--accent)">{pending?.cnt ?? 0}</span>
+      <span class="delta down">perlu moderasi</span>
+    </div>
+    <div class="stat-card">
+      <span class="label">Komentar approved</span>
+      <span class="value">{totalComments?.cnt ?? 0}</span>
+      <span class="delta">total disetujui</span>
+    </div>
+    <div class="stat-card">
+      <span class="label">Newsletter sent</span>
+      <span class="value">{dispatches?.cnt ?? 0}</span>
+      <span class="delta">dispatch sukses</span>
+    </div>
+  </div>
+
+  <div class="quick-actions">
+    <h2>Aksi cepat</h2>
+    <div class="actions-grid">
+      <a class="btn btn-secondary" href="/admin/moderation">Moderasi {pending?.cnt ?? 0} komentar</a>
+      <a class="btn btn-secondary" href="/admin/dispatch">Kirim newsletter baru</a>
+      <a class="btn btn-secondary" href="/admin/subscribers">Lihat subscriber</a>
+      <a class="btn btn-ghost" href="/" target="_blank">Buka situs publik ↗</a>
+    </div>
+  </div>
+</AdminLayout>
+
+<style>
+  h1 { margin: 4px 0 4px; font-size: 32px; }
+  h1 em { font-style: italic; color: var(--accent-2); font-weight: 600; }
+  .muted { color: var(--ink-2); margin-bottom: 28px; }
+  .eyebrow { font-weight: 700; letter-spacing: .14em; text-transform: uppercase; font-size: 12px; color: var(--accent); }
+  .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin: 24px 0 36px; }
+  @media (max-width: 900px) { .stat-grid { grid-template-columns: repeat(2, 1fr); } }
+  .stat-card { background: var(--paper); border: 1px solid var(--rule); border-radius: 14px; padding: 20px; display: flex; flex-direction: column; gap: 6px; position: relative; overflow: hidden; }
+  .stat-card::after { content: ""; position: absolute; right: -20px; top: -20px; width: 100px; height: 100px; border-radius: 50%; background: radial-gradient(circle, rgba(194,65,12,.1), transparent 70%); pointer-events: none; }
+  .stat-card .label { font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); }
+  .stat-card .value { font-family: var(--font-display); font-weight: 800; font-size: 32px; color: var(--ink); line-height: 1; }
+  .stat-card .delta { font-size: 13px; color: var(--ok); font-weight: 500; }
+  .stat-card .delta.down { color: var(--accent); }
+  .quick-actions { margin-top: 36px; }
+  .quick-actions h2 { font-size: 22px; margin: 0 0 16px; }
+  .actions-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; max-width: 600px; }
+  @media (max-width: 600px) { .actions-grid { grid-template-columns: 1fr; } }
+  .btn { display: inline-flex; align-items: center; padding: 14px 20px; border-radius: 10px; font-size: 14.5px; font-weight: 600; text-decoration: none; border: 1px solid transparent; transition: transform 200ms, background 200ms; min-height: 44px; }
+  .btn-secondary { background: var(--paper); color: var(--ink); border-color: var(--rule); }
+  .btn-secondary:hover { background: var(--bg-2); transform: translateY(-1px); }
+  .btn-ghost { color: var(--ink-2); }
+  .btn-ghost:hover { background: var(--bg-2); color: var(--ink); }
+</style>

@@ -1,6 +1,9 @@
 /**
  * Cloudflare Access JWT verification for admin routes.
  * Validates the CF_Authorization cookie against Cloudflare's JWKS.
+ *
+ * Fallback: if ADMIN_TOKEN env var is set, accept query param `?admin_token=<token>`
+ * as alternative auth. Useful before Cloudflare Access is set up at zero trust dashboard.
  */
 
 const CF_ACCESS_CERTS_URL = 'https://cerita.basim.id/cdn-cgi/access/certs';
@@ -14,9 +17,20 @@ interface AccessPayload {
 
 export async function verifyAccessJWT(
   request: Request,
-  adminEmail: string
+  adminEmail: string,
+  adminToken?: string
 ): Promise<{ authenticated: boolean; email?: string; error?: string }> {
-  // Get token from cookie or header
+  // Fallback 1: shared admin token via query param or header (dev/pre-CF-Access)
+  if (adminToken) {
+    const url = new URL(request.url);
+    const queryToken = url.searchParams.get('admin_token');
+    const headerToken = request.headers.get('x-admin-token');
+    if (queryToken === adminToken || headerToken === adminToken) {
+      return { authenticated: true, email: adminEmail };
+    }
+  }
+
+  // Get Cloudflare Access token from cookie or header
   const cookie = request.headers.get('cookie') || '';
   const match = cookie.match(/CF_Authorization=([^;]+)/);
   const token = match?.[1] || request.headers.get('cf-access-jwt-assertion');
@@ -26,20 +40,16 @@ export async function verifyAccessJWT(
   }
 
   try {
-    // In production, verify against CF Access JWKS
-    // For local dev, decode without verification
     const payload = decodeJWTPayload(token);
 
     if (!payload || !payload.email) {
       return { authenticated: false, error: 'invalid_payload' };
     }
 
-    // Check expiry
     if (payload.exp && payload.exp < Date.now() / 1000) {
       return { authenticated: false, error: 'token_expired' };
     }
 
-    // Check email allowlist
     if (payload.email.toLowerCase() !== adminEmail.toLowerCase()) {
       return { authenticated: false, error: 'unauthorized_email' };
     }
@@ -66,9 +76,10 @@ function decodeJWTPayload(token: string): AccessPayload | null {
  */
 export async function requireAdmin(
   request: Request,
-  adminEmail: string
+  adminEmail: string,
+  adminToken?: string
 ): Promise<Response | null> {
-  const result = await verifyAccessJWT(request, adminEmail);
+  const result = await verifyAccessJWT(request, adminEmail, adminToken);
 
   if (!result.authenticated) {
     return new Response(JSON.stringify({ error: 'unauthorized', detail: result.error }), {

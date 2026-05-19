@@ -1,0 +1,146 @@
+---
+import AdminLayout from '@/components/layout/AdminLayout.astro';
+import { getDB, queryAll } from '@/lib/db';
+import { requireAdmin } from '@/lib/access';
+import { renderCommentMarkdown } from '@/lib/markdown';
+
+export const prerender = false;
+
+const env = Astro.locals.runtime.env;
+const authError = await requireAdmin(Astro.request, env.ADMIN_EMAIL, env.ADMIN_TOKEN);
+if (authError) return authError;
+
+const db = getDB(Astro.locals);
+
+const pending = await queryAll<{
+  id: number;
+  post_slug: string;
+  display_name: string;
+  body_md: string;
+  created_at: number;
+}>(
+  db,
+  `SELECT id, post_slug, display_name, body_md, created_at
+   FROM comments WHERE status = 'pending' ORDER BY created_at DESC LIMIT 50`
+);
+
+function timeAgo(ms: number): string {
+  const diff = Date.now() - ms;
+  const min = Math.floor(diff / 60000);
+  if (min < 1) return 'baru saja';
+  if (min < 60) return `${min} menit lalu`;
+  const hr = Math.floor(min / 60);
+  if (hr < 24) return `${hr} jam lalu`;
+  const d = Math.floor(hr / 24);
+  return `${d} hari lalu`;
+}
+---
+
+<AdminLayout title="Moderasi Komentar" active="moderation" pendingCount={pending.length}>
+  <span class="eyebrow">Admin · Moderasi</span>
+  <h1>Komentar pending</h1>
+  <p class="muted">Komentar pertama dari setiap email baru perlu disetujui. Setelah satu komentar disetujui, email itu otomatis trusted.</p>
+
+  {pending.length === 0 ? (
+    <div class="empty-state">
+      <h3>Semua bersih ✨</h3>
+      <p class="muted">Tidak ada komentar yang menunggu moderasi.</p>
+    </div>
+  ) : (
+    <div id="modList">
+      {pending.map(c => (
+        <div class="mod-card" data-id={c.id}>
+          <div class="avatar">{c.display_name.split(' ').map(s => s[0]).slice(0,2).join('').toUpperCase()}</div>
+          <div class="info">
+            <div class="meta">
+              <span class="name">{c.display_name}</span>
+              <span class="pill pill-warn">First-time</span>
+              <span class="time">{timeAgo(c.created_at)}</span>
+            </div>
+            <div class="body" set:html={renderCommentMarkdown(c.body_md)} />
+            <div class="post-ref">Di post: <a href={`/cerita/${c.post_slug}`} target="_blank">/cerita/{c.post_slug}</a></div>
+            <div class="actions">
+              <button class="btn btn-primary btn-sm" data-action="approved">✓ Approve & trust</button>
+              <button class="btn btn-secondary btn-sm" data-action="rejected">Reject</button>
+              <button class="btn btn-ghost btn-sm" data-action="spam">Spam</button>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  )}
+</AdminLayout>
+
+<script>
+  const list = document.getElementById('modList');
+  list?.addEventListener('click', async (e) => {
+    const btn = (e.target as HTMLElement).closest('button[data-action]') as HTMLButtonElement | null;
+    if (!btn) return;
+    const card = btn.closest('.mod-card') as HTMLElement;
+    const id = card.dataset.id;
+    const action = btn.dataset.action;
+    if (!id || !action) return;
+
+    const buttons = card.querySelectorAll('button');
+    buttons.forEach(b => (b as HTMLButtonElement).disabled = true);
+
+    try {
+      const res = await fetch(`/api/admin/comments/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: action }),
+      });
+      if (res.ok) {
+        card.style.transition = 'opacity 250ms, transform 250ms';
+        card.style.opacity = '0';
+        card.style.transform = 'translateX(20px)';
+        setTimeout(() => card.remove(), 250);
+        showToast(action === 'approved' ? 'Komentar disetujui & email ditambahkan ke trusted' : action === 'rejected' ? 'Komentar ditolak' : 'Ditandai sebagai spam', action === 'approved' ? 'ok' : 'danger');
+      } else {
+        const data = await res.json();
+        alert('Error: ' + (data.error || 'gagal'));
+        buttons.forEach(b => (b as HTMLButtonElement).disabled = false);
+      }
+    } catch {
+      alert('Gagal menghubungi server.');
+      buttons.forEach(b => (b as HTMLButtonElement).disabled = false);
+    }
+  });
+
+  function showToast(msg: string, kind?: string) {
+    const r = document.getElementById('toasts');
+    if (!r) return;
+    const el = document.createElement('div');
+    el.className = 'toast' + (kind ? ' toast-' + kind : '');
+    el.textContent = msg;
+    r.appendChild(el);
+    setTimeout(() => el.remove(), 3200);
+  }
+</script>
+
+<style>
+  h1 { margin: 4px 0 4px; font-size: 32px; }
+  .eyebrow { font-weight: 700; letter-spacing: .14em; text-transform: uppercase; font-size: 12px; color: var(--accent); }
+  .muted { color: var(--ink-2); margin-bottom: 24px; }
+  .empty-state { text-align: center; padding: 56px 24px; }
+  .empty-state h3 { font-size: 24px; margin: 0 0 6px; }
+  .mod-card { background: var(--paper); border: 1px solid var(--rule); border-radius: 14px; padding: 20px 22px; margin-bottom: 14px; display: grid; grid-template-columns: 40px 1fr; gap: 14px; align-items: start; }
+  .avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent-deep)); color: #fff; display: grid; place-items: center; font-family: var(--font-display); font-weight: 700; font-size: 14px; }
+  .meta { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--ink-2); margin-bottom: 6px; flex-wrap: wrap; }
+  .meta .name { color: var(--ink); font-weight: 600; }
+  .pill { display: inline-flex; font-size: 12px; font-weight: 600; letter-spacing: .03em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px; }
+  .pill-warn { background: #fde9cf; color: var(--gold); }
+  .body { font-size: 15px; line-height: 1.6; color: var(--ink); margin: 6px 0; }
+  .body :global(a) { color: var(--accent-2); border-bottom: 1px solid rgba(27,59,47,.3); }
+  .post-ref { font-size: 12.5px; color: var(--ink-3); margin-top: 8px; }
+  .post-ref a { color: var(--accent-2); border-bottom: 1px solid rgba(27,59,47,.3); }
+  .actions { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+  .btn { display: inline-flex; align-items: center; padding: 8px 14px; border-radius: 999px; font-size: 13px; font-weight: 600; border: 1px solid transparent; cursor: pointer; transition: background 200ms; min-height: 36px; }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-secondary { background: var(--paper); color: var(--ink); border-color: var(--rule); }
+  .btn-ghost { color: var(--ink-3); }
+  :global(.toast) { background: var(--ink); color: var(--bg); padding: 12px 18px; border-radius: 10px; font-size: 14px; max-width: 360px; }
+  :global(.toast.toast-ok) { background: var(--ok); color: #fff; }
+  :global(.toast.toast-danger) { background: var(--danger); color: #fff; }
+</style>

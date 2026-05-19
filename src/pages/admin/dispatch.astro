@@ -1,0 +1,197 @@
+---
+import AdminLayout from '@/components/layout/AdminLayout.astro';
+import { getDB, queryAll, queryFirst } from '@/lib/db';
+import { requireAdmin } from '@/lib/access';
+import { getCollection } from 'astro:content';
+
+export const prerender = false;
+
+const env = Astro.locals.runtime.env;
+const authError = await requireAdmin(Astro.request, env.ADMIN_EMAIL, env.ADMIN_TOKEN);
+if (authError) return authError;
+
+const db = getDB(Astro.locals);
+const posts = (await getCollection('posts'))
+  .filter(p => !p.data.draft)
+  .sort((a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime());
+
+const activeCount = await queryFirst<{ cnt: number }>(db, `SELECT COUNT(*) as cnt FROM subscribers WHERE status = 'active'`);
+
+const recentDispatches = await queryAll<{
+  id: number;
+  post_slug: string;
+  status: string;
+  total: number;
+  sent: number;
+  failed: number;
+  triggered_at: number;
+}>(db, `SELECT id, post_slug, status, total, sent, failed, triggered_at FROM dispatches ORDER BY id DESC LIMIT 10`);
+
+function fmt(ms: number): string {
+  return new Date(ms).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+}
+---
+
+<AdminLayout title="Newsletter Dispatch" active="dispatch">
+  <span class="eyebrow">Admin · Dispatch</span>
+  <h1>Kirim newsletter</h1>
+  <p class="muted">Pilih cerita, preview, kirim ke <strong>{activeCount?.cnt ?? 0} subscriber active</strong>.</p>
+
+  <div class="dispatch-card">
+    <div class="field">
+      <label for="postSelect">Cerita yang akan dikirim</label>
+      <select class="select" id="postSelect">
+        {posts.map(p => (
+          <option value={p.slug} data-title={p.data.title} data-desc={p.data.description}>{p.data.title}</option>
+        ))}
+      </select>
+    </div>
+    <div class="preview" id="preview"></div>
+    <div class="actions">
+      <button type="button" class="btn btn-primary" id="sendBtn" disabled={(activeCount?.cnt ?? 0) === 0}>
+        Kirim ke {activeCount?.cnt ?? 0} subscriber
+      </button>
+    </div>
+    <div class="progress-panel" id="progressPanel" style="display:none;">
+      <h3 id="progressTitle">Mengirim newsletter…</h3>
+      <div class="progress-info">
+        <span><strong id="sentCount">0</strong> dari <strong id="totalCount">0</strong> terkirim</span>
+        <span id="failedCount" class="dim"></span>
+      </div>
+      <div class="progress-bar"><div id="progressFill"></div></div>
+    </div>
+  </div>
+
+  <h2>Riwayat dispatch</h2>
+  {recentDispatches.length === 0 ? (
+    <div class="empty">Belum ada dispatch.</div>
+  ) : (
+    <table class="data-table">
+      <thead>
+        <tr><th>Post</th><th>Status</th><th>Sent / Total</th><th>Tanggal</th></tr>
+      </thead>
+      <tbody>
+        {recentDispatches.map(d => (
+          <tr>
+            <td><span class="mono">/cerita/{d.post_slug}</span></td>
+            <td>
+              {d.status === 'sent' && <span class="pill pill-ok">Sukses</span>}
+              {d.status === 'sending' && <span class="pill pill-warn">Sending…</span>}
+              {d.status === 'pending' && <span class="pill pill-warn">Pending</span>}
+              {d.status === 'failed' && <span class="pill pill-danger">Gagal</span>}
+            </td>
+            <td>{d.sent} / {d.total} {d.failed > 0 && <span class="dim">({d.failed} gagal)</span>}</td>
+            <td><span class="dim">{fmt(d.triggered_at)}</span></td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  )}
+</AdminLayout>
+
+<script>
+  const postSelect = document.getElementById('postSelect') as HTMLSelectElement;
+  const preview = document.getElementById('preview') as HTMLElement;
+  const sendBtn = document.getElementById('sendBtn') as HTMLButtonElement;
+  const progressPanel = document.getElementById('progressPanel') as HTMLElement;
+
+  function updatePreview() {
+    const opt = postSelect.options[postSelect.selectedIndex];
+    const title = opt.dataset.title || '';
+    const desc = opt.dataset.desc || '';
+    const slug = opt.value;
+    preview.innerHTML = `
+<div class="email-preview">
+  <div class="email-head">From: Cerita Basim &lt;onboarding@resend.dev&gt;<br/>Subject: 📬 Cerita baru: ${title}</div>
+  <div class="email-body">Halo,
+
+Cerita baru:
+
+<strong>${title}</strong>
+
+${desc}
+
+Baca selengkapnya:
+https://cerita.basim.id/cerita/${slug}
+
+---
+Berhenti berlangganan: https://cerita.basim.id/api/subscribe/unsubscribe?token=[token]
+</div>
+</div>`;
+  }
+  postSelect?.addEventListener('change', updatePreview);
+  if (postSelect) updatePreview();
+
+  sendBtn?.addEventListener('click', async () => {
+    const slug = postSelect.value;
+    if (!confirm(`Kirim newsletter "${postSelect.options[postSelect.selectedIndex].text}" ke semua subscriber active? Tidak bisa dibatalkan.`)) return;
+
+    sendBtn.disabled = true;
+    sendBtn.textContent = 'Mengirim…';
+    progressPanel.style.display = 'block';
+    progressPanel.scrollIntoView({ behavior: 'smooth' });
+
+    try {
+      const res = await fetch('/api/admin/dispatch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ post_slug: slug }),
+      });
+      const data = await res.json();
+
+      if (res.ok || res.status === 202) {
+        document.getElementById('sentCount')!.textContent = String(data.sent ?? 0);
+        document.getElementById('totalCount')!.textContent = String(data.total ?? 0);
+        document.getElementById('failedCount')!.textContent = data.failed > 0 ? `${data.failed} gagal` : '';
+        const pct = data.total > 0 ? (data.sent / data.total) * 100 : 0;
+        const fill = document.getElementById('progressFill') as HTMLElement;
+        if (fill) fill.style.width = pct + '%';
+        document.getElementById('progressTitle')!.textContent = data.failed === 0 ? '✓ Newsletter terkirim' : '⚠ Selesai dengan beberapa kegagalan';
+        sendBtn.textContent = 'Selesai';
+        setTimeout(() => location.reload(), 2500);
+      } else {
+        alert('Error: ' + (data.error || 'gagal kirim'));
+        sendBtn.disabled = false;
+        sendBtn.textContent = 'Kirim ke semua';
+      }
+    } catch (e) {
+      alert('Gagal menghubungi server.');
+      sendBtn.disabled = false;
+    }
+  });
+</script>
+
+<style>
+  h1 { margin: 4px 0 4px; font-size: 32px; }
+  h2 { font-size: 22px; margin: 36px 0 16px; }
+  .eyebrow { font-weight: 700; letter-spacing: .14em; text-transform: uppercase; font-size: 12px; color: var(--accent); }
+  .muted { color: var(--ink-2); margin-bottom: 24px; }
+  .dispatch-card { background: var(--paper); border: 1px solid var(--rule); border-radius: 14px; padding: 28px; margin-bottom: 24px; }
+  .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+  .field label { font-size: 13.5px; font-weight: 600; color: var(--ink-2); }
+  .select { padding: 11px 14px; min-height: 44px; background: var(--paper); border: 1px solid var(--rule); border-radius: 10px; font-size: 15px; }
+  :global(.email-preview) { background: var(--bg-2); border-radius: 10px; padding: 0; margin: 14px 0; overflow: hidden; }
+  :global(.email-head) { padding: 12px 16px; background: var(--bg-3); font-size: 12.5px; color: var(--ink-2); border-bottom: 1px solid var(--rule); }
+  :global(.email-body) { padding: 16px 20px; font-family: var(--font-mono); font-size: 13px; line-height: 1.7; white-space: pre-wrap; color: var(--ink); }
+  .actions { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+  .btn { display: inline-flex; align-items: center; padding: 12px 20px; border-radius: 999px; font-size: 14.5px; font-weight: 600; border: 1px solid transparent; cursor: pointer; min-height: 44px; }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover:not(:disabled) { background: var(--accent-deep); }
+  .progress-panel { margin-top: 22px; padding-top: 22px; border-top: 1px solid var(--rule); }
+  .progress-panel h3 { margin: 0 0 12px; font-size: 16px; }
+  .progress-info { display: flex; justify-content: space-between; font-size: 13px; color: var(--ink-2); margin-bottom: 8px; }
+  .progress-bar { height: 8px; background: var(--bg-2); border-radius: 999px; overflow: hidden; }
+  .progress-bar > div { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-deep)); width: 0%; transition: width 500ms; }
+  .data-table { width: 100%; border-collapse: collapse; font-size: 14px; background: var(--paper); border: 1px solid var(--rule); border-radius: 14px; overflow: hidden; }
+  .data-table th { text-align: left; padding: 14px 16px; font-family: var(--font-display); font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-2); background: var(--bg-2); border-bottom: 1px solid var(--rule); }
+  .data-table td { padding: 14px 16px; border-bottom: 1px solid var(--rule); }
+  .data-table tbody tr:last-child td { border-bottom: 0; }
+  .pill { display: inline-flex; font-size: 12px; font-weight: 600; letter-spacing: .03em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px; }
+  .pill-ok { background: #dcefe1; color: var(--ok); }
+  .pill-warn { background: #fde9cf; color: var(--gold); }
+  .pill-danger { background: #fadcd1; color: var(--danger); }
+  .mono { font-family: var(--font-mono); font-size: 13px; }
+  .dim { color: var(--ink-3); font-size: 13px; }
+  .empty { padding: 32px; text-align: center; color: var(--ink-2); }
+</style>
