@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '@/components/layout/BaseLayout.astro';
+import SubscribeFormReal from '@/components/newsletter/SubscribeFormReal.astro';
 export const prerender = true;
 ---
 
@@ -9,25 +10,7 @@ export const prerender = true;
     <h1>Cerita yang langsung ke <em>kotak masuk</em>.</h1>
     <p class="lead">Setiap kali ada cerita baru, kamu mendapat email plain-text — tidak ada tracking pixel, tidak ada banner, satu klik unsubscribe.</p>
 
-    <form class="card sub-form" id="subForm">
-      <div class="field">
-        <label for="email">Email</label>
-        <input id="email" class="input" type="email" placeholder="kamu@email.com" required autocomplete="email" />
-        <span class="field-help">Kami akan kirim email konfirmasi (double opt-in).</span>
-      </div>
-      <label class="checkbox">
-        <input type="checkbox" id="consent" required />
-        <span>Saya setuju Cerita Basim mengirim email cerita baru ke alamat ini.</span>
-      </label>
-      <button type="submit" class="btn btn-primary" id="submitBtn" style="margin-top: 18px; width: 100%;">Subscribe sekarang</button>
-      <p class="dim" style="text-align: center; margin-top: 12px; font-size: 13px;">Gratis, selamanya. Lebih suka RSS? <a href="/rss.xml">Berlangganan via feed</a>.</p>
-    </form>
-
-    <div id="success" class="card" style="display: none; text-align: center; padding: 48px 32px;">
-      <h2>Cek email kamu ✓</h2>
-      <p class="muted">Email konfirmasi sudah dikirim. Klik link di dalamnya untuk mengaktifkan langganan.</p>
-      <a href="/cerita" class="btn btn-secondary" style="margin-top: 18px;">Sambil menunggu, baca cerita</a>
-    </div>
+    <SubscribeFormReal />
   </section>
 </BaseLayout>
 
@@ -36,52 +19,4 @@ export const prerender = true;
   .subscribe-page { max-width: 560px; margin: 0 auto; padding: 56px 0 96px; }
   h1 em { font-style: italic; color: var(--accent-2); font-weight: 600; }
   .lead { color: var(--ink-2); font-size: 17px; margin-bottom: 28px; }
-  .card { background: var(--paper); border: 1px solid var(--rule); border-radius: 14px; padding: 32px; box-shadow: var(--shadow-md); }
-  .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
-  .field label { font-size: 13.5px; font-weight: 600; color: var(--ink-2); }
-  .input { width: 100%; padding: 11px 14px; min-height: 44px; background: var(--paper); border: 1px solid var(--rule); border-radius: 10px; font-size: 15px; color: var(--ink); }
-  .input:focus { outline: 0; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(194,65,12,.15); }
-  .field-help { font-size: 12.5px; color: var(--ink-3); }
-  .checkbox { display: inline-flex; align-items: start; gap: 10px; cursor: pointer; font-size: 14px; color: var(--ink-2); }
-  .checkbox input { margin-top: 3px; accent-color: var(--accent); width: 16px; height: 16px; }
-  .btn { display: inline-flex; align-items: center; justify-content: center; padding: 12px 20px; min-height: 44px; border-radius: 999px; font-size: 14.5px; font-weight: 600; border: 1px solid transparent; cursor: pointer; text-decoration: none; transition: transform 200ms, background 200ms; }
-  .btn-primary { background: var(--accent); color: #fff; }
-  .btn-primary:hover { background: var(--accent-deep); color: #fff; }
-  .btn-secondary { background: var(--paper); color: var(--ink); border-color: var(--rule); }
-  .dim { color: var(--ink-3); }
-  .muted { color: var(--ink-2); }
 </style>
-
-<script>
-  const form = document.getElementById('subForm') as HTMLFormElement;
-  const success = document.getElementById('success')!;
-  const btn = document.getElementById('submitBtn') as HTMLButtonElement;
-
-  form?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const email = (document.getElementById('email') as HTMLInputElement).value;
-    btn.disabled = true;
-    btn.textContent = 'Mengirim…';
-
-    try {
-      const res = await fetch('/api/subscribe', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, source: 'subscribe_page', turnstile_token: 'dev-bypass' }),
-      });
-      const data = await res.json();
-      if (res.ok) {
-        form.style.display = 'none';
-        success.style.display = 'block';
-      } else {
-        alert(data.message || data.error || 'Terjadi kesalahan.');
-        btn.disabled = false;
-        btn.textContent = 'Subscribe sekarang';
-      }
-    } catch {
-      alert('Gagal menghubungi server.');
-      btn.disabled = false;
-      btn.textContent = 'Subscribe sekarang';
-    }
-  });
-</script>

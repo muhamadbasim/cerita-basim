@@ -1,0 +1,100 @@
+---
+// Real Turnstile-protected subscribe form
+const SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
+---
+
+<form class="card sub-form" id="subForm">
+  <div class="field">
+    <label for="email">Email</label>
+    <input id="email" class="input" type="email" placeholder="kamu@email.com" required autocomplete="email" />
+    <span class="field-help">Kami akan kirim email konfirmasi (double opt-in).</span>
+  </div>
+  <label class="checkbox">
+    <input type="checkbox" id="consent" required />
+    <span>Saya setuju Cerita Basim mengirim email cerita baru ke alamat ini.</span>
+  </label>
+
+  <!-- Cloudflare Turnstile widget -->
+  <div class="cf-turnstile" data-sitekey={SITE_KEY} data-callback="onTurnstileSuccess" data-theme="auto" style="margin: 14px 0;"></div>
+
+  <button type="submit" class="btn btn-primary" id="submitBtn" style="margin-top: 8px; width: 100%;" disabled>Verifikasi dulu…</button>
+  <p class="dim" style="text-align: center; margin-top: 12px; font-size: 13px;">Gratis, selamanya. Lebih suka RSS? <a href="/rss.xml">Berlangganan via feed</a>.</p>
+</form>
+
+<div id="success" class="card" style="display: none; text-align: center; padding: 48px 32px;">
+  <h2>Cek email kamu ✓</h2>
+  <p class="muted">Email konfirmasi sudah dikirim. Klik link di dalamnya untuk mengaktifkan langganan.</p>
+  <a href="/cerita" class="btn btn-secondary" style="margin-top: 18px;">Sambil menunggu, baca cerita</a>
+</div>
+
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer is:inline></script>
+
+<script is:inline>
+  let turnstileToken = '';
+  window.onTurnstileSuccess = function(token) {
+    turnstileToken = token;
+    const btn = document.getElementById('submitBtn');
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = 'Subscribe sekarang';
+    }
+  };
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('subForm');
+    const success = document.getElementById('success');
+    const btn = document.getElementById('submitBtn');
+    if (!form) return;
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!turnstileToken) {
+        alert('Klik kotak verifikasi dulu.');
+        return;
+      }
+      const email = document.getElementById('email').value;
+      btn.disabled = true;
+      btn.textContent = 'Mengirim…';
+
+      try {
+        const res = await fetch('/api/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, source: 'subscribe_page', turnstile_token: turnstileToken }),
+        });
+        const data = await res.json();
+        if (res.ok) {
+          form.style.display = 'none';
+          success.style.display = 'block';
+        } else {
+          alert(data.message || data.error || 'Terjadi kesalahan.');
+          btn.disabled = false;
+          btn.textContent = 'Subscribe sekarang';
+          if (window.turnstile) window.turnstile.reset();
+        }
+      } catch {
+        alert('Gagal menghubungi server.');
+        btn.disabled = false;
+        btn.textContent = 'Subscribe sekarang';
+      }
+    });
+  });
+</script>
+
+<style>
+  .card { background: var(--paper); border: 1px solid var(--rule); border-radius: 14px; padding: 32px; box-shadow: var(--shadow-md); }
+  .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+  .field label { font-size: 13.5px; font-weight: 600; color: var(--ink-2); }
+  .input { width: 100%; padding: 11px 14px; min-height: 44px; background: var(--paper); border: 1px solid var(--rule); border-radius: 10px; font-size: 15px; color: var(--ink); }
+  .input:focus { outline: 0; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(194,65,12,.15); }
+  .field-help { font-size: 12.5px; color: var(--ink-3); }
+  .checkbox { display: inline-flex; align-items: start; gap: 10px; cursor: pointer; font-size: 14px; color: var(--ink-2); }
+  .checkbox input { margin-top: 3px; accent-color: var(--accent); width: 16px; height: 16px; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; padding: 12px 20px; min-height: 44px; border-radius: 999px; font-size: 14.5px; font-weight: 600; border: 1px solid transparent; cursor: pointer; text-decoration: none; transition: transform 200ms, background 200ms; }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover:not(:disabled) { background: var(--accent-deep); color: #fff; }
+  .btn-secondary { background: var(--paper); color: var(--ink); border-color: var(--rule); }
+  .dim { color: var(--ink-3); }
+  .muted { color: var(--ink-2); }
+</style>
