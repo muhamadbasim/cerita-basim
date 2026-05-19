@@ -4,6 +4,8 @@ import ReadingProgress from '@/components/post/ReadingProgress.astro';
 import TableOfContents from '@/components/post/TableOfContents.astro';
 import RelatedPosts from '@/components/post/RelatedPosts.astro';
 import ReactionBar from '@/components/post/ReactionBar.astro';
+import CommentList from '@/components/post/CommentList.astro';
+import CommentForm from '@/components/post/CommentForm.astro';
 import { getCollection } from 'astro:content';
 
 export const prerender = true;
@@ -20,9 +22,25 @@ const { post, allPosts } = Astro.props;
 const { Content, headings } = await post.render();
 
 const readingTime = Math.ceil(post.body.split(/\s+/).length / 200);
+
+const jsonLd = JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": post.data.title,
+  "description": post.data.description,
+  "datePublished": post.data.publishedAt.toISOString(),
+  "dateModified": (post.data.updatedAt || post.data.publishedAt).toISOString(),
+  "author": { "@type": "Person", "name": "Basim", "url": "https://cerita.basim.id/tentang" },
+  "publisher": { "@type": "Person", "name": "Basim", "url": "https://cerita.basim.id" },
+  "mainEntityOfPage": { "@type": "WebPage", "@id": `https://cerita.basim.id/cerita/${post.slug}` },
+  ...(post.data.cover ? { "image": `https://cerita.basim.id${post.data.cover}` } : {}),
+  "wordCount": post.body.split(/\s+/).length,
+  "inLanguage": "id",
+});
 ---
 
 <BaseLayout title={post.data.title} description={post.data.description} active="cerita">
+  <script type="application/ld+json" set:html={jsonLd} />
   <ReadingProgress />
   <div class="post-layout">
     <article class="post-content">
@@ -39,6 +57,9 @@ const readingTime = Math.ceil(post.body.split(/\s+/).length / 200);
       </div>
 
       <ReactionBar slug={post.slug} />
+
+      <CommentList slug={post.slug} />
+      <CommentForm slug={post.slug} />
 
       <div class="subscribe-cta">
         <p>Suka cerita ini? <a href="/subscribe">Subscribe</a> untuk cerita berikutnya langsung ke email kamu.</p>

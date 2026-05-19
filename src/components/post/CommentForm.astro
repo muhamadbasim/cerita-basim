@@ -1,0 +1,207 @@
+---
+/**
+ * CommentForm — submit comment with Turnstile + client validation.
+ * Listens for 'cb:comment-reply' event to set parent_id.
+ * Dispatches 'cb:comments-refresh' after success.
+ *
+ * Validates: REQ-012, REQ-015, REQ-016
+ */
+const SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
+interface Props {
+  slug: string;
+}
+const { slug } = Astro.props;
+---
+
+<section class="comment-form-section" id="comment-form-section" data-slug={slug}>
+  <h3 class="comment-form-title">Tinggalkan komentar</h3>
+  <p class="comment-form-help">Markdown ringan didukung: <code>**bold**</code>, <code>*italic*</code>, <code>`code`</code>, <code>[link](url)</code>. Komentar pertama dari email baru akan dimoderasi.</p>
+
+  <form class="comment-form" id="comment-form">
+    <div id="reply-banner" class="reply-banner" style="display:none;">
+      <span>Membalas <strong id="reply-target-name"></strong></span>
+      <button type="button" class="reply-cancel" id="reply-cancel" aria-label="Batal balas">×</button>
+    </div>
+    <input type="hidden" name="parent_id" id="parent_id" value="" />
+
+    <div class="row">
+      <div class="field">
+        <label for="cf-name">Nama</label>
+        <input id="cf-name" name="name" type="text" required maxlength="100" autocomplete="name" />
+      </div>
+      <div class="field">
+        <label for="cf-email">Email <span class="dim">(tidak ditampilkan)</span></label>
+        <input id="cf-email" name="email" type="email" required autocomplete="email" />
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="cf-body">Komentar</label>
+      <textarea id="cf-body" name="body" required maxlength="2000" rows="4" placeholder="Tulis komentar kamu…"></textarea>
+      <div class="field-help"><span id="char-count">0</span>/2000 karakter</div>
+    </div>
+
+    <div class="cf-turnstile" data-sitekey={SITE_KEY} data-callback="onCommentTurnstile" data-theme="auto"></div>
+
+    <div class="cf-actions">
+      <button type="submit" id="cf-submit" disabled>Verifikasi dulu…</button>
+      <span id="cf-status" class="cf-status" role="status" aria-live="polite"></span>
+    </div>
+  </form>
+</section>
+
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer is:inline></script>
+
+<style>
+  .comment-form-section { margin: 32px 0 56px; padding: 28px; background: var(--paper); border: 1px solid var(--rule); border-radius: 14px; }
+  .comment-form-title { font-family: var(--font-display); font-size: 18px; margin: 0 0 8px; }
+  .comment-form-help { font-size: 13px; color: var(--ink-3); margin: 0 0 16px; }
+  .comment-form-help code { font-size: 12px; padding: 1px 5px; background: var(--bg-2); border: 1px solid var(--rule); border-radius: 4px; }
+  .reply-banner { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--bg-2); border: 1px solid var(--rule); border-radius: 8px; margin-bottom: 14px; font-size: 13.5px; }
+  .reply-cancel { background: none; border: 0; color: var(--ink-3); font-size: 18px; cursor: pointer; padding: 0 4px; }
+  .reply-cancel:hover { color: var(--accent); }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 600px) { .row { grid-template-columns: 1fr; } }
+  .field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
+  .field label { font-size: 13px; font-weight: 600; color: var(--ink-2); }
+  .field .dim { color: var(--ink-3); font-weight: 400; font-size: 12px; }
+  .field input, .field textarea { padding: 10px 12px; min-height: 42px; background: var(--bg); border: 1px solid var(--rule); border-radius: 8px; font-size: 14.5px; color: var(--ink); font: inherit; }
+  .field input:focus, .field textarea:focus { outline: 0; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(194,65,12,.15); }
+  .field textarea { resize: vertical; min-height: 90px; line-height: 1.5; }
+  .field-help { font-size: 12px; color: var(--ink-3); margin-top: 4px; }
+  .cf-turnstile { margin: 14px 0; min-height: 65px; }
+  .cf-actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  #cf-submit { display: inline-flex; align-items: center; padding: 10px 20px; min-height: 42px; border-radius: 999px; font-size: 14px; font-weight: 600; background: var(--accent); color: #fff; border: 0; cursor: pointer; transition: background var(--duration-fast); }
+  #cf-submit:hover:not(:disabled) { background: var(--accent-deep); }
+  #cf-submit:disabled { opacity: .5; cursor: not-allowed; }
+  .cf-status { font-size: 13.5px; }
+  .cf-status.ok { color: var(--ok); }
+  .cf-status.err { color: var(--danger); }
+</style>
+
+<script>
+  let cfToken = '';
+  (window as any).onCommentTurnstile = function(token: string) {
+    cfToken = token;
+    updateSubmitState();
+  };
+
+  function updateSubmitState() {
+    const btn = document.getElementById('cf-submit') as HTMLButtonElement | null;
+    if (!btn) return;
+    const name = (document.getElementById('cf-name') as HTMLInputElement)?.value.trim();
+    const email = (document.getElementById('cf-email') as HTMLInputElement)?.value.trim();
+    const body = (document.getElementById('cf-body') as HTMLTextAreaElement)?.value.trim();
+    const ready = cfToken && name && email && body && body.length <= 2000;
+    btn.disabled = !ready;
+    if (cfToken) btn.textContent = 'Kirim komentar';
+  }
+
+  function initCommentForm() {
+    const form = document.getElementById('comment-form') as HTMLFormElement | null;
+    const section = document.getElementById('comment-form-section');
+    if (!form || !section) return;
+    const slug = section.dataset.slug || '';
+
+    const bodyEl = document.getElementById('cf-body') as HTMLTextAreaElement;
+    const charCount = document.getElementById('char-count');
+    const status = document.getElementById('cf-status');
+    const submit = document.getElementById('cf-submit') as HTMLButtonElement;
+    const parentInput = document.getElementById('parent_id') as HTMLInputElement;
+    const replyBanner = document.getElementById('reply-banner');
+    const replyTargetName = document.getElementById('reply-target-name');
+    const replyCancel = document.getElementById('reply-cancel');
+
+    bodyEl?.addEventListener('input', () => {
+      if (charCount) charCount.textContent = String(bodyEl.value.length);
+      updateSubmitState();
+    });
+    ['cf-name', 'cf-email'].forEach(id => {
+      document.getElementById(id)?.addEventListener('input', updateSubmitState);
+    });
+
+    // Reply event listener
+    document.addEventListener('cb:comment-reply', ((e: CustomEvent) => {
+      const { parentId, parentName } = e.detail;
+      parentInput.value = String(parentId);
+      if (replyTargetName) replyTargetName.textContent = parentName || 'pembaca';
+      if (replyBanner) replyBanner.style.display = 'flex';
+      section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      bodyEl?.focus();
+    }) as EventListener);
+
+    replyCancel?.addEventListener('click', () => {
+      parentInput.value = '';
+      if (replyBanner) replyBanner.style.display = 'none';
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!cfToken) {
+        if (status) { status.textContent = 'Selesaikan verifikasi dulu.'; status.className = 'cf-status err'; }
+        return;
+      }
+      submit.disabled = true;
+      submit.textContent = 'Mengirim…';
+      if (status) { status.textContent = ''; status.className = 'cf-status'; }
+
+      const data = {
+        post: slug,
+        name: (document.getElementById('cf-name') as HTMLInputElement).value.trim(),
+        email: (document.getElementById('cf-email') as HTMLInputElement).value.trim(),
+        body: bodyEl.value.trim(),
+        parent_id: parentInput.value ? parseInt(parentInput.value, 10) : undefined,
+        turnstile_token: cfToken,
+      };
+
+      try {
+        const res = await fetch('/api/comments', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+        const json = await res.json();
+
+        if (res.status === 201) {
+          if (status) {
+            status.textContent = json.message || (json.status === 'approved' ? 'Komentar berhasil ditambahkan.' : 'Komentar masuk antrian moderasi.');
+            status.className = 'cf-status ok';
+          }
+          form.reset();
+          if (charCount) charCount.textContent = '0';
+          parentInput.value = '';
+          if (replyBanner) replyBanner.style.display = 'none';
+          cfToken = '';
+          if ((window as any).turnstile) (window as any).turnstile.reset();
+          submit.textContent = 'Verifikasi dulu…';
+          submit.disabled = true;
+          // Refresh comment list
+          document.dispatchEvent(new CustomEvent('cb:comments-refresh'));
+        } else if (res.status === 429) {
+          if (status) { status.textContent = 'Terlalu banyak permintaan. Coba lagi dalam beberapa saat.'; status.className = 'cf-status err'; }
+          submit.disabled = false;
+          submit.textContent = 'Kirim komentar';
+        } else if (res.status === 403) {
+          if (status) { status.textContent = 'Verifikasi gagal. Refresh halaman dan coba lagi.'; status.className = 'cf-status err'; }
+          submit.disabled = false;
+          submit.textContent = 'Kirim komentar';
+        } else {
+          if (status) { status.textContent = json.error || json.message || 'Gagal mengirim komentar.'; status.className = 'cf-status err'; }
+          submit.disabled = false;
+          submit.textContent = 'Kirim komentar';
+        }
+      } catch {
+        if (status) { status.textContent = 'Gagal menghubungi server. Cek koneksi.'; status.className = 'cf-status err'; }
+        submit.disabled = false;
+        submit.textContent = 'Kirim komentar';
+      }
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCommentForm);
+  } else {
+    initCommentForm();
+  }
+  document.addEventListener('astro:page-load', initCommentForm);
+</script>

@@ -22,6 +22,8 @@ const ogImageUrl = ogImage ? new URL(ogImage, Astro.site).href : undefined;
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="canonical" href={canonicalUrl} />
+  <link rel="alternate" type="application/rss+xml" title="Cerita Basim — Cerita" href="/rss.xml" />
+  <link rel="alternate" type="application/rss+xml" title="Cerita Basim — Karya" href="/rss-karya.xml" />
 
   <title>{title} · Cerita Basim</title>
   <meta name="description" content={description} />

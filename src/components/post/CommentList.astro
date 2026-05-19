@@ -1,0 +1,158 @@
+---
+/**
+ * CommentList — fetches approved comments and renders threaded list.
+ * 1-level threading: root comments + their direct replies.
+ * Refreshes when receiving 'cb:comments-refresh' event.
+ *
+ * Validates: REQ-010, REQ-015, REQ-016
+ */
+interface Props {
+  slug: string;
+}
+const { slug } = Astro.props;
+---
+
+<section class="comments" id="comments-section" data-slug={slug}>
+  <header class="comments__header">
+    <h2 class="comments__title">Komentar <span class="comments__count" id="comments-count"></span></h2>
+  </header>
+  <div class="comments__list" id="comments-list" aria-live="polite">
+    <div class="comments__loading">Memuat komentar…</div>
+  </div>
+</section>
+
+<style>
+  .comments { margin: 56px 0 32px; padding-top: 36px; border-top: 1px solid var(--rule); }
+  .comments__header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 20px; }
+  .comments__title { font-family: var(--font-display); font-size: 24px; margin: 0; }
+  .comments__count { color: var(--ink-3); font-weight: 400; font-size: 18px; }
+  .comments__list { display: flex; flex-direction: column; gap: 20px; }
+  .comments__loading, .comments__empty { padding: 24px; color: var(--ink-3); text-align: center; background: var(--bg-2); border-radius: 12px; font-size: 14px; }
+  .comment { display: grid; grid-template-columns: 40px 1fr; gap: 14px; align-items: start; }
+  .comment.is-reply { margin-left: 32px; padding-left: 14px; border-left: 2px solid var(--rule); }
+  @media (max-width: 480px) { .comment.is-reply { margin-left: 16px; } }
+  .comment__avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent-deep)); color: #fff; display: grid; place-items: center; font-family: var(--font-display); font-weight: 700; font-size: 14px; flex-shrink: 0; }
+  .comment__meta { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--ink-3); margin-bottom: 4px; flex-wrap: wrap; }
+  .comment__name { color: var(--ink); font-weight: 600; }
+  .comment__body { font-size: 15px; line-height: 1.6; color: var(--ink); margin: 4px 0 8px; word-wrap: break-word; }
+  .comment__body :global(a) { color: var(--accent-2); border-bottom: 1px solid rgba(27,59,47,.3); }
+  .comment__body :global(code) { background: var(--bg-2); padding: 1px 6px; border-radius: 4px; border: 1px solid var(--rule); font-size: .9em; }
+  .comment__actions { font-size: 13px; }
+  .comment__reply-btn { color: var(--ink-3); background: none; border: 0; padding: 4px 0; cursor: pointer; font: inherit; }
+  .comment__reply-btn:hover { color: var(--accent); }
+</style>
+
+<script>
+  function escapeHtml(s: string): string {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+  }
+  function renderMarkdown(input: string): string {
+    let html = escapeHtml(input);
+    html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+    html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+    html = html.replace(/_(.+?)_/g, '<em>$1</em>');
+    html = html.replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g, '<a href="$2" rel="nofollow noopener" target="_blank">$1</a>');
+    html = html.replace(/\n/g, '<br>');
+    return html;
+  }
+  function timeAgo(ms: number): string {
+    const d = Date.now() - ms;
+    const s = Math.floor(d / 1000);
+    if (s < 60) return 'baru saja';
+    const m = Math.floor(s / 60);
+    if (m < 60) return `${m} menit lalu`;
+    const h = Math.floor(m / 60);
+    if (h < 24) return `${h} jam lalu`;
+    const days = Math.floor(h / 24);
+    if (days < 30) return `${days} hari lalu`;
+    return new Date(ms).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+  function initials(name: string): string {
+    return name.trim().split(/\s+/).map(s => s[0]).slice(0, 2).join('').toUpperCase() || '?';
+  }
+
+  interface Comment { id: number; post_slug: string; parent_id: number | null; display_name: string; body_md: string; created_at: number; }
+
+  async function loadComments() {
+    const section = document.getElementById('comments-section');
+    if (!section) return;
+    const slug = section.dataset.slug;
+    const list = document.getElementById('comments-list');
+    const countEl = document.getElementById('comments-count');
+    if (!list || !slug) return;
+
+    try {
+      const res = await fetch(`/api/comments?post=${encodeURIComponent(slug)}`);
+      if (!res.ok) throw new Error('fetch failed');
+      const data = await res.json() as { comments: Comment[]; count: number };
+
+      if (countEl) countEl.textContent = data.count > 0 ? `(${data.count})` : '';
+
+      if (data.comments.length === 0) {
+        list.innerHTML = '<div class="comments__empty">Belum ada komentar. Jadilah pembaca pertama yang memberi tanggapan.</div>';
+        return;
+      }
+
+      // Build tree: roots + replies
+      const roots = data.comments.filter(c => !c.parent_id);
+      const replies = data.comments.filter(c => c.parent_id);
+      const repliesByParent = new Map<number, Comment[]>();
+      for (const r of replies) {
+        if (r.parent_id == null) continue;
+        if (!repliesByParent.has(r.parent_id)) repliesByParent.set(r.parent_id, []);
+        repliesByParent.get(r.parent_id)!.push(r);
+      }
+
+      const html: string[] = [];
+      for (const c of roots) {
+        html.push(renderComment(c, false));
+        const childReplies = repliesByParent.get(c.id) || [];
+        for (const r of childReplies) {
+          html.push(renderComment(r, true));
+        }
+      }
+      list.innerHTML = html.join('');
+    } catch (e) {
+      list.innerHTML = '<div class="comments__empty">Gagal memuat komentar. Coba refresh halaman.</div>';
+    }
+  }
+
+  function renderComment(c: Comment, isReply: boolean): string {
+    const cls = 'comment' + (isReply ? ' is-reply' : '');
+    return `
+      <article class="${cls}" id="comment-${c.id}">
+        <div class="comment__avatar">${escapeHtml(initials(c.display_name))}</div>
+        <div>
+          <div class="comment__meta">
+            <span class="comment__name">${escapeHtml(c.display_name)}</span>
+            <span class="comment__time">${timeAgo(c.created_at)}</span>
+          </div>
+          <div class="comment__body">${renderMarkdown(c.body_md)}</div>
+          ${!isReply ? `<div class="comment__actions"><button class="comment__reply-btn" data-reply-to="${c.id}" data-reply-name="${escapeHtml(c.display_name)}">Balas</button></div>` : ''}
+        </div>
+      </article>`;
+  }
+
+  // Reply button delegation — dispatch event for CommentForm
+  document.addEventListener('click', (e) => {
+    const t = e.target as HTMLElement;
+    const btn = t.closest('.comment__reply-btn') as HTMLButtonElement | null;
+    if (!btn) return;
+    const replyTo = btn.dataset.replyTo;
+    const replyName = btn.dataset.replyName;
+    if (!replyTo) return;
+    document.dispatchEvent(new CustomEvent('cb:comment-reply', { detail: { parentId: parseInt(replyTo, 10), parentName: replyName } }));
+  });
+
+  // Refresh on demand
+  document.addEventListener('cb:comments-refresh', loadComments);
+
+  // Initial load + Astro page transitions
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadComments);
+  } else {
+    loadComments();
+  }
+  document.addEventListener('astro:page-load', loadComments);
+</script>
