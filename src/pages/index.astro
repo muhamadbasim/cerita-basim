@@ -1,11 +1,11 @@
 ---
 import BaseLayout from '@/components/layout/BaseLayout.astro';
 import { getCollection } from 'astro:content';
+import { getAllPostList } from '@/lib/posts';
 
-const posts = (await getCollection('posts'))
-  .filter(p => !p.data.draft)
-  .sort((a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime())
-  .slice(0, 3);
+export const prerender = false;
+
+const posts = (await getAllPostList(Astro.locals, 10)).slice(0, 3);
 
 const projects = (await getCollection('projects'))
   .filter(p => p.data.featured)
@@ -34,16 +34,16 @@ const projects = (await getCollection('projects'))
     </div>
     <div class="post-list">
       {posts.map(post => (
-        <a class="post-row" href={`/cerita/${post.slug}`}>
+        <a class="post-row" href={post.href}>
           <div class="post-date">
-            <span class="day">{post.data.publishedAt.getDate()}</span>
-            <span>{post.data.publishedAt.toLocaleDateString('id-ID', { month: 'short', year: 'numeric' })}</span>
+            <span class="day">{post.publishedAt.getDate()}</span>
+            <span>{post.publishedAt.toLocaleDateString('id-ID', { month: 'short', year: 'numeric' })}</span>
           </div>
           <div class="post-content">
-            <h3 class="post-title">{post.data.title}</h3>
-            <p class="post-excerpt">{post.data.description}</p>
+            <h3 class="post-title">{post.title}</h3>
+            <p class="post-excerpt">{post.description}</p>
             <div class="post-tags">
-              {post.data.tags.map(tag => <span class="pill">{tag}</span>)}
+              {post.tags.map(tag => <span class="pill">{tag}</span>)}
             </div>
           </div>
         </a>
