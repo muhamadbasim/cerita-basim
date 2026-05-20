@@ -26,3 +26,9 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Local archive backup (not part of repo)
+.archive-from-home-*/
+
+# Local archives (not committed)
+.archive-from-home-*/
