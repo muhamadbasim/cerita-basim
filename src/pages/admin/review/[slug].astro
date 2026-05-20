@@ -177,7 +177,7 @@ function formatDate(ms: number): string {
     <div class="modal modal-sm" role="dialog" aria-labelledby="reject-modal-title" aria-modal="true">
       <div class="modal-header">
         <h3 id="reject-modal-title">Reject Draft</h3>
-        <button class="modal-close" id="reject-modal-close" aria-label="Tutup">&times;</button>
+        <button type="button" class="modal-close" id="reject-modal-close" aria-label="Tutup" data-close-reject-modal="true">&times;</button>
       </div>
       <div class="modal-body">
         <p>Yakin ingin reject draft <strong>{draft.title}</strong>?</p>
@@ -188,8 +188,8 @@ function formatDate(ms: number): string {
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-ghost" id="reject-cancel-btn">Batal</button>
-        <button class="btn btn-reject-confirm" id="reject-confirm-btn">Reject Draft</button>
+        <button type="button" class="btn btn-ghost" id="reject-cancel-btn" data-close-reject-modal="true">Batal</button>
+        <button type="button" class="btn btn-reject-confirm" id="reject-confirm-btn">Reject Draft</button>
       </div>
     </div>
   </div>
@@ -339,13 +339,35 @@ function formatDate(ms: number): string {
   function closeRejectModal() {
     rejectModal.hidden = true;
     document.body.style.overflow = '';
+    const confirmBtn = document.getElementById('reject-confirm-btn');
+    if (confirmBtn) {
+      confirmBtn.disabled = false;
+      confirmBtn.textContent = 'Reject Draft';
+    }
   }
 
-  document.getElementById('reject-modal-close').addEventListener('click', closeRejectModal);
-  document.getElementById('reject-cancel-btn').addEventListener('click', closeRejectModal);
+  function maybeCloseRejectModal(e) {
+    const target = e.target;
+    if (target instanceof Element && target.closest('[data-close-reject-modal="true"]')) {
+      e.preventDefault();
+      e.stopPropagation();
+      closeRejectModal();
+    }
+  }
+
+  document.getElementById('reject-modal-close').addEventListener('click', maybeCloseRejectModal);
+  document.getElementById('reject-modal-close').addEventListener('touchend', maybeCloseRejectModal, { passive: false });
+  document.getElementById('reject-cancel-btn').addEventListener('click', maybeCloseRejectModal);
+  document.getElementById('reject-cancel-btn').addEventListener('touchend', maybeCloseRejectModal, { passive: false });
   rejectModal.addEventListener('click', (e) => {
     if (e.target === rejectModal) closeRejectModal();
   });
+  rejectModal.addEventListener('touchend', (e) => {
+    if (e.target === rejectModal) {
+      e.preventDefault();
+      closeRejectModal();
+    }
+  }, { passive: false });
 
   document.getElementById('reject-confirm-btn').addEventListener('click', async () => {
     const reason = document.getElementById('reject-reason').value.trim();
@@ -466,7 +488,7 @@ function formatDate(ms: number): string {
   @keyframes modal-in { from { opacity: 0; transform: scale(0.95) translateY(8px); } to { opacity: 1; transform: scale(1) translateY(0); } }
   .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px 0; }
   .modal-header h3 { font-size: 18px; margin: 0; }
-  .modal-close { font-size: 24px; width: 36px; height: 36px; display: grid; place-items: center; border-radius: 8px; color: var(--ink-3); background: none; border: none; cursor: pointer; }
+  .modal-close { font-size: 24px; width: 36px; height: 36px; display: grid; place-items: center; border-radius: 8px; color: var(--ink-3); background: none; border: none; cursor: pointer; touch-action: manipulation; -webkit-appearance: none; appearance: none; }
   .modal-close:hover { background: var(--bg-2); color: var(--ink); }
   .modal-body { padding: 20px 24px; }
   .modal-body p { margin: 0 0 12px; font-size: 14.5px; color: var(--ink-2); }
