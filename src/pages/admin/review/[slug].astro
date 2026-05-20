@@ -173,11 +173,11 @@ function formatDate(ms: number): string {
   </div>
 
   <!-- Reject Modal -->
-  <div class="modal-backdrop" id="reject-modal" hidden>
+  <div class="modal-backdrop" id="reject-modal" aria-hidden="true" style="display: none;">
     <div class="modal modal-sm" role="dialog" aria-labelledby="reject-modal-title" aria-modal="true">
       <div class="modal-header">
         <h3 id="reject-modal-title">Reject Draft</h3>
-        <button type="button" class="modal-close" id="reject-modal-close" aria-label="Tutup" data-close-reject-modal="true">&times;</button>
+        <button type="button" class="modal-close" id="reject-modal-close" aria-label="Tutup" data-close-reject-modal="true" onclick="window.closeRejectDraftModal && window.closeRejectDraftModal(); return false;">&times;</button>
       </div>
       <div class="modal-body">
         <p>Yakin ingin reject draft <strong>{draft.title}</strong>?</p>
@@ -188,7 +188,7 @@ function formatDate(ms: number): string {
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-ghost" id="reject-cancel-btn" data-close-reject-modal="true">Batal</button>
+        <button type="button" class="btn btn-ghost" id="reject-cancel-btn" data-close-reject-modal="true" onclick="window.closeRejectDraftModal && window.closeRejectDraftModal(); return false;">Batal</button>
         <button type="button" class="btn btn-reject-confirm" id="reject-confirm-btn">Reject Draft</button>
       </div>
     </div>
@@ -331,13 +331,21 @@ function formatDate(ms: number): string {
   }
 
   // Reject modal
-  document.getElementById('btn-reject').addEventListener('click', () => {
-    rejectModal.hidden = false;
+  function openRejectModal() {
+    rejectModal.style.display = 'flex';
+    rejectModal.removeAttribute('hidden');
+    rejectModal.setAttribute('aria-hidden', 'false');
+    rejectModal.classList.add('is-open');
+    document.body.classList.add('modal-open');
     document.body.style.overflow = 'hidden';
-  });
+  }
 
   function closeRejectModal() {
-    rejectModal.hidden = true;
+    rejectModal.style.display = 'none';
+    rejectModal.setAttribute('hidden', '');
+    rejectModal.setAttribute('aria-hidden', 'true');
+    rejectModal.classList.remove('is-open');
+    document.body.classList.remove('modal-open');
     document.body.style.overflow = '';
     const confirmBtn = document.getElementById('reject-confirm-btn');
     if (confirmBtn) {
@@ -346,28 +354,29 @@ function formatDate(ms: number): string {
     }
   }
 
-  function maybeCloseRejectModal(e) {
+  window.closeRejectDraftModal = closeRejectModal;
+
+  document.getElementById('btn-reject').addEventListener('click', openRejectModal);
+
+  document.addEventListener('click', (e) => {
     const target = e.target;
-    if (target instanceof Element && target.closest('[data-close-reject-modal="true"]')) {
+    if (!(target instanceof Element)) return;
+    if (target.closest('[data-close-reject-modal="true"]') || target === rejectModal) {
       e.preventDefault();
       e.stopPropagation();
       closeRejectModal();
     }
-  }
+  }, true);
 
-  document.getElementById('reject-modal-close').addEventListener('click', maybeCloseRejectModal);
-  document.getElementById('reject-modal-close').addEventListener('touchend', maybeCloseRejectModal, { passive: false });
-  document.getElementById('reject-cancel-btn').addEventListener('click', maybeCloseRejectModal);
-  document.getElementById('reject-cancel-btn').addEventListener('touchend', maybeCloseRejectModal, { passive: false });
-  rejectModal.addEventListener('click', (e) => {
-    if (e.target === rejectModal) closeRejectModal();
-  });
-  rejectModal.addEventListener('touchend', (e) => {
-    if (e.target === rejectModal) {
+  document.addEventListener('touchstart', (e) => {
+    const target = e.target;
+    if (!(target instanceof Element)) return;
+    if (target.closest('[data-close-reject-modal="true"]') || target === rejectModal) {
       e.preventDefault();
+      e.stopPropagation();
       closeRejectModal();
     }
-  }, { passive: false });
+  }, { capture: true, passive: false });
 
   document.getElementById('reject-confirm-btn').addEventListener('click', async () => {
     const reason = document.getElementById('reject-reason').value.trim();
@@ -482,13 +491,15 @@ function formatDate(ms: number): string {
   .edit-actions { display: flex; gap: 12px; padding-top: 8px; flex-wrap: wrap; }
 
   /* Modal */
-  .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.5); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 24px; }
+  .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.5); backdrop-filter: blur(4px); align-items: center; justify-content: center; z-index: 1000; padding: 24px; }
+  .modal-backdrop[hidden], .modal-backdrop[aria-hidden="true"] { display: none !important; pointer-events: none !important; }
+  .modal-backdrop.is-open, .modal-backdrop[aria-hidden="false"] { display: flex !important; pointer-events: auto !important; }
   .modal { background: var(--paper); border-radius: 16px; width: 100%; max-width: 480px; box-shadow: 0 24px 48px -12px rgba(0,0,0,.25); animation: modal-in 200ms ease-out; }
   .modal.modal-sm { max-width: 420px; }
   @keyframes modal-in { from { opacity: 0; transform: scale(0.95) translateY(8px); } to { opacity: 1; transform: scale(1) translateY(0); } }
   .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px 0; }
   .modal-header h3 { font-size: 18px; margin: 0; }
-  .modal-close { font-size: 24px; width: 36px; height: 36px; display: grid; place-items: center; border-radius: 8px; color: var(--ink-3); background: none; border: none; cursor: pointer; touch-action: manipulation; -webkit-appearance: none; appearance: none; }
+  .modal-close { font-size: 24px; width: 44px; height: 44px; display: grid; place-items: center; border-radius: 8px; color: var(--ink-3); background: none; border: none; cursor: pointer; touch-action: manipulation; -webkit-appearance: none; appearance: none; position: relative; z-index: 1002; }
   .modal-close:hover { background: var(--bg-2); color: var(--ink); }
   .modal-body { padding: 20px 24px; }
   .modal-body p { margin: 0 0 12px; font-size: 14.5px; color: var(--ink-2); }
