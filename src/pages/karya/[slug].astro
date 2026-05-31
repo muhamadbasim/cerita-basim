@@ -14,9 +14,12 @@ export async function getStaticPaths() {
 
 const { project } = Astro.props;
 const { Content } = await project.render();
+
+// Prefer an explicit cover image; otherwise use the generated OG card for this project.
+const ogImage = project.data.cover ?? `/og/karya-${project.slug}.png`;
 ---
 
-<BaseLayout title={project.data.title} description={project.data.tagline} active="karya">
+<BaseLayout title={project.data.title} description={project.data.tagline} active="karya" ogImage={ogImage}>
   <article class="container-narrow" style="padding: 56px 0;">
     <div class="breadcrumb"><a href="/karya">← Karya</a> · {project.data.category} · {project.data.year}</div>
     <span class="eyebrow">Case Study</span>

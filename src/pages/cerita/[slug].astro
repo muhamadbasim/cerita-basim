@@ -23,6 +23,9 @@ const { Content, headings } = await post.render();
 
 const readingTime = Math.ceil(post.body.split(/\s+/).length / 200);
 
+// Prefer an explicit cover image; otherwise use the generated OG card for this post.
+const ogImage = post.data.cover ?? `/og/cerita-${post.slug}.png`;
+
 const jsonLd = JSON.stringify({
   "@context": "https://schema.org",
   "@type": "Article",
@@ -39,7 +42,7 @@ const jsonLd = JSON.stringify({
 });
 ---
 
-<BaseLayout title={post.data.title} description={post.data.description} active="cerita">
+<BaseLayout title={post.data.title} description={post.data.description} active="cerita" ogImage={ogImage}>
   <script type="application/ld+json" set:html={jsonLd} />
   <ReadingProgress />
   <div class="post-layout">

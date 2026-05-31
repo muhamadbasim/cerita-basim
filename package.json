@@ -9,6 +9,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
+    "og": "node scripts/generate-og.mjs",
     "typecheck": "astro check && tsc --noEmit",
     "lint": "eslint src --ext .ts,.tsx,.astro",
     "test": "vitest run",

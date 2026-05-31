@@ -4,7 +4,7 @@
 
 **Domain:** [cerita.basim.id](https://cerita.basim.id)
 **Stack:** Astro 5 × Cloudflare (Pages + D1 + KV + Workers + R2)
-**Status:** Implementasi awal — scaffold + lib + content seeded
+**Status:** Live di produksi — semua fitur inti aktif (lihat bagian Status di bawah)
 
 ---
 
@@ -156,14 +156,29 @@ Kiro spec lengkap di `~/.kiro/specs/cerita-basim/`:
 
 ---
 
-## TODO (implementation remaining)
+## Status (implementasi)
 
-- [ ] Layout components (Header.astro, Footer.astro, ThemeToggle.astro)
-- [ ] Page templates (index, karya/index, karya/[slug], cerita/index, cerita/[slug], tentang, subscribe, 404)
-- [ ] Admin pages (dashboard, moderation, subscribers, dispatch)
-- [ ] API endpoint implementations (comments, reactions, subscribe, admin)
-- [ ] RSS feed (`/rss.xml`)
-- [ ] Sitemap integration
-- [ ] Weekly backup cron worker
-- [ ] Lighthouse CI in GitHub Actions
-- [ ] Production deploy to Cloudflare Pages
+Semua fase inti selesai dan live:
+
+- [x] Layout components (Header, Footer, ThemeToggle, BaseLayout, AdminLayout)
+- [x] Page templates (index, karya, cerita, tentang, subscribe, 404)
+- [x] Admin pages (dashboard, moderation, subscribers, dispatch, review, agents)
+- [x] API endpoints (comments, reactions, subscribe, admin, agent publish)
+- [x] Interactive islands (reading progress, TOC, reactions, comments, dark mode)
+- [x] RSS feeds (`/rss.xml`, `/rss-karya.xml`) + sitemap + JSON-LD
+- [x] Open Graph image cards (static, generated via `bun run og`)
+- [x] Security + cache headers (`public/_headers`)
+- [x] Weekly D1 → R2 backup cron worker
+- [x] CI gate (typecheck + test + build) before deploy
+- [x] Agent publishing workflow (submit → review → publish)
+
+### Regenerate social cards
+
+After adding or renaming a post/project, regenerate the Open Graph cards:
+
+```bash
+bun run og
+```
+
+Cards land in `public/og/` plus a brand fallback `public/og-default.png`. Every
+page emits an `og:image`; pages without a specific card use the default.

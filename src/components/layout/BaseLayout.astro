@@ -12,7 +12,8 @@ interface Props {
 
 const { title, description = 'Portofolio karya & cerita panjang dari Basim.', active, ogImage } = Astro.props;
 const canonicalUrl = new URL(Astro.url.pathname, Astro.site);
-const ogImageUrl = ogImage ? new URL(ogImage, Astro.site).href : undefined;
+// Always emit an OG image: per-page card when provided, brand default otherwise.
+const ogImageUrl = new URL(ogImage ?? '/og-default.png', Astro.site).href;
 ---
 
 <!doctype html>
@@ -33,12 +34,17 @@ const ogImageUrl = ogImage ? new URL(ogImage, Astro.site).href : undefined;
   <meta property="og:title" content={title} />
   <meta property="og:description" content={description} />
   <meta property="og:url" content={canonicalUrl} />
-  {ogImageUrl && <meta property="og:image" content={ogImageUrl} />}
+  <meta property="og:site_name" content="Cerita Basim" />
+  <meta property="og:locale" content="id_ID" />
+  <meta property="og:image" content={ogImageUrl} />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
 
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={title} />
   <meta name="twitter:description" content={description} />
+  <meta name="twitter:image" content={ogImageUrl} />
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
