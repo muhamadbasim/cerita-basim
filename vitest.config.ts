@@ -12,5 +12,12 @@ export default defineConfig({
   },
   test: {
     globals: true,
+    exclude: [
+      '**/node_modules/**',
+      '**/dist/**',
+      '**/.{astro,wrangler,git,cache}/**',
+      // Local conflict archive — not part of the project, only noise in CI.
+      '**/.archive-from-home-*/**',
+    ],
   },
 });
