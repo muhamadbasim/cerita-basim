@@ -35,10 +35,6 @@ const projects = (await getCollection('projects'))
     <div class="post-list">
       {posts.map(post => (
         <a class="post-row" href={post.href}>
-          <div class="post-date">
-            <span class="day">{post.publishedAt.getDate()}</span>
-            <span>{post.publishedAt.toLocaleDateString('id-ID', { month: 'short', year: 'numeric' })}</span>
-          </div>
           <div class="post-content">
             <h3 class="post-title">{post.title}</h3>
             <p class="post-excerpt">{post.description}</p>
@@ -104,10 +100,8 @@ const projects = (await getCollection('projects'))
   .section-head a { font-size: 14.5px; font-weight: 600; color: var(--accent-2); }
 
   .post-list { display: flex; flex-direction: column; }
-  .post-row { display: grid; grid-template-columns: 80px 1fr; gap: 24px; align-items: start; padding: 24px 0; border-bottom: 1px solid var(--rule); text-decoration: none; color: var(--ink); }
+  .post-row { display: block; padding: 24px 0; border-bottom: 1px solid var(--rule); text-decoration: none; color: var(--ink); }
   .post-row:hover .post-title { color: var(--accent); }
-  .post-date { font-family: var(--font-display); font-weight: 600; font-size: 13px; color: var(--ink-3); display: flex; flex-direction: column; }
-  .post-date .day { font-size: 28px; color: var(--ink); font-weight: 800; }
   .post-title { font-family: var(--font-display); font-weight: 700; font-size: 22px; margin: 0 0 6px; transition: color 200ms; }
   .post-excerpt { color: var(--ink-2); font-size: 14.5px; margin: 0 0 8px; }
   .post-tags { display: flex; gap: 6px; flex-wrap: wrap; }
