@@ -28,7 +28,7 @@ const { active } = Astro.props;
 </header>
 
 <style>
-  .topnav { position: sticky; top: 0; z-index: var(--z-sticky); background: color-mix(in srgb, var(--bg) 80%, transparent); backdrop-filter: saturate(140%) blur(12px); -webkit-backdrop-filter: saturate(140%) blur(12px); border-bottom: 1px solid var(--rule); }
+  .topnav { position: sticky; top: 0; z-index: var(--z-sticky); background: color-mix(in srgb, var(--bg) 80%, transparent); backdrop-filter: saturate(140%) blur(12px); -webkit-backdrop-filter: saturate(140%) blur(12px); border-bottom: 1px solid var(--rule); overflow-x: clip; }
   .topnav-inner { max-width: var(--container); margin: 0 auto; padding: 16px 28px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
   .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--ink); }
   .brand:hover { color: var(--ink); }
@@ -50,7 +50,26 @@ const { active } = Astro.props;
   .theme-toggle .icon-moon { display: none; }
   :global(:root[data-theme="dark"]) .theme-toggle .icon-sun { display: none; }
   :global(:root[data-theme="dark"]) .theme-toggle .icon-moon { display: block; }
-  @media (max-width: 720px) { .topnav-links a { padding: 8px 10px; font-size: 13.5px; } .brand-name { display: none; } }
+  @media (max-width: 720px) {
+    .topnav-inner { padding: 10px 16px 8px; flex-wrap: wrap; gap: 8px 10px; }
+    .brand { order: 1; }
+    .brand-name { display: none; }
+    .brand-mark { width: 34px; height: 34px; border-radius: 9px; }
+    .topnav-actions { order: 2; margin-left: auto; gap: 6px; }
+    .btn-sm { min-height: 34px; padding: 7px 12px; font-size: 12.5px; }
+    .theme-toggle { width: 34px; height: 34px; }
+    .topnav-links {
+      order: 3;
+      width: 100%;
+      min-width: 0;
+      overflow-x: auto;
+      overscroll-behavior-x: contain;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .topnav-links::-webkit-scrollbar { display: none; }
+    .topnav-links a { flex: 0 0 auto; min-height: 34px; padding: 6px 10px; font-size: 13px; white-space: nowrap; }
+  }
 </style>
 
 <script>
